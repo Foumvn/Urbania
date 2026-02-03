@@ -144,9 +144,9 @@ function Step4Terrain() {
                 Localisation et références cadastrales du terrain où seront réalisés les travaux.
             </Typography>
 
-            <Grid container spacing={4}>
+            <Grid container spacing={{ xs: 2, md: 3, lg: 4 }}>
                 {/* Recherche et Localisation */}
-                <Grid item xs={12} md={5}>
+                <Grid item xs={12} lg={5}>
                     <Paper elevation={0} sx={{ p: 0, border: 'none', bgcolor: 'transparent' }}>
                         <ParcelleSearch
                             onAddressSelect={handleAddressSelect}
@@ -213,7 +213,7 @@ function Step4Terrain() {
                 </Grid>
 
                 {/* Carte et Réf Cadastrales */}
-                <Grid item xs={12} md={7}>
+                <Grid item xs={12} lg={7}>
                     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                         {loadingMap ? (
                             <Paper elevation={0} sx={{

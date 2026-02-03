@@ -304,7 +304,7 @@ function Wizard() {
                             sx={{
                                 width: '100%',
                                 maxWidth: 800,
-                                p: { xs: 3, md: 5 },
+                                p: { xs: 2, md: 3, lg: 5 },
                                 borderRadius: 3,
                                 border: 1,
                                 borderColor: 'divider',

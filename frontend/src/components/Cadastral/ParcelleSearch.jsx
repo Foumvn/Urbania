@@ -262,9 +262,8 @@ export default function ParcelleSearch({
                         )}
                     </Box>
                 ) : (
-                    <Box sx={{ display: 'flex', gap: 1 }}>
+                    <Box sx={{ display: 'flex', gap: 1, flexDirection: { xs: 'column', md: 'row' } }}>
                         <TextField
-                            flex={1}
                             fullWidth
                             label="Code INSEE de la commune"
                             placeholder="Ex: 75056"
@@ -276,7 +275,7 @@ export default function ParcelleSearch({
                             variant="contained"
                             onClick={handleInseeSearch}
                             disabled={loading || codeInsee.length !== 5}
-                            sx={{ minWidth: 120, borderRadius: 2 }}
+                            sx={{ minWidth: { xs: '100%', md: 120 }, borderRadius: 2, height: 56 }}
                         >
                             {loading ? <CircularProgress size={24} /> : 'Rechercher'}
                         </Button>
@@ -301,7 +300,7 @@ export default function ParcelleSearch({
                     </Stack>
 
                     <Grid container spacing={2}>
-                        <Grid item xs={12} sm={4}>
+                        <Grid item xs={12} sm={6} md={4}>
                             {sections.length > 0 ? (
                                 <Autocomplete
                                     options={sections}
@@ -322,7 +321,7 @@ export default function ParcelleSearch({
                                 />
                             )}
                         </Grid>
-                        <Grid item xs={12} sm={4}>
+                        <Grid item xs={12} sm={6} md={4}>
                             <TextField
                                 fullWidth
                                 label="Numéro"
@@ -332,17 +331,19 @@ export default function ParcelleSearch({
                                 inputProps={{ maxLength: 4 }}
                             />
                         </Grid>
-                        <Grid item xs={12} sm={4}>
-                            <Button
-                                fullWidth
-                                variant="contained"
-                                color="secondary"
-                                onClick={handleParcelleSearch}
-                                disabled={loading || !section || !numero}
-                                sx={{ height: '100%', borderRadius: 2, minHeight: 56 }}
-                            >
-                                Localiser la parcelle
-                            </Button>
+                        <Grid item xs={12} md={4}>
+                            <Box sx={{ pt: { xs: 0, md: 3.5 } }}>
+                                <Button
+                                    fullWidth
+                                    variant="contained"
+                                    color="secondary"
+                                    onClick={handleParcelleSearch}
+                                    disabled={loading || !section || !numero}
+                                    sx={{ height: 56, borderRadius: 2 }}
+                                >
+                                    Localiser la parcelle
+                                </Button>
+                            </Box>
                         </Grid>
                     </Grid>
                 </Box>
