@@ -22,6 +22,5 @@ Thumbs.db
 # Project specific
 old_version_backup/
 latex/
-*.png
 *.sh
 code.html

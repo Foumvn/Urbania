@@ -129,19 +129,35 @@ const PageWrapper = ({ children, pageNumber, totalPages, id }) => (
     >
         {/* En-tête officiel République Française - Uniquement sur les pages 1 et 2 */}
         {(pageNumber === 1 || pageNumber === 2) && (
-            <Box sx={{
-                position: 'absolute',
-                top: 15,
-                left: 20,
-                width: 80,
-                zIndex: 5
-            }}>
-                <img
-                    src="/logo-rf.png"
-                    alt="République Française"
-                    style={{ width: '100%', height: 'auto' }}
-                />
-            </Box>
+            <>
+                <Box sx={{
+                    position: 'absolute',
+                    top: 15,
+                    left: 20,
+                    width: 80,
+                    zIndex: 5
+                }}>
+                    <img
+                        src="/logo-rf.png"
+                        alt="République Française"
+                        style={{ width: '100%', height: 'auto' }}
+                    />
+                </Box>
+                <Box sx={{
+                    position: 'absolute',
+                    top: 15,
+                    right: 20,
+                    width: 70,
+                    zIndex: 5,
+                    textAlign: 'right'
+                }}>
+                    <img
+                        src="/logo.png"
+                        alt="Urbania"
+                        style={{ width: '100%', height: 'auto' }}
+                    />
+                </Box>
+            </>
         )}
 
         <Box sx={{ flex: 1, mt: 4 }}>{children}</Box>
@@ -411,6 +427,33 @@ const CerfaOfficialPreview = ({ data = {}, currentStep = 0 }) => {
                                         Récépissé de dépôt d'une déclaration préalable*
                                     </Typography>
                                 </Box>
+
+                                {/* Visuel du Projet */}
+                                <Box sx={{
+                                    mb: 3,
+                                    p: 1.5,
+                                    bgcolor: '#f8f9fa',
+                                    border: '1px solid #dee2e6',
+                                    borderRadius: 1,
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center'
+                                }}>
+                                    <Typography sx={{ fontSize: '0.65rem', fontWeight: 'bold', color: '#003366', alignSelf: 'flex-start', mb: 1, textTransform: 'uppercase' }}>
+                                        Visuel de votre projet
+                                    </Typography>
+                                    <img
+                                        src="/project-hero.png"
+                                        alt="Aperçu du projet"
+                                        style={{
+                                            maxWidth: '100%',
+                                            maxHeight: '120px',
+                                            objectFit: 'contain',
+                                            filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
+                                        }}
+                                    />
+                                </Box>
+
                                 <Typography sx={{ fontSize: '0.55rem', fontStyle: 'italic', mb: 2 }}>
                                     * Dans le cadre d'une saisine par voie électronique, le récépissé est constitué par un accusé de réception électronique.
                                 </Typography>
