@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 import os
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -80,17 +81,12 @@ WSGI_APPLICATION = 'urbania_backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-MONGODB_HOST = os.environ.get('MONGODB_HOST', 'mongodb://localhost:27017/')
-
 DATABASES = {
-    'default': {
-        'ENGINE': 'djongo',
-        'NAME': os.environ.get('MONGODB_NAME', 'urbania_db'),
-        'ENFORCE_SCHEMA': False,
-        'CLIENT': {
-            'host': MONGODB_HOST,
-        }
-    }
+    'default': dj_database_url.config(
+        default=f'sqlite:////{BASE_DIR / "db.sqlite3"}',
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
 }
 
 
