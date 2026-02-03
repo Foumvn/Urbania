@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Onboarding - Break Language Barriers</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#8B5CF6", // Updated to vibrant electric purple
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#0a0a0c",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glow-purple {
+            box-shadow: 0 0 25px rgba(139, 92, 246, 0.5);
+        }
+        .connection-line {
+            background: linear-gradient(90deg, transparent, #8B5CF6, transparent);
+            height: 2px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-white transition-colors duration-300">
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+<div class="px-6 md:px-20 lg:px-40 flex justify-center py-5">
+<div class="layout-content-container flex flex-col max-w-[1200px] flex-1">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-white/10 px-4 md:px-10 py-3">
+<div class="flex items-center gap-3 text-white">
+<div class="size-8 flex items-center justify-center bg-primary rounded-lg shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-white text-[20px]">translate</span>
+</div>
+<h2 class="text-white text-xl font-bold leading-tight tracking-tight">LinguaStream</h2>
+</div>
+<div class="flex flex-1 justify-end gap-8">
+<div class="hidden md:flex items-center gap-9">
+<a class="text-white/70 hover:text-white text-sm font-medium transition-colors" href="#">Platform</a>
+<a class="text-white/70 hover:text-white text-sm font-medium transition-colors" href="#">Enterprise</a>
+<a class="text-white/70 hover:text-white text-sm font-medium transition-colors" href="#">Pricing</a>
+</div>
+<div class="flex gap-3">
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-white/5 text-white text-sm font-bold border border-white/10 hover:bg-white/10 transition-all">
+<span>Sign In</span>
+</button>
+</div>
+</div>
+</header>
+</div>
+</div>
+<main class="flex-1 flex items-center justify-center px-6 md:px-20 lg:px-40 py-12">
+<div class="layout-content-container flex flex-col max-w-[1200px] flex-1">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+<div class="flex flex-col gap-8 order-2 lg:order-1">
+<div class="flex flex-col gap-4">
+<div class="flex items-center gap-2">
+<span class="px-3 py-1 bg-primary/20 text-primary text-[10px] font-bold tracking-widest uppercase rounded-full border border-primary/30">Slide 02</span>
+<div class="h-[1px] w-12 bg-primary/30"></div>
+</div>
+<h1 class="text-white text-5xl md:text-7xl font-bold leading-[1.05] tracking-tight">
+                                Break Language <br/><span class="text-primary">Barriers</span>
+</h1>
+<p class="text-white/60 text-lg md:text-xl font-normal leading-relaxed max-w-md">
+                                Engage in global collaboration with seamless real-time audio and text translation in over 50 languages.
+                            </p>
+</div>
+<div class="flex flex-wrap gap-4">
+<button class="flex min-w-[180px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-14 px-8 bg-primary text-white text-base font-bold shadow-xl shadow-primary/30 hover:brightness-110 active:scale-[0.98] transition-all">
+<span class="truncate">Get Started</span>
+</button>
+<button class="flex min-w-[180px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-14 px-8 bg-transparent text-white text-base font-bold border-2 border-white/20 hover:bg-white/5 transition-all">
+<span class="truncate">Explore Languages</span>
+</button>
+</div>
+<div class="flex items-center gap-3 mt-4">
+<div class="h-2 w-2 rounded-full bg-white/20"></div>
+<div class="h-2 w-10 rounded-full bg-primary glow-purple transition-all duration-500"></div>
+<div class="h-2 w-2 rounded-full bg-white/20"></div>
+</div>
+</div>
+<div class="relative order-1 lg:order-2 flex justify-center items-center">
+<div class="absolute inset-0 bg-primary/10 rounded-full blur-[120px] -z-10"></div>
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.03]">
+<span class="material-symbols-outlined text-[500px]">language</span>
+</div>
+<div class="relative w-full max-w-[500px] aspect-square">
+<div class="grid grid-cols-2 gap-4 h-full w-full p-4">
+<div class="rounded-2xl bg-cover bg-center border border-white/10 relative overflow-hidden group shadow-2xl" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCk35fUk2AyZLnR7H4Kk0HmgpBai7G0iuDIZPBdahiM2RfTDhRsTr9v2JIOIhcL99bxhsUlOdpVZE_-rsbBrATqFVWWCV91CjOYojMidm5Bf7xoyblfDDlAH7kXSyWPFT61oHfRz4ZyvoNRrW2-VAeiU5aHSYmbRNp-a4PrMSbzDQ6KzYuIm7qNr6EAOe1ZUmStu-D4eTWo8qTwOVw-xXxGofl13GFVO-BLUMhuJY8FVxOpjbkc5Qy57QMBZRm4q8Mj3Pm5rMFV6R0');">
+<div class="absolute bottom-3 left-3 px-2 py-1 glass rounded text-[10px] uppercase font-bold tracking-tight">Sophie — Paris</div>
+</div>
+<div class="rounded-2xl bg-cover bg-center border border-white/10 relative overflow-hidden group shadow-2xl" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBj2P-t75s3U03WJCHSNsp_R1Ebm68G9IhJ7L81B-UqFiHbKIo6JdW1e41PfciC3b8ODAQbyZrVqPiIMwdKMCoSsgSKLEo2JlrtfX36dAH123zMQyrTX_2M-sCbjQcfMTiKIuU_5CrS91CouUKRtTXN8UJkJO55-K30MGtmH0BLf8r8StyeAiw2pOqfpFfD_teXkdFzNZv5facwm7oM0iX2hb51U1jr4d82cMksRg_LO8gidCGcaMSyfsRoCCsVjxQm5CEGd-8PZS0');">
+<div class="absolute bottom-3 left-3 px-2 py-1 glass rounded text-[10px] uppercase font-bold tracking-tight">Chen — Beijing</div>
+</div>
+<div class="rounded-2xl bg-cover bg-center border border-white/10 relative overflow-hidden group shadow-2xl" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAg-mx5LSqqEaSeKjR2jolGmuNF0o5qu65D0LBe7QWgHTc81MxANR6bpWm3unEEvRVqlPbviHH9AVpswLr2n1Ak-uL_Q9r3HFt3e0aADyZSiusgpX8jZ8kidM6iaOObJ84CKSQIRW2Nm9M6qW4npIOja8rtS-eG7YF5TLoMszxlU--GC6rho9e3xRlovD1cAZie4GuUP96fBEGo1k3yl3K6rdUFc2W5fS0-ZSC7nrFQoCl0RS7Llk2RpqOF_oUfYr72-T1c7TBa6DM');">
+<div class="absolute bottom-3 left-3 px-2 py-1 glass rounded text-[10px] uppercase font-bold tracking-tight">James — London</div>
+</div>
+<div class="rounded-2xl bg-cover bg-center border border-white/10 relative overflow-hidden group shadow-2xl" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAmnHfLF_hbi4O6nB34F3c4R5Ao3__P9bcbr9wOMreRQID7WCKE841v2SDCjrmsmg8fnfmzGpXd2ZgyBB2qrOuH_c3UY0drzIwYtZKwZyCsedZWyCxn9-lS8JyCacTwsirDgm_ikmwofeOPvuv06lohnJSX1Nmrk5rhah0IfzCFmH5T1ickGdZR97itaX-fWu07mhnRr1LMhNI1HIiQlFE-zhl22Dpv9V6h3IeYdCpPH4Z11KH4j9EHQJwEg1AJO4yQz9lGj6213uY');">
+<div class="absolute bottom-3 left-3 px-2 py-1 glass rounded text-[10px] uppercase font-bold tracking-tight">Elena — Madrid</div>
+</div>
+</div>
+<div class="absolute -top-4 left-4 glass rounded-xl px-4 py-3 flex items-center gap-3 shadow-2xl border-primary/20">
+<div class="size-8 rounded-full bg-primary/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-[18px]">mic</span>
+</div>
+<div>
+<p class="text-[9px] text-primary font-bold uppercase tracking-wider">Detecting French</p>
+<p class="text-sm font-bold">Bonjour tout le monde!</p>
+</div>
+</div>
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] h-auto z-20 pointer-events-none">
+<div class="flex items-center justify-between px-2">
+<div class="glass p-3 rounded-lg shadow-2xl flex flex-col gap-1 border-primary/30 min-w-[100px]">
+<p class="text-[8px] text-primary font-bold uppercase tracking-tighter">English</p>
+<p class="text-xs font-medium italic">"Hello everyone!"</p>
+</div>
+<div class="flex-1 px-4 relative">
+<div class="connection-line"></div>
+<div class="absolute -top-5 left-1/2 -translate-x-1/2 bg-primary rounded-full p-1.5 border-4 border-background-dark shadow-lg shadow-primary/40">
+<span class="material-symbols-outlined text-white text-[14px] leading-none">bolt</span>
+</div>
+</div>
+<div class="glass p-3 rounded-lg shadow-2xl flex flex-col gap-1 border-primary/30 min-w-[100px]">
+<p class="text-[8px] text-primary font-bold uppercase tracking-tighter">Mandarin</p>
+<p class="text-xs font-medium italic">"你好，大家!"</p>
+</div>
+</div>
+</div>
+<div class="absolute -bottom-6 right-10 flex gap-2">
+<div class="glass px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-xl">
+<span class="material-symbols-outlined text-primary text-[18px]">closed_caption</span>
+<span class="text-[11px] font-bold uppercase tracking-tight">Live Captions</span>
+</div>
+<div class="glass px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-xl">
+<span class="material-symbols-outlined text-primary text-[18px]">record_voice_over</span>
+<span class="text-[11px] font-bold uppercase tracking-tight">AI Dubbing</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<div class="px-6 md:px-20 lg:px-40 pb-10 flex justify-center">
+<div class="layout-content-container flex max-w-[1200px] flex-1 justify-between items-center text-white/40">
+<div class="flex items-center gap-4 group cursor-pointer">
+<button class="size-11 flex items-center justify-center glass rounded-full group-hover:bg-white/10 transition-all">
+<span class="material-symbols-outlined text-white">chevron_left</span>
+</button>
+<span class="text-[10px] font-bold uppercase tracking-widest text-white/60">Back to Interface</span>
+</div>
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-full border border-white/5">
+<span class="material-symbols-outlined text-primary text-[16px]">public</span>
+<span class="text-[11px] font-bold uppercase tracking-wider text-white/80">50+ Languages Supported</span>
+</div>
+<button class="size-11 flex items-center justify-center bg-primary rounded-full hover:scale-110 shadow-lg shadow-primary/30 transition-all">
+<span class="material-symbols-outlined text-white">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+
+</body></html>

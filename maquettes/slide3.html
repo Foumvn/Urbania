@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Onboarding - AI Summary Focus</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#7f13ec",
+                        "background-light": "#f7f6f8",
+                        "background-dark": "#191022",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glow-purple {
+            box-shadow: 0 0 40px rgba(127, 19, 236, 0.2);
+        }
+        .ai-chip-gradient {
+            background: radial-gradient(circle, rgba(127, 19, 236, 0.3) 0%, rgba(25, 16, 34, 0) 70%);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-white min-h-screen flex flex-col">
+<!-- Top Navigation Bar -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-[#302839] px-10 py-4 bg-background-light dark:bg-background-dark">
+<div class="flex items-center gap-4 text-white">
+<div class="size-8 text-primary">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M24 18.4228L42 11.475V34.3663C42 34.7796 41.7457 35.1504 41.3601 35.2992L24 42V18.4228Z" fill="currentColor" fill-rule="evenodd"></path>
+<path clip-rule="evenodd" d="M24 8.18819L33.4123 11.574L24 15.2071L14.5877 11.574L24 8.18819ZM9 15.8487L21 20.4805V37.6263L9 32.9945V15.8487ZM27 37.6263V20.4805L39 15.8487V32.9945L27 37.6263ZM25.354 2.29885C24.4788 1.98402 23.5212 1.98402 22.646 2.29885L4.98454 8.65208C3.7939 9.08038 3 10.2097 3 11.475V34.3663C3 36.0196 4.01719 37.5026 5.55962 38.098L22.9197 44.7987C23.6149 45.0671 24.3851 45.0671 25.0803 44.7987L42.4404 38.098C43.9828 37.5026 45 36.0196 45 34.3663V11.475C45 10.2097 44.2061 9.08038 43.0155 8.65208L25.354 2.29885Z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+<h2 class="text-white text-xl font-bold leading-tight tracking-[-0.015em]">Lumina AI</h2>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-gray-400 text-sm font-medium hover:text-white">Skip</button>
+</div>
+</header>
+<!-- Main Content (Hero Section) -->
+<main class="flex-1 flex items-center justify-center px-6 lg:px-40 py-10">
+<div class="max-w-[1200px] w-full grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+<!-- Left Side: Content -->
+<div class="flex flex-col gap-8">
+<div class="flex flex-col gap-4">
+<h1 class="text-primary text-5xl lg:text-7xl font-bold leading-[1.1] tracking-tight">
+                        Capture Every Detail
+                    </h1>
+<p class="text-gray-400 text-lg lg:text-xl font-normal leading-relaxed max-w-[500px]">
+                        Let our AI assistant generate comprehensive meeting summaries, action items, and key insights automatically.
+                    </p>
+</div>
+<div class="flex flex-wrap gap-4">
+<button class="flex min-w-[160px] cursor-pointer items-center justify-center rounded-lg h-14 px-8 bg-primary text-white text-lg font-bold shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all">
+                        Get Started
+                    </button>
+<button class="flex min-w-[160px] cursor-pointer items-center justify-center rounded-lg h-14 px-8 border-2 border-primary/50 text-primary text-lg font-bold hover:bg-primary/10 transition-all">
+                        View Features
+                    </button>
+</div>
+<!-- Progress Indicators -->
+<div class="flex items-center gap-3 mt-8">
+<div class="h-2 w-2 rounded-full bg-[#302839]"></div>
+<div class="h-2 w-2 rounded-full bg-[#302839]"></div>
+<div class="h-2 w-10 rounded-full bg-primary shadow-sm shadow-primary/50"></div>
+</div>
+</div>
+<!-- Right Side: Visuals -->
+<div class="relative w-full aspect-square max-w-[500px] mx-auto lg:mx-0">
+<!-- AI Glow Background -->
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="w-full h-full ai-chip-gradient opacity-60"></div>
+</div>
+<!-- Digital Notepad Container -->
+<div class="absolute inset-0 flex items-center justify-center p-4">
+<div class="w-[85%] h-[85%] bg-[#211c27] border border-[#473b54] rounded-xl shadow-2xl p-8 relative overflow-hidden">
+<!-- Header of "Doc" -->
+<div class="flex items-center gap-3 mb-8">
+<span class="material-symbols-outlined text-primary">description</span>
+<div class="h-4 w-32 bg-[#473b54] rounded-full"></div>
+</div>
+<!-- Auto-filling text lines -->
+<div class="space-y-4">
+<div class="h-3 w-full bg-[#302839] rounded-full"></div>
+<div class="h-3 w-4/5 bg-[#302839] rounded-full"></div>
+<div class="h-3 w-full bg-[#302839] rounded-full opacity-60"></div>
+<div class="h-3 w-2/3 bg-[#302839] rounded-full opacity-40"></div>
+</div>
+<!-- Floating Glassmorphism Elements -->
+<!-- Decision Snippet -->
+<div class="absolute top-[20%] -right-4 glass-card p-4 rounded-xl flex items-center gap-3 w-[240px] glow-purple">
+<div class="bg-primary/20 p-2 rounded-lg">
+<span class="material-symbols-outlined text-primary text-sm">check_circle</span>
+</div>
+<div>
+<p class="text-[10px] text-primary font-bold uppercase tracking-widest">Decision</p>
+<p class="text-sm text-white font-medium">Launch Q3 Strategy</p>
+</div>
+</div>
+<!-- Task Snippet -->
+<div class="absolute bottom-[25%] -left-8 glass-card p-4 rounded-xl flex items-center gap-3 w-[220px] glow-purple">
+<div class="bg-primary/20 p-2 rounded-lg">
+<span class="material-symbols-outlined text-primary text-sm">assignment</span>
+</div>
+<div>
+<p class="text-[10px] text-primary font-bold uppercase tracking-widest">Task</p>
+<p class="text-sm text-white font-medium">Update API Documentation</p>
+</div>
+</div>
+<!-- AI Chip Icon / Core -->
+<div class="absolute bottom-6 right-6 flex items-center justify-center">
+<div class="size-16 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-center glow-purple">
+<span class="material-symbols-outlined text-primary text-3xl">psychology</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer Features (Grid) -->
+<div class="px-6 lg:px-40 pb-16">
+<div class="max-w-[1200px] mx-auto">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Auto-Summaries -->
+<div class="flex flex-col gap-4 rounded-xl border border-[#473b54] bg-[#211c27] p-6 hover:border-primary/50 transition-colors group">
+<div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">auto_awesome</span>
+</div>
+<div class="flex flex-col gap-1">
+<h2 class="text-white text-lg font-bold leading-tight">Auto-Summaries</h2>
+<p class="text-[#ab9db9] text-sm font-normal leading-normal">Get the gist of any meeting in seconds with LLM-powered context extraction.</p>
+</div>
+</div>
+<!-- Action Items -->
+<div class="flex flex-col gap-4 rounded-xl border border-[#473b54] bg-[#211c27] p-6 hover:border-primary/50 transition-colors group">
+<div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">checklist</span>
+</div>
+<div class="flex flex-col gap-1">
+<h2 class="text-white text-lg font-bold leading-tight">Action Items</h2>
+<p class="text-[#ab9db9] text-sm font-normal leading-normal">Automatically detected tasks assigned with deadlines synced to your calendar.</p>
+</div>
+</div>
+<!-- Key Insights -->
+<div class="flex flex-col gap-4 rounded-xl border border-[#473b54] bg-[#211c27] p-6 hover:border-primary/50 transition-colors group">
+<div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">insights</span>
+</div>
+<div class="flex flex-col gap-1">
+<h2 class="text-white text-lg font-bold leading-tight">Key Insights</h2>
+<p class="text-[#ab9db9] text-sm font-normal leading-normal">Extract critical decisions and recurring themes across multiple sessions.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body></html>

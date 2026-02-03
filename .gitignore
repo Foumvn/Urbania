@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+db.sqlite3
+media/
+static/
+backend.log
+
+# Node
+node_modules/
+dist/
+frontend.log
+package-lock.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+old_version_backup/
+latex/
+*.png
+*.sh
+code.html

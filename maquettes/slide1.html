@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AI Platform - Experience Intelligence</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#8B5CF6", // Electric Purple/Violet
+                        "background-light": "#F9FAFB",
+                        "background-dark": "#0B0A10", // Deep Charcoal/Black from screenshot
+                    },
+                    fontFamily: {
+                        display: ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "1rem",
+                    },
+                },
+            },
+        };
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .light-glow {
+            box-shadow: 0 0 80px 20px rgba(139, 92, 246, 0.15);
+        }
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .animate-pulse-slow {
+            animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.15; }
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white min-h-screen selection:bg-primary/30">
+<nav class="fixed top-0 w-full z-50 border-b border-gray-200 dark:border-white/5 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md">
+<div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
+<span class="material-icons text-white">blur_on</span>
+</div>
+<span class="font-extrabold text-xl tracking-tight">WHISPER AI</span>
+</div>
+<div class="flex items-center gap-8">
+<a class="hidden md:block text-sm font-medium hover:text-primary transition-colors" href="#">How it works</a>
+<a class="hidden md:block text-sm font-medium hover:text-primary transition-colors" href="#">Enterprise</a>
+<button class="px-6 py-2.5 rounded-full border border-gray-200 dark:border-white/10 text-sm font-semibold hover:bg-gray-50 dark:hover:bg-white/5 transition-all">
+                    Sign In
+                </button>
+</div>
+</div>
+</nav>
+<main class="relative pt-32 pb-20 px-6 overflow-hidden min-h-screen flex items-center">
+<div class="absolute top-1/4 -left-20 w-96 h-96 bg-primary/20 rounded-full blur-[120px] animate-pulse-slow"></div>
+<div class="absolute bottom-1/4 -right-20 w-96 h-96 bg-primary/10 rounded-full blur-[120px] animate-pulse-slow"></div>
+<div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center relative z-10">
+<div class="space-y-10 order-2 lg:order-1">
+<div class="space-y-4">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold uppercase tracking-wider">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+</span>
+                        New Version 2.0 Live
+                    </div>
+<h1 class="text-6xl md:text-7xl font-extrabold tracking-tight leading-[1.1]">
+                        Experience <br/>
+<span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-400">Intelligence</span>
+</h1>
+<p class="text-lg md:text-xl text-slate-500 dark:text-gray-400 max-w-xl leading-relaxed">
+                        Elevate your video meetings with real-time AI features that help you focus on the conversation, not the notes. Smart transcription, live translation, and automated insights.
+                    </p>
+</div>
+<div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+<button class="bg-primary hover:bg-primary/90 text-white px-10 py-5 rounded-2xl font-bold text-lg shadow-2xl shadow-primary/30 transition-all hover:scale-[1.02] active:scale-95">
+                        Get Started
+                    </button>
+<button class="px-10 py-5 rounded-2xl font-bold text-lg bg-white/5 border border-white/10 dark:hover:bg-white/10 transition-all flex items-center gap-2">
+<span class="material-icons">play_circle</span>
+                        Watch Demo
+                    </button>
+</div>
+<div class="flex items-center gap-3 pt-6">
+<div class="h-1.5 w-12 bg-primary rounded-full"></div>
+<div class="h-1.5 w-3 bg-gray-200 dark:bg-white/20 rounded-full transition-all hover:bg-white/40 cursor-pointer"></div>
+<div class="h-1.5 w-3 bg-gray-200 dark:bg-white/20 rounded-full transition-all hover:bg-white/40 cursor-pointer"></div>
+</div>
+</div>
+<div class="order-1 lg:order-2 relative">
+<div class="relative w-full aspect-square max-w-[550px] mx-auto">
+<div class="absolute inset-0 bg-primary/20 rounded-full blur-[100px] transform scale-75"></div>
+<div class="relative z-20 w-full h-full rounded-[3rem] overflow-hidden border border-white/10 shadow-2xl animate-float">
+<img alt="Professional woman in a digital meeting" class="w-full h-full object-cover grayscale-[20%] brightness-90 contrast-110" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBy3rSZxd0PQLikzLYFmSyJdV-PyBsZNVUDhdik_MtFukZhGLonrSm3Kc0CFY33XtBnaUT-i9NVPy6OtHWPfNShiuoCoXn6QYEcXFwlWl_xKBG0gqFdjhx0ky9H61WVetpHOt2wqAjjDkv3nNqVpCK2VMD2M0Aj2vYJzxakNKpoTwE2-y_Gp424R9Alyy02etp3JvR0spGHed9DxI43CLZowtwt5trfhn4S2AmD-JtED-AFj3wIB_1staVsM7ivnnAw6pHm1aE6sTM"/>
+<div class="absolute bottom-6 left-6 right-6 flex justify-between items-center bg-black/40 backdrop-blur-md rounded-2xl p-4 border border-white/10">
+<div class="flex gap-4">
+<div class="w-10 h-10 rounded-full bg-red-500/80 flex items-center justify-center">
+<span class="material-icons text-white text-sm">call_end</span>
+</div>
+<div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+<span class="material-icons text-white text-sm">mic_off</span>
+</div>
+<div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+<span class="material-icons text-white text-sm">videocam</span>
+</div>
+</div>
+<div class="text-xs font-semibold text-white/70">00:42:15</div>
+</div>
+</div>
+<div class="absolute -top-6 -left-12 z-30 glass px-5 py-3 rounded-2xl flex items-center gap-3 shadow-2xl animate-float" style="animation-delay: -1s;">
+<span class="material-icons text-primary">translate</span>
+<div class="flex flex-col">
+<span class="text-[10px] uppercase tracking-widest text-primary font-bold">Translate</span>
+<span class="text-sm font-semibold">Live Translation</span>
+</div>
+</div>
+<div class="absolute bottom-16 -left-16 z-30 glass px-5 py-3 rounded-2xl flex items-center gap-3 shadow-2xl animate-float" style="animation-delay: -2s;">
+<span class="material-icons text-primary">closed_caption</span>
+<div class="flex flex-col">
+<span class="text-[10px] uppercase tracking-widest text-primary font-bold">Transcription</span>
+<span class="text-sm font-semibold">Real-time CC</span>
+</div>
+</div>
+<div class="absolute top-12 -right-12 z-30 glass px-5 py-3 rounded-2xl flex items-center gap-3 shadow-2xl animate-float" style="animation-delay: -0.5s;">
+<span class="material-icons text-primary">description</span>
+<div class="flex flex-col">
+<span class="text-[10px] uppercase tracking-widest text-primary font-bold">Notes</span>
+<span class="text-sm font-semibold">Smart Summary</span>
+</div>
+</div>
+<div class="absolute top-1/2 -right-6 z-30 w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center shadow-lg shadow-blue-500/40">
+<span class="material-icons text-white">mic</span>
+</div>
+<div class="absolute bottom-1/4 -right-10 z-30 w-16 h-16 rounded-full bg-gradient-to-br from-primary to-pink-500 flex items-center justify-center shadow-lg shadow-primary/40">
+<span class="material-icons text-white">videocam</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<footer class="max-w-7xl mx-auto px-6 py-12 border-t border-gray-200 dark:border-white/5">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+<div class="flex flex-col items-center text-center space-y-2 opacity-50 hover:opacity-100 transition-opacity">
+<span class="material-icons text-primary text-3xl">psychology</span>
+<span class="text-xs font-bold uppercase tracking-widest">Cognitive Engine</span>
+</div>
+<div class="flex flex-col items-center text-center space-y-2 opacity-50 hover:opacity-100 transition-opacity">
+<span class="material-icons text-primary text-3xl">security</span>
+<span class="text-xs font-bold uppercase tracking-widest">Enterprise Privacy</span>
+</div>
+<div class="flex flex-col items-center text-center space-y-2 opacity-50 hover:opacity-100 transition-opacity">
+<span class="material-icons text-primary text-3xl">hub</span>
+<span class="text-xs font-bold uppercase tracking-widest">Global Connect</span>
+</div>
+<div class="flex flex-col items-center text-center space-y-2 opacity-50 hover:opacity-100 transition-opacity">
+<span class="material-icons text-primary text-3xl">bolt</span>
+<span class="text-xs font-bold uppercase tracking-widest">Ultra Low Latency</span>
+</div>
+</div>
+</footer>
+
+</body></html>
