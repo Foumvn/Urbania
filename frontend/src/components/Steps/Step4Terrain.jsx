@@ -144,168 +144,177 @@ function Step4Terrain() {
                 Localisation et références cadastrales du terrain où seront réalisés les travaux.
             </Typography>
 
-            <Grid container spacing={{ xs: 2, md: 3, lg: 4 }}>
-                {/* Recherche et Localisation */}
-                <Grid item xs={12} lg={5}>
-                    <Paper elevation={0} sx={{ p: 0, border: 'none', bgcolor: 'transparent' }}>
-                        <ParcelleSearch
-                            onAddressSelect={handleAddressSelect}
-                            onCommuneSelect={(code) => loadCommuneData(code)}
-                            initialCodeInsee={data.terrainCodeInsee}
-                        />
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                {/* 1. Recherche de parcelle */}
+                <Box>
+                    <ParcelleSearch
+                        onAddressSelect={handleAddressSelect}
+                        onCommuneSelect={(code) => loadCommuneData(code)}
+                        initialCodeInsee={data.terrainCodeInsee}
+                    />
+                </Box>
 
-                        <Box sx={{ mt: 3 }}>
-                            <FormControlLabel
-                                control={
-                                    <Checkbox
-                                        checked={sameAddress}
-                                        onChange={handleSameAddress}
-                                        color="primary"
-                                    />
-                                }
-                                label="Même adresse que mes coordonnées"
-                                sx={{ mb: 2 }}
-                            />
-
-                            <Grid container spacing={2}>
-                                <Grid item xs={4}>
-                                    <FormField
-                                        label="Numéro"
-                                        name="terrainNumero"
-                                        value={data.terrainNumero}
-                                        onChange={handleChange}
-                                        disabled={sameAddress}
-                                    />
-                                </Grid>
-                                <Grid item xs={8}>
-                                    <FormField
-                                        label="Voie / Rue"
-                                        name="terrainAdresse"
-                                        value={data.terrainAdresse}
-                                        onChange={handleChange}
-                                        required
-                                        disabled={sameAddress}
-                                    />
-                                </Grid>
-                                <Grid item xs={4}>
-                                    <FormField
-                                        label="CP"
-                                        name="terrainCodePostal"
-                                        value={data.terrainCodePostal}
-                                        onChange={handleChange}
-                                        required
-                                        disabled={sameAddress}
-                                    />
-                                </Grid>
-                                <Grid item xs={8}>
-                                    <FormField
-                                        label="Ville"
-                                        name="terrainVille"
-                                        value={data.terrainVille}
-                                        onChange={handleChange}
-                                        required
-                                        disabled={sameAddress}
-                                    />
-                                </Grid>
-                            </Grid>
-                        </Box>
-                    </Paper>
-                </Grid>
-
-                {/* Carte et Réf Cadastrales */}
-                <Grid item xs={12} lg={7}>
-                    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                        {loadingMap ? (
-                            <Paper elevation={0} sx={{
-                                height: 400,
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                border: '1px dashed',
-                                borderColor: 'divider',
-                                borderRadius: 3,
-                                bgcolor: '#f8fafc'
-                            }}>
-                                <CircularProgress size={40} thickness={4} sx={{ mb: 2 }} />
-                                <Typography color="text.secondary">Récupération du plan cadastral...</Typography>
-                            </Paper>
-                        ) : showMap ? (
-                            <Fade in={true}>
-                                <Box>
-                                    <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <Typography variant="subtitle1" fontWeight={600} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                            <MapIcon color="primary" fontSize="small" />
-                                            Sélectionnez votre parcelle sur la carte
-                                        </Typography>
-                                        {data.numeroParcelle && (
-                                            <Chip
-                                                label={`Parcelle ${data.section} ${data.numeroParcelle}`}
-                                                color="primary"
-                                                size="small"
-                                                onDelete={() => setMultipleFields({ section: '', numeroParcelle: '', surfaceTerrain: '', selectedParcelleId: null })}
-                                            />
-                                        )}
-                                    </Box>
-                                    <CadastralMap
-                                        height={400}
-                                        codeInsee={data.terrainCodeInsee}
-                                        parcelles={parcellesData}
-                                        batiments={batimentsData}
-                                        selectedParcelleId={data.selectedParcelleId}
-                                        onParcelleClick={handleParcelleClick}
-                                    />
-                                </Box>
-                            </Fade>
-                        ) : (
-                            <Paper elevation={0} sx={{
-                                height: 400,
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                border: '1px dashed',
-                                borderColor: 'divider',
-                                borderRadius: 3,
-                                bgcolor: '#f8fafc',
-                                textAlign: 'center',
-                                p: 4
-                            }}>
-                                <MapIcon sx={{ fontSize: 60, color: 'divider', mb: 2 }} />
-                                <Typography variant="h6" color="text.secondary" gutterBottom>
-                                    Plan Cadastral Interactif
-                                </Typography>
-                                <Typography variant="body2" color="text.disabled">
-                                    Recherchez une adresse pour afficher la carte et identifier automatiquement votre terrain.
-                                </Typography>
-                            </Paper>
-                        )}
-
-                        {mapError && <Alert severity="warning" sx={{ mt: 2 }}>{mapError}</Alert>}
-
-                        <Paper elevation={0} sx={{ p: 3, mt: 3, border: '1px solid', borderColor: 'divider', borderRadius: 3, bgcolor: '#f1f5f9' }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                                <AutoFixHighIcon color="secondary" fontSize="small" />
-                                <Typography variant="subtitle2" fontWeight={700}>Références automatiquement remplies</Typography>
-                            </Box>
-                            <Grid container spacing={2}>
-                                <Grid item xs={12} sm={3}>
-                                    <FormField label="Préfixe" name="prefixe" value={data.prefixe} onChange={handleChange} placeholder="000" />
-                                </Grid>
-                                <Grid item xs={12} sm={3}>
-                                    <FormField label="Section" name="section" value={data.section} onChange={handleChange} required placeholder="AB" />
-                                </Grid>
-                                <Grid item xs={12} sm={3}>
-                                    <FormField label="N°" name="numeroParcelle" value={data.numeroParcelle} onChange={handleChange} required placeholder="124" />
-                                </Grid>
-                                <Grid item xs={12} sm={3}>
-                                    <FormField label="Surface (m²)" name="surfaceTerrain" value={data.surfaceTerrain} onChange={handleChange} type="number" endAdornment="m²" />
-                                </Grid>
-                            </Grid>
+                {/* 2. Carte interactive */}
+                <Box>
+                    {loadingMap ? (
+                        <Paper elevation={0} sx={{
+                            height: 400,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            border: '1px dashed',
+                            borderColor: 'divider',
+                            borderRadius: 3,
+                            bgcolor: '#f8fafc'
+                        }}>
+                            <CircularProgress size={40} thickness={4} sx={{ mb: 2 }} />
+                            <Typography color="text.secondary">Récupération du plan cadastral...</Typography>
                         </Paper>
-                    </Box>
-                </Grid>
-            </Grid>
+                    ) : showMap ? (
+                        <Fade in={true}>
+                            <Box>
+                                <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <Typography variant="subtitle1" fontWeight={600} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        <MapIcon color="primary" fontSize="small" />
+                                        Sélectionnez votre parcelle sur la carte
+                                    </Typography>
+                                    {data.numeroParcelle && (
+                                        <Chip
+                                            label={`Parcelle ${data.section} ${data.numeroParcelle}`}
+                                            color="primary"
+                                            size="small"
+                                            onDelete={() => setMultipleFields({ section: '', numeroParcelle: '', surfaceTerrain: '', selectedParcelleId: null })}
+                                        />
+                                    )}
+                                </Box>
+                                <CadastralMap
+                                    height={450}
+                                    codeInsee={data.terrainCodeInsee}
+                                    parcelles={parcellesData}
+                                    batiments={batimentsData}
+                                    selectedParcelleId={data.selectedParcelleId}
+                                    onParcelleClick={handleParcelleClick}
+                                />
+                            </Box>
+                        </Fade>
+                    ) : (
+                        <Paper elevation={0} sx={{
+                            height: 300,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            border: '1px dashed',
+                            borderColor: 'divider',
+                            borderRadius: 3,
+                            bgcolor: '#f8fafc',
+                            textAlign: 'center',
+                            p: 4
+                        }}>
+                            <MapIcon sx={{ fontSize: 60, color: 'divider', mb: 2 }} />
+                            <Typography variant="h6" color="text.secondary" gutterBottom>
+                                Plan Cadastral Interactif
+                            </Typography>
+                            <Typography variant="body2" color="text.disabled">
+                                Recherchez une adresse pour afficher la carte et identifier automatiquement votre terrain.
+                            </Typography>
+                        </Paper>
+                    )}
+                    {mapError && <Alert severity="warning" sx={{ mt: 2 }}>{mapError}</Alert>}
+                </Box>
+
+                {/* 3. Coordonnées et Références */}
+                <Box>
+                    <Grid container spacing={4}>
+                        <Grid item xs={12} md={6}>
+                            <Box sx={{ bgcolor: 'white', p: 3, borderRadius: 3, border: '1px solid', borderColor: 'divider', height: '100%' }}>
+                                <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 3 }}>Adresse précise du terrain</Typography>
+
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={sameAddress}
+                                            onChange={handleSameAddress}
+                                            color="primary"
+                                        />
+                                    }
+                                    label="Même adresse que mes coordonnées"
+                                    sx={{ mb: 2 }}
+                                />
+
+                                <Grid container spacing={2}>
+                                    <Grid item xs={4}>
+                                        <FormField
+                                            label="Numéro"
+                                            name="terrainNumero"
+                                            value={data.terrainNumero}
+                                            onChange={handleChange}
+                                            disabled={sameAddress}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={8}>
+                                        <FormField
+                                            label="Voie / Rue"
+                                            name="terrainAdresse"
+                                            value={data.terrainAdresse}
+                                            onChange={handleChange}
+                                            required
+                                            disabled={sameAddress}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={4}>
+                                        <FormField
+                                            label="CP"
+                                            name="terrainCodePostal"
+                                            value={data.terrainCodePostal}
+                                            onChange={handleChange}
+                                            required
+                                            disabled={sameAddress}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={8}>
+                                        <FormField
+                                            label="Ville"
+                                            name="terrainVille"
+                                            value={data.terrainVille}
+                                            onChange={handleChange}
+                                            required
+                                            disabled={sameAddress}
+                                        />
+                                    </Grid>
+                                </Grid>
+                            </Box>
+                        </Grid>
+
+                        <Grid item xs={12} md={6}>
+                            <Paper elevation={0} sx={{ p: 3, border: '1px solid', borderColor: 'divider', borderRadius: 3, bgcolor: '#f1f5f9', height: '100%' }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
+                                    <AutoFixHighIcon color="secondary" fontSize="small" />
+                                    <Typography variant="subtitle2" fontWeight={700}>Références automatiquement remplies</Typography>
+                                </Box>
+                                <Grid container spacing={2}>
+                                    <Grid item xs={6}>
+                                        <FormField label="Préfixe" name="prefixe" value={data.prefixe} onChange={handleChange} placeholder="000" />
+                                    </Grid>
+                                    <Grid item xs={6}>
+                                        <FormField label="Section" name="section" value={data.section} onChange={handleChange} required placeholder="AB" />
+                                    </Grid>
+                                    <Grid item xs={6}>
+                                        <FormField label="N°" name="numeroParcelle" value={data.numeroParcelle} onChange={handleChange} required placeholder="124" />
+                                    </Grid>
+                                    <Grid item xs={6}>
+                                        <FormField label="Surface (m²)" name="surfaceTerrain" value={data.surfaceTerrain} onChange={handleChange} type="number" endAdornment="m²" />
+                                    </Grid>
+                                </Grid>
+                                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 2, fontStyle: 'italic' }}>
+                                    Ces valeurs se remplissent automatiquement lorsque vous cliquez sur une parcelle sur la carte.
+                                </Typography>
+                            </Paper>
+                        </Grid>
+                    </Grid>
+                </Box>
+            </Box>
 
             <Divider sx={{ my: 4 }} />
 

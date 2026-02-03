@@ -198,8 +198,22 @@ export default function ParcelleSearch({
                 exclusive
                 onChange={handleModeChange}
                 fullWidth
-                size="small"
-                sx={{ mb: 3, bgcolor: '#f8fafc' }}
+                size="medium"
+                sx={{
+                    mb: 4,
+                    bgcolor: '#f8fafc',
+                    '& .MuiToggleButton-root': {
+                        py: 1.5,
+                        fontWeight: 600,
+                        border: '1px solid',
+                        borderColor: 'divider',
+                        '&.Mui-selected': {
+                            bgcolor: 'primary.50',
+                            color: 'primary.main',
+                            borderColor: 'primary.main',
+                        }
+                    }
+                }}
             >
                 <ToggleButton value="address" sx={{ py: 1, gap: 1 }}>
                     <LocationOnIcon fontSize="small" />
@@ -262,7 +276,7 @@ export default function ParcelleSearch({
                         )}
                     </Box>
                 ) : (
-                    <Box sx={{ display: 'flex', gap: 1, flexDirection: { xs: 'column', md: 'row' } }}>
+                    <Box sx={{ display: 'flex', gap: 2, flexDirection: { xs: 'column', md: 'row' }, alignItems: 'flex-start' }}>
                         <TextField
                             fullWidth
                             label="Code INSEE de la commune"
@@ -275,9 +289,9 @@ export default function ParcelleSearch({
                             variant="contained"
                             onClick={handleInseeSearch}
                             disabled={loading || codeInsee.length !== 5}
-                            sx={{ minWidth: { xs: '100%', md: 120 }, borderRadius: 2, height: 56 }}
+                            sx={{ minWidth: { xs: '100%', md: 160 }, borderRadius: 2, height: 56, fontSize: '1rem', fontWeight: 600 }}
                         >
-                            {loading ? <CircularProgress size={24} /> : 'Rechercher'}
+                            {loading ? <CircularProgress size={24} /> : 'Chercher la commune'}
                         </Button>
                     </Box>
                 )}
