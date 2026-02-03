@@ -14,14 +14,19 @@ Créez un **Web Service** sur Render :
 - **Build Command** : `pip install -r backend/requirements.txt && python backend/manage.py collectstatic --noinput`
 - **Start Command** : `gunicorn --chdir backend urbania_backend.wsgi:application`
 
+### Configuration de la Base de Données (PostgreSQL)
+1. Sur Render, cliquez sur **"New"** -> **"PostgreSQL"**.
+2. Nommez-la `urbania-db` et créez-la (offre Free).
+3. Une fois créée, copiez l' **"Internal Database URL"**.
+
 ### Variables d'environnement importantes :
 | Clé | Valeur suggérée |
 |-----|-----------------|
+| `DATABASE_URL` | (Collez l'URL de votre base PostgreSQL Render) |
 | `SECRET_KEY` | (Générez une clé complexe) |
 | `DEBUG` | `False` |
-| `ALLOWED_HOSTS` | `votre-backend.onrender.com` |
-| `MONGODB_HOST` | `mongodb+srv://user:pass@cluster.mongodb.net/` |
-| `RENDER_EXTERNAL_URL` | `https://votre-backend.onrender.com` (Indispensable pour le Keep-Alive) |
+| `ALLOWED_HOSTS` | `*` |
+| `RENDER_EXTERNAL_URL` | `https://votre-backend.onrender.com` |
 | `RENDER` | `true` |
 
 ## 3. Déploiement du Frontend (Static Site)
