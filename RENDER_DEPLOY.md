@@ -11,8 +11,8 @@ Vous pouvez maintenant passer directement à l'étape du déploiement sur Render
 ## 2. Déploiement du Backend (Web Service)
 Créez un **Web Service** sur Render :
 - **Runtime** : `Python 3`
-- **Build Command** : `pip install -r backend/requirements.txt && python backend/manage.py migrate --noinput && python backend/manage.py collectstatic --noinput`
-- **Start Command** : `gunicorn --chdir backend urbania_backend.wsgi:application`
+- **Build Command** : `pip install -r requirements.txt && python manage.py migrate --noinput && python manage.py collectstatic --noinput`
+- **Start Command** : `gunicorn urbania_backend.wsgi:application`
 
 ### Configuration de la Base de Données (PostgreSQL)
 1. Sur Render, cliquez sur **"New"** -> **"PostgreSQL"**.
