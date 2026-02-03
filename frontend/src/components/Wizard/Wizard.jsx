@@ -8,6 +8,8 @@ import StepNavigation from './StepNavigation';
 import CerfaOfficialPreview from '../Preview/CerfaOfficialPreview';
 import { useI18n } from '../../context/I18nContext';
 
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8010/api';
+
 // Import all step components
 import Step1TypeDeclarant from '../Steps/Step1TypeDeclarant';
 import Step2IdentiteDeclarant from '../Steps/Step2IdentiteDeclarant';
@@ -125,7 +127,7 @@ function Wizard() {
 
     const handleSave = async () => {
         try {
-            const response = await fetch('/api/sessions/', {
+            const response = await fetch(`${API_BASE}/sessions/`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ data, currentStep }),
@@ -171,7 +173,7 @@ function Wizard() {
         try {
             // Save to backend
             const token = localStorage.getItem('urbania_token');
-            const response = await fetch('/api/dossiers/', {
+            const response = await fetch(`${API_BASE}/dossiers/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

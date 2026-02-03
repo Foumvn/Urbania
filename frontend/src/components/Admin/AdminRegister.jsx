@@ -6,6 +6,8 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 import { useNotification } from '../../context/NotificationContext';
 
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8010/api';
+
 function AdminRegister() {
     const navigate = useNavigate();
     const { showNotification } = useNotification();
@@ -38,7 +40,7 @@ function AdminRegister() {
 
         try {
             // Register as admin
-            const response = await fetch('/api/auth/register/', {
+            const response = await fetch(`${API_BASE}/auth/register/`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

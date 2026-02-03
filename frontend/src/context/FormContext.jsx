@@ -1,8 +1,10 @@
-import { createContext, useContext, useReducer, useEffect, useMemo } from 'react';
+import { createContext, useContext, useReducer, useEffect, useCallback, useMemo } from 'react';
 import { saveToStorage, loadFromStorage } from '../utils/storage';
 import { getProjectConfig, isFieldRequired, isDocumentRequired } from '../config/projectConfigs';
 
 const FormContext = createContext(null);
+
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8010/api';
 
 const initialState = {
     currentStep: 0,
@@ -141,7 +143,6 @@ const initialState = {
             scale: '1:500',
         },
         aiProjectConfig: null,
-        piecesJointes: {}, // Stockage des images DP en Base64
         signature: null,    // Image de la signature numérique
     },
     errors: {},
@@ -247,7 +248,7 @@ export function FormProvider({ children }) {
             if (!token) return;
 
             try {
-                const response = await fetch('/api/sessions/', {
+                const response = await fetch(`${API_BASE}/sessions/`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (response.ok) {
@@ -278,7 +279,7 @@ export function FormProvider({ children }) {
             if (!token) return;
 
             try {
-                await fetch('/api/sessions/', {
+                await fetch(`${API_BASE}/sessions/`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -345,10 +346,10 @@ export function FormProvider({ children }) {
 
     const loadDossier = async (id) => {
         const token = localStorage.getItem('urbania_token');
-        if (!token) return;
+        if (!token) return false;
 
         try {
-            const response = await fetch(`/api/dossiers/${id}/`, {
+            const response = await fetch(`${API_BASE}/dossiers/${id}/`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.ok) {
@@ -368,12 +369,12 @@ export function FormProvider({ children }) {
         return false;
     };
 
-    const analyzeProjectWithAI = async (description) => {
+    const analyzeProjectWithAI = useCallback(async (description) => {
         const token = localStorage.getItem('urbania_token');
         if (!token || !description) return null;
 
         try {
-            const response = await fetch('/api/ai/analyze-project/', {
+            const response = await fetch(`${API_BASE}/ai/analyze-project/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -389,14 +390,14 @@ export function FormProvider({ children }) {
             console.error('Failed to analyze project with AI:', error);
         }
         return null;
-    };
+    }, []);
 
-    const suggestDocumentsWithAI = async (description) => {
+    const suggestDocumentsWithAI = useCallback(async (description) => {
         const token = localStorage.getItem('urbania_token');
         if (!token || !description) return null;
 
         try {
-            const response = await fetch('/api/ai/suggest-documents/', {
+            const response = await fetch(`${API_BASE}/ai/suggest-documents/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -412,15 +413,15 @@ export function FormProvider({ children }) {
             console.error('Failed to suggest documents with AI:', error);
         }
         return null;
-    };
+    }, []);
 
     // Configure custom project using AI (for "autre" type)
-    const configureCustomProjectWithAI = async (description) => {
+    const configureCustomProjectWithAI = useCallback(async (description) => {
         const token = localStorage.getItem('urbania_token');
         if (!token || !description) return null;
 
         try {
-            const response = await fetch('/api/ai/configure-project/', {
+            const response = await fetch(`${API_BASE}/ai/configure-project/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -436,7 +437,7 @@ export function FormProvider({ children }) {
             console.error('Failed to configure custom project with AI:', error);
         }
         return null;
-    };
+    }, []);
 
     // Compute project configuration based on selected natureTravaux
     const projectConfig = useMemo(() => {

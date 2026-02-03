@@ -20,6 +20,8 @@ import {
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8010/api';
+
 function StatsPanel() {
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -33,7 +35,7 @@ function StatsPanel() {
         setLoading(true);
         try {
             const token = localStorage.getItem('urbania_token');
-            const response = await fetch('/api/stats/', {
+            const response = await fetch(`${API_BASE}/stats/`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.ok) {

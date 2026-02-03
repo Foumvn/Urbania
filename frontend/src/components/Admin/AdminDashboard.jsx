@@ -48,6 +48,8 @@ import ActivityLog from './ActivityLog';
 import UserManager from './UserManager';
 import NotificationCenter from './NotificationCenter';
 
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8010/api';
+
 import { useNotification } from '../../context/NotificationContext';
 
 function AdminDashboard() {
@@ -77,7 +79,7 @@ function AdminDashboard() {
 
         try {
             const token = localStorage.getItem('urbania_token');
-            const response = await fetch('/api/stats/', {
+            const response = await fetch(`${API_BASE}/stats/`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.ok) {
@@ -102,7 +104,7 @@ function AdminDashboard() {
         // Fetch recent activity
         try {
             const token = localStorage.getItem('urbania_token');
-            const actResponse = await fetch('/api/activity/', {
+            const actResponse = await fetch(`${API_BASE}/activity/`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (actResponse.ok) {
@@ -127,7 +129,7 @@ function AdminDashboard() {
     const fetchNotifications = async (isPoll = false) => {
         try {
             const token = localStorage.getItem('urbania_token');
-            const response = await fetch('/api/admin/notifications/', {
+            const response = await fetch(`${API_BASE}/admin/notifications/`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.ok) {
@@ -154,7 +156,7 @@ function AdminDashboard() {
     const handleMarkAllRead = async () => {
         try {
             const token = localStorage.getItem('urbania_token');
-            await fetch('/api/admin/notifications/mark-read/', {
+            await fetch(`${API_BASE}/admin/notifications/mark-read/`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` }
             });

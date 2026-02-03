@@ -50,6 +50,8 @@ import { useForm } from '../../context/FormContext';
 
 import { useI18n } from '../../context/I18nContext';
 
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8010/api';
+
 function UserDashboard() {
     const navigate = useNavigate();
     const { user, logout } = useAuth();
@@ -67,7 +69,7 @@ function UserDashboard() {
     const fetchDossiers = async () => {
         try {
             const token = localStorage.getItem('urbania_token');
-            const response = await fetch('/api/dossiers/', {
+            const response = await fetch(`${API_BASE}/dossiers/`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.ok) {
