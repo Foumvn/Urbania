@@ -1,0 +1,242 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    /* Urbania - Bleu Drapeau Français (#002395 = 225 100% 29%) */
+    --background: 220 25% 98%;
+    --foreground: 225 40% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 225 40% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 225 40% 12%;
+
+    /* Bleu drapeau français - profond et professionnel */
+    --primary: 225 100% 29%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 225 20% 95%;
+    --secondary-foreground: 225 40% 20%;
+
+    --muted: 225 15% 94%;
+    --muted-foreground: 225 15% 45%;
+
+    --accent: 225 80% 45%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 225 15% 90%;
+    --input: 225 15% 90%;
+    --ring: 225 100% 29%;
+
+    --radius: 0.75rem;
+
+    /* Urbania custom tokens - Bleu France */
+    --urbania-blue: 225 100% 29%;
+    --urbania-blue-light: 225 60% 96%;
+    --urbania-blue-hover: 225 100% 35%;
+    --urbania-navy: 225 100% 20%;
+    --urbania-accent: 225 80% 55%;
+    --gradient-primary: linear-gradient(135deg, hsl(225 100% 29%), hsl(225 100% 22%));
+    --gradient-hero: linear-gradient(180deg, hsl(225 60% 96%) 0%, hsl(0 0% 100%) 100%);
+    --shadow-soft: 225 40% 12%;
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .dark {
+    --background: 225 30% 6%;
+    --foreground: 225 15% 95%;
+
+    --card: 225 30% 10%;
+    --card-foreground: 225 15% 95%;
+
+    --popover: 225 30% 10%;
+    --popover-foreground: 225 15% 95%;
+
+    --primary: 225 85% 55%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 225 25% 18%;
+    --secondary-foreground: 225 15% 90%;
+
+    --muted: 225 25% 15%;
+    --muted-foreground: 225 15% 60%;
+
+    --accent: 225 70% 50%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 225 25% 18%;
+    --input: 225 25% 18%;
+    --ring: 225 85% 55%;
+
+    /* Dark mode Urbania tokens */
+    --urbania-blue: 225 85% 55%;
+    --urbania-blue-light: 225 40% 15%;
+    --urbania-blue-hover: 225 85% 60%;
+    --urbania-navy: 225 100% 10%;
+    --urbania-accent: 225 70% 60%;
+    --shadow-soft: 0 0% 0%;
+  }
+}
+
+@theme {
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+
+    to {
+      height: 0;
+    }
+  }
+
+  @keyframes mesh-animation {
+    0% {
+      background-position: 0% 50%;
+    }
+
+    50% {
+      background-position: 100% 50%;
+    }
+
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  @keyframes shimmer-slide {
+    0% {
+      transform: translateX(-100%) rotate(45deg);
+    }
+
+    100% {
+      transform: translateX(100%) rotate(45deg);
+    }
+  }
+
+  --animate-mesh: mesh-animation 15s ease infinite;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer utilities {
+  .card-hover {
+    @apply transition-all duration-500 hover:scale-[1.02];
+    box-shadow: 0 4px 20px -4px hsl(var(--shadow-soft) / 0.1);
+  }
+
+  .card-hover:hover {
+    box-shadow: 0 20px 40px -10px hsl(var(--shadow-soft) / 0.15);
+  }
+
+  .pill-nav {
+    @apply rounded-full bg-[hsl(var(--surface-elevated))] backdrop-blur-lg border border-border/50;
+  }
+
+  .floating-button {
+    @apply w-12 h-12 rounded-full bg-[hsl(var(--cream)/0.9)] backdrop-blur-sm flex items-center justify-center text-[hsl(var(--cream-foreground))] hover:bg-[hsl(var(--cream))] hover:scale-110 transition-all duration-300;
+    box-shadow: 0 4px 12px -2px hsl(var(--shadow-soft) / 0.15);
+  }
+
+  .mesh-bg {
+    background: linear-gradient(-45deg, #eef2ff, #f5f3ff, #e0e7ff, #faf5ff);
+    background-size: 400% 400%;
+    animation: var(--animate-mesh);
+  }
+
+  .font-serif {
+    font-family: var(--font-playfair), serif;
+  }
+
+  .font-plus-jakarta {
+    font-family: var(--font-plus-jakarta), sans-serif;
+  }
+
+  .shimmer-btn {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .shimmer-btn::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0) 40%,
+        rgba(255, 255, 255, 0.15) 50%,
+        rgba(255, 255, 255, 0) 60%,
+        transparent 100%);
+    transform: translateX(-100%) rotate(45deg);
+    transition: none;
+  }
+
+  .shimmer-btn:hover::after {
+    animation: shimmer-slide 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+}
