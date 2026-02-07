@@ -1,225 +1,252 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import {
-    Box,
-    Container,
-    Typography,
-    TextField,
-    Button,
-    Paper,
-    Divider,
-    Alert,
-    Avatar,
-    InputAdornment,
-    IconButton,
-    CircularProgress,
-} from '@mui/material';
-import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
-import EmailIcon from '@mui/icons-material/Email';
-import LockIcon from '@mui/icons-material/Lock';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import GoogleIcon from '@mui/icons-material/Google';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { useAuth } from '../../context/AuthContext';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { useAuthLoading } from "../../context/AuthLoadingProvider";
+import logoUrbania from "../../assets/logo-urbania.jpg";
+import { motion } from "framer-motion";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import { Separator } from "../ui/separator";
+import { Mail, Lock, Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { useToast } from "../ui/use-toast";
 
-function Login() {
-    const navigate = useNavigate();
-    const { login } = useAuth();
-    const [formData, setFormData] = useState({ email: '', password: '' });
+// Google Icon Component
+const GoogleIcon = () => (
+    <svg className="h-5 w-5" viewBox="0 0 24 24">
+        <path
+            fill="#4285F4"
+            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+        />
+        <path
+            fill="#34A853"
+            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+        />
+        <path
+            fill="#FBBC05"
+            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+        />
+        <path
+            fill="#EA4335"
+            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+        />
+    </svg>
+);
+
+export default function Login() {
     const [showPassword, setShowPassword] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-        setError('');
-    };
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const { login } = useAuth();
+    const { startLoading } = useAuthLoading();
+    const navigate = useNavigate();
+    const { toast } = useToast();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
-        setError('');
+        setIsSubmitting(true);
 
-        const result = await login(formData.email, formData.password);
+        try {
+            const result = await login({ username: email, password });
 
-        if (result.success) {
-            navigate('/formulaire');
-        } else {
-            setError(result.error);
+            if (result.success) {
+                toast({
+                    title: "Connexion réussie",
+                    description: "Bienvenue sur Urbania.",
+                });
+                startLoading("/formulaire");
+            } else {
+                toast({
+                    variant: "destructive",
+                    title: "Erreur de connexion",
+                    description: result.error || "Email ou mot de passe incorrect.",
+                });
+            }
+        } catch (error) {
+            toast({
+                variant: "destructive",
+                title: "Erreur de connexion",
+                description: "Une erreur est survenue lors de la connexion.",
+            });
+        } finally {
+            setIsSubmitting(false);
         }
-
-        setLoading(false);
     };
 
     return (
-        <Box
-            sx={{
-                minHeight: '100vh',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: 'linear-gradient(135deg, #1e3a5f 0%, #0f2744 100%)',
-                py: 4,
-            }}
-        >
-            <Container maxWidth="sm">
-                <Button
-                    startIcon={<ArrowBackIcon />}
-                    onClick={() => navigate('/')}
-                    sx={{ color: 'white', mb: 3, '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' } }}
+        <div className="min-h-screen bg-background flex text-foreground">
+            {/* Left side - Form */}
+            <div className="flex-1 flex items-center justify-center p-8 relative">
+                {/* Back button */}
+                <motion.div
+                    className="absolute top-6 left-6"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3 }}
                 >
-                    Retour à l'accueil
-                </Button>
+                    <Link to="/">
+                        <Button variant="ghost" size="sm" className="gap-2">
+                            <ArrowLeft className="h-4 w-4" />
+                            Retour
+                        </Button>
+                    </Link>
+                </motion.div>
 
-                <Paper
-                    elevation={0}
-                    sx={{
-                        p: { xs: 3, md: 5 },
-                        borderRadius: 4,
-                        boxShadow: '0 24px 48px rgba(0,0,0,0.2)',
-                    }}
+                <motion.div
+                    className="w-full max-w-md space-y-8"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
                 >
-                    <Box sx={{ textAlign: 'center', mb: 4 }}>
-                        <Box
-                            component="img"
-                            src="/logo.png"
-                            alt="Urbania Logo"
-                            sx={{
-                                height: 60,
-                                width: 'auto',
-                                mx: 'auto',
-                                mb: 2,
-                                filter: 'drop-shadow(0 4px 12px rgba(2, 132, 199, 0.15))'
-                            }}
-                        />
-                        <Typography variant="h4" fontWeight={700} color="primary.main">
-                            Connexion
-                        </Typography>
-                        <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
-                            Accédez à votre espace Urbania
-                        </Typography>
-                    </Box>
+                    <div className="text-center">
+                        <Link to="/" className="inline-flex items-center mb-8">
+                            <div className="relative h-10 w-32 overflow-hidden">
+                                <img
+                                    src={logoUrbania}
+                                    alt="Urbania Logo"
+                                    className="object-contain h-full w-full"
+                                />
+                            </div>
+                        </Link>
+                        <h1 className="text-2xl font-bold">Connexion</h1>
+                        <p className="text-muted-foreground mt-2">
+                            Accédez à votre espace personnel
+                        </p>
+                    </div>
 
-                    {error && (
-                        <Alert severity="error" sx={{ mb: 3 }}>
-                            {error}
-                        </Alert>
-                    )}
-
-                    <form onSubmit={handleSubmit}>
-                        <TextField
-                            fullWidth
-                            name="email"
-                            label="Adresse email"
-                            type="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            required
-                            sx={{ mb: 2.5 }}
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <EmailIcon color="action" />
-                                    </InputAdornment>
-                                ),
-                            }}
-                        />
-
-                        <TextField
-                            fullWidth
-                            name="password"
-                            label="Mot de passe"
-                            type={showPassword ? 'text' : 'password'}
-                            value={formData.password}
-                            onChange={handleChange}
-                            required
-                            sx={{ mb: 1 }}
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <LockIcon color="action" />
-                                    </InputAdornment>
-                                ),
-                                endAdornment: (
-                                    <InputAdornment position="end">
-                                        <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
-                                            {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                                        </IconButton>
-                                    </InputAdornment>
-                                ),
-                            }}
-                        />
-
-                        <Box sx={{ textAlign: 'right', mb: 3 }}>
-                            <Typography
-                                component={Link}
-                                to="/auth/forgot-password"
-                                variant="body2"
-                                sx={{ color: 'primary.main', textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}
-                            >
-                                Mot de passe oublié ?
-                            </Typography>
-                        </Box>
-
+                    {/* SSO Buttons */}
+                    <motion.div
+                        className="space-y-3"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.15, duration: 0.4 }}
+                    >
                         <Button
-                            type="submit"
-                            fullWidth
-                            variant="contained"
-                            size="large"
-                            disabled={loading}
-                            sx={{
-                                py: 1.5,
-                                fontSize: '1rem',
-                                fontWeight: 600,
-                                background: 'linear-gradient(135deg, #583da1 0%, #7c62c1 100%)',
-                                boxShadow: '0 4px 14px rgba(88, 61, 161, 0.35)',
-                                '&:hover': {
-                                    boxShadow: '0 6px 20px rgba(88, 61, 161, 0.45)',
-                                },
+                            type="button"
+                            variant="outline"
+                            className="w-full h-12 gap-3 font-medium"
+                            onClick={() => {
+                                toast({
+                                    title: "Mode démo",
+                                    description: "La connexion Google nécessite un backend. Contactez-nous pour activer cette fonctionnalité.",
+                                });
                             }}
                         >
-                            {loading ? <CircularProgress size={24} color="inherit" /> : 'Se connecter'}
+                            <GoogleIcon />
+                            Continuer avec Google
                         </Button>
-                    </form>
+                    </motion.div>
 
-                    <Divider sx={{ my: 3 }}>
-                        <Typography variant="body2" color="text.secondary">
-                            ou
-                        </Typography>
-                    </Divider>
+                    <div className="relative">
+                        <div className="absolute inset-0 flex items-center">
+                            <Separator className="w-full" />
+                        </div>
+                        <div className="relative flex justify-center text-xs uppercase">
+                            <span className="bg-background px-2 text-muted-foreground">
+                                Ou continuer avec email
+                            </span>
+                        </div>
+                    </div>
 
-                    <Button
-                        fullWidth
-                        variant="outlined"
-                        size="large"
-                        startIcon={<GoogleIcon />}
-                        sx={{ py: 1.5, borderWidth: 2, '&:hover': { borderWidth: 2 } }}
+                    <motion.form
+                        onSubmit={handleSubmit}
+                        className="space-y-5"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.2, duration: 0.4 }}
                     >
-                        Continuer avec Google
-                    </Button>
+                        <div className="space-y-2">
+                            <Label htmlFor="email">Email</Label>
+                            <div className="relative">
+                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                    id="email"
+                                    type="email"
+                                    placeholder="vous@exemple.fr"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className="pl-10"
+                                    required
+                                />
+                            </div>
+                        </div>
 
-                    <Box sx={{ textAlign: 'center', mt: 4 }}>
-                        <Typography variant="body2" color="text.secondary">
-                            Pas encore de compte ?{' '}
-                            <Typography
-                                component={Link}
-                                to="/auth/register"
-                                sx={{
-                                    color: 'primary.main',
-                                    fontWeight: 600,
-                                    textDecoration: 'none',
-                                    '&:hover': { textDecoration: 'underline' },
-                                }}
-                            >
-                                Créer un compte
-                            </Typography>
-                        </Typography>
-                    </Box>
-                </Paper>
-            </Container>
-        </Box>
+                        <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                                <Label htmlFor="password">Mot de passe</Label>
+                                <Link to="/auth/forgot-password" size="sm" className="text-sm text-primary hover:underline">
+                                    Mot de passe oublié ?
+                                </Link>
+                            </div>
+                            <div className="relative">
+                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                    id="password"
+                                    type={showPassword ? "text" : "password"}
+                                    placeholder="••••••••"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className="pl-10 pr-10"
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                                >
+                                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                </button>
+                            </div>
+                        </div>
+
+                        <motion.div
+                            whileHover={{ scale: 1.01 }}
+                            whileTap={{ scale: 0.99 }}
+                        >
+                            <Button type="submit" className="w-full" disabled={isSubmitting}>
+                                {isSubmitting ? "Connexion..." : "Se connecter"}
+                            </Button>
+                        </motion.div>
+                    </motion.form>
+
+                    <p className="text-center text-sm text-muted-foreground">
+                        Pas encore de compte ?{" "}
+                        <Link to="/auth/register" className="text-primary hover:underline font-medium">
+                            Créer un compte
+                        </Link>
+                    </p>
+                </motion.div>
+            </div>
+
+            {/* Right side - Illustration */}
+            <motion.div
+                className="hidden lg:flex flex-1 bg-primary items-center justify-center p-12"
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6 }}
+            >
+                <div className="max-w-md text-center text-primary-foreground">
+                    <motion.div
+                        className="w-32 h-32 mx-auto mb-8 relative"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+                    >
+                        <img
+                            src={logoUrbania}
+                            alt="Urbania Logo"
+                            className="object-contain h-full w-full rounded-2xl"
+                        />
+                    </motion.div>
+                    <h2 className="text-2xl font-bold mb-4">
+                        Simplifiez vos démarches d'urbanisme
+                    </h2>
+                    <p className="text-primary-foreground/80">
+                        Créez votre dossier de déclaration préalable en quelques clics grâce à notre plateforme intelligente.
+                    </p>
+                </div>
+            </motion.div>
+        </div>
     );
 }
-
-export default Login;

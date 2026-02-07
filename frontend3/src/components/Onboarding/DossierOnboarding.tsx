@@ -315,16 +315,22 @@ export default function DossierOnboarding({
 
 // Render steps sub-component
 function renderStep(step: number, data: OnboardingData, setData: React.Dispatch<React.SetStateAction<OnboardingData>>, color: string) {
-    const labelStyle = "text-[11px] font-black text-slate-500 uppercase tracking-[0.15em] ml-2 mb-2 block";
-    const inputStyle = `w-full bg-white/70 backdrop-blur-md border border-slate-200 rounded-3xl px-8 py-5 text-lg font-bold text-[#002395] focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-[#002395] transition-all placeholder:text-slate-400`;
+    const labelStyle = "text-[11px] font-black text-[#002395] uppercase tracking-[0.15em] ml-2 block";
+    const inputStyle = `w-full bg-white/70 backdrop-blur-md border border-slate-200 rounded-3xl px-8 py-5 text-lg font-bold text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-[#002395] transition-all placeholder:text-slate-400`;
+
+    const RenderLabel = ({ text, isFilled }: { text: string, isFilled: boolean }) => (
+        <div className="flex items-center justify-between mb-2">
+            <label className={labelStyle}>{text}</label>
+        </div>
+    );
 
     switch (step) {
         case 1:
             return (
                 <div className="max-w-2xl">
-                    <h1 className="font-serif text-5xl md:text-6xl text-[#002395] leading-[1.1] mb-8">
+                    <h1 className="font-plus-jakarta text-5xl md:text-6xl font-black text-[#002395] leading-[1.1] tracking-tight mb-8">
                         Quel est votre <br />
-                        <span className="italic font-light">statut juridique ?</span>
+                        <span className="text-slate-400 font-light">statut juridique ?</span>
                     </h1>
                     <p className="text-slate-400 text-lg font-medium leading-relaxed mb-12">
                         Cette information est cruciale pour déterminer les sections du formulaire CERFA à compléter.
@@ -377,9 +383,9 @@ function renderStep(step: number, data: OnboardingData, setData: React.Dispatch<
         case 2:
             return (
                 <div className="max-w-3xl">
-                    <h1 className="font-serif text-5xl md:text-6xl text-[#002395] leading-[1.1] mb-12">
+                    <h1 className="font-plus-jakarta text-5xl md:text-6xl font-black text-[#002395] leading-[1.1] tracking-tight mb-12">
                         Identité du <br />
-                        <span className="italic font-light">déclarant</span>
+                        <span className="text-slate-400 font-light">déclarant</span>
                     </h1>
 
                     <div className="space-y-10">
@@ -387,7 +393,7 @@ function renderStep(step: number, data: OnboardingData, setData: React.Dispatch<
                             <>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                                     <div className="md:col-span-1">
-                                        <label className={labelStyle}>Civilité</label>
+                                        <RenderLabel text="Civilité" isFilled={!!data.civilite} />
                                         <select
                                             value={data.civilite}
                                             onChange={(e) => setData({ ...data, civilite: e.target.value })}
@@ -398,7 +404,7 @@ function renderStep(step: number, data: OnboardingData, setData: React.Dispatch<
                                         </select>
                                     </div>
                                     <div className="md:col-span-1">
-                                        <label className={labelStyle}>Prénom</label>
+                                        <RenderLabel text="Prénom" isFilled={!!data.prenom} />
                                         <input
                                             type="text"
                                             value={data.prenom}
@@ -408,7 +414,7 @@ function renderStep(step: number, data: OnboardingData, setData: React.Dispatch<
                                         />
                                     </div>
                                     <div className="md:col-span-1">
-                                        <label className={labelStyle}>Nom</label>
+                                        <RenderLabel text="Nom" isFilled={!!data.nom} />
                                         <input
                                             type="text"
                                             value={data.nom}
@@ -421,7 +427,7 @@ function renderStep(step: number, data: OnboardingData, setData: React.Dispatch<
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     <div>
-                                        <label className={labelStyle}>Date de naissance</label>
+                                        <RenderLabel text="Date de naissance" isFilled={!!data.dateNaissance} />
                                         <div className="relative">
                                             <Calendar className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
                                             <input
@@ -434,7 +440,7 @@ function renderStep(step: number, data: OnboardingData, setData: React.Dispatch<
                                         </div>
                                     </div>
                                     <div>
-                                        <label className={labelStyle}>Lieu de naissance</label>
+                                        <RenderLabel text="Lieu de naissance" isFilled={!!data.lieuNaissance} />
                                         <input
                                             type="text"
                                             value={data.lieuNaissance}
@@ -449,7 +455,7 @@ function renderStep(step: number, data: OnboardingData, setData: React.Dispatch<
                             <>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     <div>
-                                        <label className={labelStyle}>Dénomination</label>
+                                        <RenderLabel text="Dénomination" isFilled={!!data.denomination} />
                                         <input
                                             type="text"
                                             value={data.denomination}
@@ -459,7 +465,7 @@ function renderStep(step: number, data: OnboardingData, setData: React.Dispatch<
                                         />
                                     </div>
                                     <div>
-                                        <label className={labelStyle}>N° SIRET</label>
+                                        <RenderLabel text="N° SIRET" isFilled={!!data.siret} />
                                         <input
                                             type="text"
                                             value={data.siret}
@@ -502,14 +508,14 @@ function renderStep(step: number, data: OnboardingData, setData: React.Dispatch<
         case 3:
             return (
                 <div className="max-w-3xl">
-                    <h1 className="font-serif text-5xl md:text-6xl text-[#002395] leading-[1.1] mb-12">
+                    <h1 className="font-plus-jakarta text-5xl md:text-6xl font-black text-[#002395] leading-[1.1] tracking-tight mb-12">
                         Vos <br />
-                        <span className="italic font-light">coordonnées</span>
+                        <span className="text-slate-400 font-light">coordonnées</span>
                     </h1>
                     <div className="space-y-10">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div>
-                                <label className={labelStyle}>E-mail</label>
+                                <RenderLabel text="E-mail" isFilled={!!data.email} />
                                 <input
                                     type="email"
                                     value={data.email}
@@ -519,7 +525,7 @@ function renderStep(step: number, data: OnboardingData, setData: React.Dispatch<
                                 />
                             </div>
                             <div>
-                                <label className={labelStyle}>Téléphone</label>
+                                <RenderLabel text="Téléphone" isFilled={!!data.telephone} />
                                 <input
                                     type="tel"
                                     value={data.telephone}
@@ -530,7 +536,7 @@ function renderStep(step: number, data: OnboardingData, setData: React.Dispatch<
                             </div>
                         </div>
                         <div>
-                            <label className={labelStyle}>Adresse de correspondance</label>
+                            <RenderLabel text="Adresse de correspondance" isFilled={!!data.adresse} />
                             <input
                                 type="text"
                                 value={data.adresse}
@@ -541,7 +547,7 @@ function renderStep(step: number, data: OnboardingData, setData: React.Dispatch<
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                             <div className="md:col-span-1">
-                                <label className={labelStyle}>Code Postal</label>
+                                <RenderLabel text="Code Postal" isFilled={!!data.codePostal} />
                                 <input
                                     type="text"
                                     value={data.codePostal}
@@ -551,7 +557,7 @@ function renderStep(step: number, data: OnboardingData, setData: React.Dispatch<
                                 />
                             </div>
                             <div className="md:col-span-2">
-                                <label className={labelStyle}>Ville</label>
+                                <RenderLabel text="Ville" isFilled={!!data.ville} />
                                 <input
                                     type="text"
                                     value={data.ville}
@@ -568,9 +574,9 @@ function renderStep(step: number, data: OnboardingData, setData: React.Dispatch<
         case 4:
             return (
                 <div className="max-w-3xl">
-                    <h1 className="font-serif text-5xl md:text-6xl text-[#002395] leading-[1.1] mb-12">
+                    <h1 className="font-plus-jakarta text-5xl md:text-6xl font-black text-[#002395] leading-[1.1] tracking-tight mb-12">
                         Localisation <br />
-                        <span className="italic font-light">du terrain</span>
+                        <span className="text-slate-400 font-light">du terrain</span>
                     </h1>
                     <div className="space-y-10">
                         <div className="p-8 rounded-[40px] bg-[#002395] text-white overflow-hidden relative shadow-2xl">
@@ -593,7 +599,7 @@ function renderStep(step: number, data: OnboardingData, setData: React.Dispatch<
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                             <div>
-                                <label className={labelStyle}>Section</label>
+                                <RenderLabel text="Section" isFilled={!!data.section} />
                                 <input
                                     type="text"
                                     value={data.section}
@@ -603,7 +609,7 @@ function renderStep(step: number, data: OnboardingData, setData: React.Dispatch<
                                 />
                             </div>
                             <div>
-                                <label className={labelStyle}>Parcelle</label>
+                                <RenderLabel text="Parcelle" isFilled={!!data.numeroParcelle} />
                                 <input
                                     type="text"
                                     value={data.numeroParcelle}
@@ -613,7 +619,7 @@ function renderStep(step: number, data: OnboardingData, setData: React.Dispatch<
                                 />
                             </div>
                             <div>
-                                <label className={labelStyle}>Surface (m²)</label>
+                                <RenderLabel text="Surface (m²)" isFilled={!!data.surfaceTerrain} />
                                 <input
                                     type="text"
                                     value={data.surfaceTerrain}
@@ -640,9 +646,9 @@ function renderStep(step: number, data: OnboardingData, setData: React.Dispatch<
             ];
             return (
                 <div className="max-w-4xl">
-                    <h1 className="font-serif text-5xl md:text-6xl text-[#002395] leading-[1.1] mb-12">
+                    <h1 className="font-plus-jakarta text-5xl md:text-6xl font-black text-[#002395] leading-[1.1] tracking-tight mb-12">
                         Nature du <br />
-                        <span className="italic font-light">projet</span>
+                        <span className="text-slate-400 font-light">projet</span>
                     </h1>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         {natureItems.map((item) => {
@@ -675,9 +681,9 @@ function renderStep(step: number, data: OnboardingData, setData: React.Dispatch<
         case 6:
             return (
                 <div className="max-w-3xl h-full flex flex-col">
-                    <h1 className="font-serif text-5xl md:text-6xl text-[#002395] leading-[1.1] mb-12">
+                    <h1 className="font-plus-jakarta text-5xl md:text-6xl font-black text-[#002395] leading-[1.1] tracking-tight mb-12">
                         Description <br />
-                        <span className="italic font-light">détaillée</span>
+                        <span className="text-slate-400 font-light">détaillée</span>
                     </h1>
                     <div className="flex-1 space-y-8">
                         <div className="relative group flex-1 min-h-[300px]">
@@ -688,13 +694,13 @@ function renderStep(step: number, data: OnboardingData, setData: React.Dispatch<
                                 value={data.descriptionProjet}
                                 onChange={(e) => setData({ ...data, descriptionProjet: e.target.value })}
                                 placeholder="Décrivez votre projet avec l'IA Urbania..."
-                                className="w-full h-full bg-white/60 backdrop-blur-xl border border-white rounded-[40px] p-12 text-xl font-medium text-[#002395] focus:outline-none focus:ring-8 focus:ring-blue-500/5 focus:border-[#002395] transition-all placeholder:text-slate-200 resize-none shadow-2xl shadow-blue-900/5"
+                                className="w-full h-full bg-white/60 backdrop-blur-xl border border-white rounded-[40px] p-12 text-xl font-medium text-slate-900 focus:outline-none focus:ring-8 focus:ring-blue-500/5 focus:border-[#002395] transition-all placeholder:text-slate-300 resize-none shadow-2xl shadow-blue-900/5"
                             />
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div>
-                                <label className={labelStyle}>Surface totale créée (m²)</label>
+                                <RenderLabel text="Surface totale créée (m²)" isFilled={!!data.surfaceCreee} />
                                 <div className="relative">
                                     <Layers className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
                                     <input
@@ -723,9 +729,9 @@ function renderStep(step: number, data: OnboardingData, setData: React.Dispatch<
         case 7:
             return (
                 <div className="max-w-3xl">
-                    <h1 className="font-serif text-5xl md:text-6xl text-[#002395] leading-[1.1] mb-12">
+                    <h1 className="font-plus-jakarta text-5xl md:text-6xl font-black text-[#002395] leading-[1.1] tracking-tight mb-12">
                         Pièces <br />
-                        <span className="italic font-light">jointes</span>
+                        <span className="text-slate-400 font-light">jointes</span>
                     </h1>
                     <div className="grid grid-cols-1 gap-6">
                         <div className="border-4 border-dashed border-slate-100 rounded-[48px] p-16 text-center hover:border-blue-400/30 transition-all group bg-white/40 cursor-pointer">
@@ -747,9 +753,9 @@ function renderStep(step: number, data: OnboardingData, setData: React.Dispatch<
         case 8:
             return (
                 <div className="max-w-4xl text-center md:text-left">
-                    <h1 className="font-serif text-5xl md:text-6xl text-[#002395] leading-[1.1] mb-12">
+                    <h1 className="font-plus-jakarta text-5xl md:text-6xl font-black text-[#002395] leading-[1.1] tracking-tight mb-12">
                         Votre dossier est <br />
-                        <span className="italic font-light">prêt à éclore.</span>
+                        <span className="text-slate-400 font-light">prêt à éclore.</span>
                     </h1>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">

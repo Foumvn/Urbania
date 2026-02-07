@@ -144,9 +144,11 @@ const initialState = {
         },
         aiProjectConfig: null,
         signature: null,    // Image de la signature numérique
+        preGeneratedDescription: '', // Cache for background generation
     },
     errors: {},
     touched: {},
+    isGeneratingDP1: false,
 };
 
 function formReducer(state, action) {
@@ -162,6 +164,15 @@ function formReducer(state, action) {
                     ...state.touched,
                     [action.field]: true,
                 },
+            };
+
+        case 'SET_PRE_GENERATED_DESCRIPTION':
+            return {
+                ...state,
+                data: {
+                    ...state.data,
+                    preGeneratedDescription: action.value
+                }
             };
 
         case 'SET_MULTIPLE_FIELDS':
@@ -228,6 +239,12 @@ function formReducer(state, action) {
                 ...action.state,
             };
 
+        case 'SET_GENERATING_DP1':
+            return {
+                ...state,
+                isGeneratingDP1: action.value
+            };
+
         default:
             return state;
     }
@@ -244,7 +261,7 @@ export function FormProvider({ children }) {
         }
 
         const fetchBackendSession = async () => {
-            const token = localStorage.getItem('urbania_token');
+            const token = localStorage.getItem('access_token');
             if (!token) return;
 
             try {
@@ -275,7 +292,7 @@ export function FormProvider({ children }) {
         saveToStorage('urbania_cerfa_form', state);
 
         const debouncedSave = setTimeout(async () => {
-            const token = localStorage.getItem('urbania_token');
+            const token = localStorage.getItem('access_token');
             if (!token) return;
 
             try {
@@ -345,7 +362,7 @@ export function FormProvider({ children }) {
     };
 
     const loadDossier = async (id) => {
-        const token = localStorage.getItem('urbania_token');
+        const token = localStorage.getItem('access_token');
         if (!token) return false;
 
         try {
@@ -370,7 +387,7 @@ export function FormProvider({ children }) {
     };
 
     const analyzeProjectWithAI = useCallback(async (description) => {
-        const token = localStorage.getItem('urbania_token');
+        const token = localStorage.getItem('access_token');
         if (!token || !description) return null;
 
         try {
@@ -393,7 +410,7 @@ export function FormProvider({ children }) {
     }, []);
 
     const suggestDocumentsWithAI = useCallback(async (description) => {
-        const token = localStorage.getItem('urbania_token');
+        const token = localStorage.getItem('access_token');
         if (!token || !description) return null;
 
         try {
@@ -417,7 +434,7 @@ export function FormProvider({ children }) {
 
     // Configure custom project using AI (for "autre" type)
     const configureCustomProjectWithAI = useCallback(async (description) => {
-        const token = localStorage.getItem('urbania_token');
+        const token = localStorage.getItem('access_token');
         if (!token || !description) return null;
 
         try {
@@ -435,6 +452,60 @@ export function FormProvider({ children }) {
             }
         } catch (error) {
             console.error('Failed to configure custom project with AI:', error);
+        }
+        return null;
+    }, []);
+
+    const generateDescriptionWithAI = useCallback(async (projectType, natureTravaux, otherNature) => {
+        const token = localStorage.getItem('access_token');
+        if (!token) return null;
+
+        try {
+            const response = await fetch(`${API_BASE}/ai/generate-description/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    type_travaux: projectType,
+                    nature_travaux: natureTravaux,
+                    autre_nature: otherNature
+                }),
+            });
+            if (response.ok) {
+                const result = await response.json();
+                // Safely extract description string
+                const desc = typeof result.description === 'object'
+                    ? (result.description.description || JSON.stringify(result.description))
+                    : result.description;
+                return desc;
+            }
+        } catch (error) {
+            console.error('Failed to generate description with AI:', error);
+        }
+        return null;
+    }, []);
+
+    const generateTechnicalDocument = useCallback(async (docType, data) => {
+        const token = localStorage.getItem('access_token');
+        if (!token) return null;
+
+        try {
+            const response = await fetch(`${API_BASE}/ai/generate-document/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ doc_type: docType, data }),
+            });
+            if (response.ok) {
+                const blob = await response.blob();
+                return URL.createObjectURL(blob);
+            }
+        } catch (error) {
+            console.error(`Failed to generate ${docType}:`, error);
         }
         return null;
     }, []);
@@ -472,6 +543,7 @@ export function FormProvider({ children }) {
 
     const value = {
         ...state,
+        dispatch,
         setField,
         setMultipleFields,
         setError,
@@ -487,9 +559,12 @@ export function FormProvider({ children }) {
         analyzeProjectWithAI,
         suggestDocumentsWithAI,
         configureCustomProjectWithAI,
+        generateDescriptionWithAI,
+        generateTechnicalDocument,
         projectConfig,
-        isFieldRequired: (field) => isFieldRequired(field, state.data.natureTravaux),
-        isDocumentRequired: (docId) => isDocumentRequired(docId, state.data.natureTravaux),
+        isFieldRequired: (field) => projectConfig.requiredFields.includes(field),
+        isDocumentRequired: (docId) => projectConfig.requiredDocuments.includes(docId),
+        setIsGeneratingDP1: (val) => dispatch({ type: 'SET_GENERATING_DP1', value: val }),
     };
 
 

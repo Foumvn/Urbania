@@ -1,19 +1,19 @@
 import { motion } from "framer-motion";
-import { 
-  FileText, 
-  Check, 
-  Circle, 
-  User, 
-  MapPin, 
-  Ruler, 
-  ClipboardList, 
-  ChevronRight, 
+import {
+  FileText,
+  Check,
+  Circle,
+  User,
+  MapPin,
+  Ruler,
+  ClipboardList,
+  ChevronRight,
   Paperclip,
   Shield,
   Map,
   ClipboardCheck
 } from "lucide-react";
-import { CerfaFormData } from "@/pages/NouveauDossier";
+import { CerfaFormData } from "@/lib/pdfGenerator";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 
@@ -152,7 +152,7 @@ const WizardPreview = ({ formData, currentStep }: Props) => {
   );
 
   return (
-    <motion.div 
+    <motion.div
       className="bg-card rounded-2xl border border-border shadow-lg overflow-hidden"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -168,7 +168,7 @@ const WizardPreview = ({ formData, currentStep }: Props) => {
             <p className="text-sm text-primary-foreground/80">Déclaration Préalable</p>
           </div>
         </div>
-        
+
         <div className="space-y-1">
           <div className="flex justify-between text-xs text-primary-foreground/80">
             <span>Progression</span>
@@ -186,14 +186,14 @@ const WizardPreview = ({ formData, currentStep }: Props) => {
           const Icon = section.icon;
 
           return (
-            <motion.div 
+            <motion.div
               key={section.step}
               className={cn(
                 "rounded-xl border transition-all overflow-hidden",
-                isActive 
-                  ? "border-primary bg-primary/5 shadow-md" 
-                  : isCompleted 
-                    ? "border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-900/10" 
+                isActive
+                  ? "border-primary bg-primary/5 shadow-md"
+                  : isCompleted
+                    ? "border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-900/10"
                     : "border-border hover:border-muted-foreground/30"
               )}
               animate={{ scale: isActive ? 1.01 : 1 }}
@@ -202,15 +202,15 @@ const WizardPreview = ({ formData, currentStep }: Props) => {
               <div className={cn("px-4 py-3 flex items-center gap-3", isActive && "bg-primary/5")}>
                 <div className={cn(
                   "w-8 h-8 rounded-full flex items-center justify-center shrink-0",
-                  isCompleted 
-                    ? "bg-green-500 text-primary-foreground" 
-                    : isActive 
-                      ? "bg-primary text-primary-foreground" 
+                  isCompleted
+                    ? "bg-green-500 text-primary-foreground"
+                    : isActive
+                      ? "bg-primary text-primary-foreground"
                       : "bg-muted text-muted-foreground"
                 )}>
                   {isCompleted ? <Check className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
                 </div>
-                
+
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className={cn(

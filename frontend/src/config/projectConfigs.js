@@ -58,6 +58,19 @@ export const PROJECT_TYPES = {
             { field: 'garageVehicules', label: 'Nombre de véhicules', type: 'number' }
         ]
     },
+    hangar: {
+        label: 'Hangar',
+        icon: 'Warehouse',
+        requiredFields: ['surfaceTerrain', 'surfacePlancherCreee', 'hauteurConstruction', 'materiauFacade', 'materiauToiture'],
+        optionalFields: ['couleurFacade', 'couleurToiture'],
+        requiredDocuments: ['dp1', 'dp2', 'dp3', 'dp4', 'dp6', 'dp7', 'dp8'],
+        optionalDocuments: ['dp5'],
+        pdfSections: ['terrain', 'surfaces', 'description', 'materiaux'],
+        specificQuestions: [
+            { field: 'hangarUsage', label: 'Usage du hangar', type: 'select', options: ['Agricole', 'Stockage', 'Atelier', 'Autre'] },
+            { field: 'hangarOuvert', label: 'Hangar ouvert sur les côtés ?', type: 'boolean' }
+        ]
+    },
     abri_jardin: {
         label: 'Abri de jardin',
         icon: 'Cabin',

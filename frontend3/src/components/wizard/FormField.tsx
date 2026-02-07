@@ -9,41 +9,45 @@ interface FormFieldProps {
   error?: string;
   hint?: string;
   required?: boolean;
+  value?: any;
   icon?: React.ComponentType<{ className?: string }>;
   children: React.ReactNode;
   className?: string;
 }
 
-const FormField = ({ 
-  label, 
-  htmlFor, 
-  error, 
-  hint, 
-  required, 
+const FormField = ({
+  label,
+  htmlFor,
+  error,
+  hint,
+  required,
+  value,
   icon: Icon,
   children,
-  className 
+  className
 }: FormFieldProps) => {
   return (
     <div className={cn("space-y-2", className)}>
-      <Label 
-        htmlFor={htmlFor} 
-        className={cn(
-          "text-base font-semibold flex items-center gap-2",
-          error && "text-destructive"
-        )}
-      >
-        {Icon && <Icon className="h-4 w-4 text-primary" />}
-        {label}
-        {required && <span className="text-destructive">*</span>}
-      </Label>
-      
+      <div className="flex items-center justify-between">
+        <Label
+          htmlFor={htmlFor}
+          className={cn(
+            "text-base font-semibold flex items-center gap-2",
+            error && "text-destructive"
+          )}
+        >
+          {Icon && <Icon className="h-4 w-4 text-primary" />}
+          {label}
+          {required && <span className="text-destructive">*</span>}
+        </Label>
+      </div>
+
       {hint && (
         <p className="text-sm text-muted-foreground">{hint}</p>
       )}
-      
+
       {children}
-      
+
       <AnimatePresence mode="wait">
         {error && (
           <motion.div

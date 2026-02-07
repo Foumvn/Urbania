@@ -21,7 +21,7 @@ function FormField({
     startAdornment,
     endAdornment,
     fullWidth = true,
-    showValidIcon = true,
+    showValidIcon = false,
     ...props
 }) {
     const hasValue = value && value.toString().trim() !== '';

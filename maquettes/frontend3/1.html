@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Cinematic Loading Sequence</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style type="text/tailwindcss">
+        @layer base {
+            :root {
+                --primary-color: #6366f1;
+                --liquid-gradient: linear-gradient(90deg, #818cf8, #c084fc, #6366f1);
+                --background-dark: #050505;
+            }
+        }
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.2; }
+            33% { transform: translate(30px, -50px) scale(1.1); opacity: 0.4; }
+            66% { transform: translate(-20px, 20px) scale(0.9); opacity: 0.2; }
+        }
+        @keyframes wave {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        @keyframes liquid-pulse {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; filter: brightness(1.2) drop-shadow(0 0 8px rgba(168, 85, 247, 0.6)); }
+        }
+        .ethereal-wisp {
+            filter: blur(80px);
+            animation: float 20s ease-in-out infinite;
+            pointer-events: none;
+        }
+        .scroll-container {
+            mask-image: linear-gradient(to bottom, transparent, black 40%, black 60%, transparent);
+            -webkit-mask-image: linear-gradient(to bottom, transparent, black 40%, black 60%, transparent);
+        }
+        .word-item {
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .word-item.dimmed {
+            opacity: 0.15;
+            transform: scale(0.85);
+            filter: blur(2px);
+        }
+        .word-item.active {
+            opacity: 1;
+            transform: scale(1.1);
+            color: #ffffff;
+            text-shadow: 0 0 25px rgba(255, 255, 255, 0.5);
+        }
+        .liquid-progress-container {
+            width: 280px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+        .liquid-fill {
+            height: 100%;
+            background: var(--liquid-gradient);
+            position: relative;
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+            animation: liquid-pulse 3s infinite ease-in-out;
+        }
+        .liquid-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.2) 50%,
+                transparent
+            );
+            animation: wave 2s infinite linear;
+        }
+        .scrolling {
+            animation: scrollBlur 0.8s ease-in-out;
+        }
+        @keyframes scrollBlur {
+            0% { filter: blur(0px); }
+            50% { filter: blur(4px); }
+            100% { filter: blur(0px); }
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#6366f1",
+                        "background-dark": "#050505",
+                    },
+                    fontFamily: {
+                        display: ["Inter", "sans-serif"],
+                    },
+                },
+            },
+        };
+    </script>
+</head>
+<body class="bg-background-dark font-display overflow-hidden selection:bg-primary/30">
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-background-dark overflow-hidden" id="loading-screen">
+<div class="absolute inset-0 overflow-hidden">
+<div class="ethereal-wisp absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/10 rounded-full"></div>
+<div class="ethereal-wisp absolute bottom-[-5%] right-[-5%] w-[600px] h-[600px] bg-purple-900/20 rounded-full" style="animation-delay: -5s;"></div>
+<div class="ethereal-wisp absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-blue-900/10 rounded-full" style="animation-delay: -10s;"></div>
+</div>
+<div class="relative z-10 w-full max-w-lg scroll-container h-[400px] flex flex-col items-center justify-center">
+<div class="flex flex-col items-center gap-12 text-5xl md:text-7xl font-light tracking-tight text-white/40" id="word-list">
+<span class="word-item dimmed">Core</span>
+<span class="word-item dimmed">Opening</span>
+<span class="word-item active">Basic</span>
+<span class="word-item dimmed">System</span>
+<span class="word-item dimmed">Alchemist</span>
+</div>
+</div>
+<div class="absolute bottom-20 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4">
+<div class="liquid-progress-container">
+<div class="liquid-fill" id="progress-bar" style="width: 0%"></div>
+</div>
+<span class="text-[9px] uppercase tracking-[0.4em] text-white/40 font-medium">Initializing Core</span>
+</div>
+</div>
+<div class="fixed inset-0 opacity-0 pointer-events-none bg-background-dark flex flex-col transition-opacity duration-1000" id="dashboard-view">
+<header class="h-16 border-b border-white/5 flex items-center justify-between px-8 bg-black/40 backdrop-blur-md">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-white text-[20px]">auto_awesome</span>
+</div>
+<span class="font-medium tracking-tight text-white">Alchemist AI</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-6 text-slate-400 text-sm font-medium">
+<a class="hover:text-white transition-colors" href="#">Workspace</a>
+<a class="hover:text-white transition-colors" href="#">Library</a>
+<a class="hover:text-white transition-colors" href="#">Settings</a>
+</div>
+<div class="w-8 h-8 rounded-full bg-slate-800 border border-white/10 overflow-hidden">
+<img alt="User Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCLWr81aD4GjTJfDYICn3F4ZqHs__SSwtLNDush5xvyOTa0lt9gIlH9MUaY6mHgnkRhKzVxJfJ8jgXHnI5z6g3skDALN5h1YCp3RaUosqfiPv_aP0tUKIGerIHf0jIfCSt7VHriWJLFEECJduXzMaPhrSry0IMwtQRshqaA2CLjvaABguOA--LYJv1V57A7kHPSjU-8DgOYJTwJ0dKtuZsWLL8lhSi3ihpziyQOKDuBndj06ODYzhw4YgEVKP8qoLWaK9Vijc2PKw"/>
+</div>
+</div>
+</header>
+<main class="flex-1 p-8 grid grid-cols-12 gap-6 overflow-y-auto">
+<div class="col-span-3 flex flex-col gap-6">
+<div class="p-6 rounded-2xl bg-slate-900/50 border border-white/5">
+<h3 class="text-xs font-medium text-slate-500 uppercase tracking-wider mb-4">Total Generations</h3>
+<div class="text-3xl font-semibold text-white">12,482</div>
+<div class="mt-2 text-xs text-emerald-500 flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">trending_up</span>
+<span>12% from last month</span>
+</div>
+</div>
+<div class="p-6 rounded-2xl bg-slate-900/50 border border-white/5">
+<h3 class="text-xs font-medium text-slate-500 uppercase tracking-wider mb-4">Model Performance</h3>
+<div class="flex items-end gap-2 h-24 mb-4">
+<div class="flex-1 bg-indigo-500/20 rounded-t h-[40%] transition-all hover:bg-indigo-500/40"></div>
+<div class="flex-1 bg-indigo-500/20 rounded-t h-[60%] transition-all hover:bg-indigo-500/40"></div>
+<div class="flex-1 bg-indigo-500/20 rounded-t h-[30%] transition-all hover:bg-indigo-500/40"></div>
+<div class="flex-1 bg-indigo-500/40 rounded-t h-[80%] transition-all hover:bg-indigo-500/60"></div>
+<div class="flex-1 bg-indigo-500/20 rounded-t h-[50%] transition-all hover:bg-indigo-500/40"></div>
+<div class="flex-1 bg-primary rounded-t h-[95%]"></div>
+</div>
+</div>
+</div>
+<div class="col-span-9 grid grid-cols-2 gap-6">
+<div class="col-span-2 p-8 rounded-2xl bg-indigo-500/5 border border-indigo-500/10 flex items-center justify-between relative overflow-hidden">
+<div class="relative z-10">
+<h2 class="text-2xl font-semibold text-white mb-2">Ready to create?</h2>
+<p class="text-slate-400 max-w-md">Unleash the power of fluid intelligence with our latest cinematic neural engines.</p>
+</div>
+<button class="relative z-10 px-6 py-3 bg-primary hover:bg-indigo-500 text-white rounded-xl font-medium transition-all transform active:scale-95 shadow-lg shadow-primary/20">
+                        New Project
+                    </button>
+<div class="absolute right-0 top-0 w-64 h-64 bg-primary/10 blur-[80px] rounded-full -mr-32 -mt-32"></div>
+</div>
+<div class="aspect-video rounded-2xl bg-slate-900/50 border border-white/5 overflow-hidden group">
+<img alt="Abstract fluid pattern" class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAOetOB5MXSkLZxSd6zGKKNpcXqfSrw8YL7jKdRL9stwjJb578fS5dO6RJ5QJbPjG-Q6dy8iCgiXUIdpmb2dV6zfI5UDhkatGmo5dZBGJFz_LVEbAwD09CgqA6MZ_2Qp4C-AnSP1Cj2QTgjXdgtgmLd-Zj0wF5Eqa8RIXtsTkynFnSiUFcvb9Ho0V0Yq2AAZW9HRwvM_dTuatijZ6UwlBKkBW4uzpb-Jt4_giKjuVquPtwO_zvgwFdkhQBIV-zFn9mGJnnXpCiNVg"/>
+</div>
+<div class="aspect-video rounded-2xl bg-slate-900/50 border border-white/5 overflow-hidden group">
+<img alt="Colorful cosmic texture" class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA9g38qWac8knV4NJirXuHqRdMSNShNFtzhjHgu6z8AoWSmrCWqcAZTrX2wS8e7l7ZUB4VWtiQGJgBj2JV0SsXzytD5oOhoXNauc_z0bWMTWvqnRoqzMtqC2U83JFavzdPuhpjOfSDn1AuFPSrHXzlG5sG4KqJ4cO8zKOSXnWB-eF9XXFd0UOm8wmgVLeSZxT5FFJ95Cv0dtIkaVW2fznbKKq6a1k1yaFAe64MpzuMjNx4RacmP-7_UzjwWyAgbtNv2p8-0isKmUw"/>
+</div>
+</div>
+</main>
+</div>
+<script>
+        const words = ['Initialize', 'Analysis', 'Core', 'Opening', 'Basic', 'Normal', 'Ending', 'Socials', 'System', 'Ready'];
+        const wordListEl = document.getElementById('word-list');
+        const progressBar = document.getElementById('progress-bar');
+        const loadingScreen = document.getElementById('loading-screen');
+        const dashboardView = document.getElementById('dashboard-view');
+        let currentIndex = 0;
+        const totalCycles = 15;
+        let cycles = 0;
+        function updateWordList() {
+            const wordElements = wordListEl.children;
+            wordListEl.classList.add('scrolling');
+            setTimeout(() => {
+                for(let i = 0; i < wordElements.length; i++) {
+                    const wordIdx = (currentIndex + i) % words.length;
+                    wordElements[i].innerText = words[wordIdx];
+                }
+                wordListEl.classList.remove('scrolling');
+                const progress = (cycles / totalCycles) * 100;
+                progressBar.style.width = `${progress}%`;
+                if (cycles < totalCycles) {
+                    currentIndex = (currentIndex + 1) % words.length;
+                    cycles++;
+                    setTimeout(updateWordList, 350 + Math.random() * 500);
+                } else {
+                    finishLoading();
+                }
+            }, 400);
+        }
+        function finishLoading() {
+            const activeWord = wordListEl.querySelector('.word-item.active');
+            activeWord.innerText = "Authorized";
+            activeWord.classList.add('text-indigo-300');
+            progressBar.style.width = '100%';
+            setTimeout(() => {
+                loadingScreen.style.transition = 'opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1), transform 1.2s cubic-bezier(0.4, 0, 0.2, 1)';
+                loadingScreen.style.opacity = '0';
+                loadingScreen.style.transform = 'scale(1.05)';
+                dashboardView.classList.remove('pointer-events-none');
+                dashboardView.style.opacity = '1';
+                setTimeout(() => {
+                    loadingScreen.remove();
+                }, 1200);
+            }, 800);
+        }
+        window.onload = () => {
+            setTimeout(updateWordList, 800);
+        };
+    </script>
+
+</body></html>

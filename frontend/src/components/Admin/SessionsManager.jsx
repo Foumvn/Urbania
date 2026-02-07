@@ -64,7 +64,7 @@ function SessionsManager() {
     const fetchSessions = async () => {
         setLoading(true);
         try {
-            const token = localStorage.getItem('urbania_token');
+            const token = localStorage.getItem('access_token');
             const response = await fetch(`${API_BASE}/admin/sessions/`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });

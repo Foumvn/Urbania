@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Input } from "@/components/ui/input";
-import { MapPin, Search, Loader2, CheckCircle2 } from "lucide-react";
+import { MapPin, Search, Loader2, CheckCircle2, Ruler } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { CerfaFormData } from "@/pages/NouveauDossier";
+import { CerfaFormData } from "@/lib/pdfGenerator";
 import { useToast } from "@/hooks/use-toast";
 import FormField from "./FormField";
 import AddressAutocomplete from "./AddressAutocomplete";
@@ -21,7 +21,7 @@ const WizardStepLocation = ({ formData, updateFormData, errors }: Props) => {
   const { toast } = useToast();
   const [selectedAddress, setSelectedAddress] = useState<AddressSuggestion | null>(null);
   const [selectedParcelle, setSelectedParcelle] = useState<CadastreParcelle | null>(null);
-  
+
   const { parcelles, isLoading: isCadastreLoading, error: cadastreError, searchParcelles, clearParcelles } = useCadastreSearch();
 
   const handleAddressSelect = (suggestion: AddressSuggestion) => {
@@ -30,11 +30,11 @@ const WizardStepLocation = ({ formData, updateFormData, errors }: Props) => {
     updateFormData("postalCode", suggestion.postcode);
     updateFormData("city", suggestion.city);
     updateFormData("codeInsee" as keyof CerfaFormData, suggestion.citycode);
-    
+
     // Clear previous parcelle selection
     setSelectedParcelle(null);
     clearParcelles();
-    
+
     toast({
       title: "Adresse sélectionnée",
       description: `${suggestion.name}, ${suggestion.postcode} ${suggestion.city}`,
@@ -57,7 +57,8 @@ const WizardStepLocation = ({ formData, updateFormData, errors }: Props) => {
   const handleSelectParcelle = (parcelle: CadastreParcelle) => {
     setSelectedParcelle(parcelle);
     updateFormData("cadastralReference", parcelle.reference);
-    
+    updateFormData("terrainSurface", parcelle.contenance.toString());
+
     toast({
       title: "Parcelle sélectionnée",
       description: `Référence cadastrale: ${parcelle.reference} (${parcelle.contenance} m²)`,
@@ -89,38 +90,41 @@ const WizardStepLocation = ({ formData, updateFormData, errors }: Props) => {
 
       <div className="space-y-6">
         {/* Address Autocomplete */}
-        <FormField 
-          label="Adresse du terrain" 
-          htmlFor="address" 
+        <FormField
+          label="Adresse du terrain"
+          htmlFor="address"
           error={errors.address}
+          value={formData.address}
           required
+          hint="Commencez à taper pour voir les suggestions"
         >
           <AddressAutocomplete
             value={formData.address}
             onChange={(value) => updateFormData("address", value)}
             onSelect={handleAddressSelect}
-            placeholder="Commencez à taper votre adresse..."
+            placeholder="Ex: 12 rue des Lilas, Paris"
             error={errors.address}
           />
           {selectedAddress && (
-            <motion.p 
+            <motion.p
               initial={{ opacity: 0, y: -5 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-sm text-green-600 flex items-center gap-1 mt-1"
+              className="text-sm text-primary flex items-center gap-1 mt-1 font-medium"
             >
-              <CheckCircle2 className="h-4 w-4" />
-              Adresse validée via la Base Adresse Nationale
+              Adresse connectée à la Base Adresse Nationale
             </motion.p>
           )}
         </FormField>
 
         {/* City and Postal Code */}
         <div className="grid sm:grid-cols-2 gap-4">
-          <FormField 
-            label="Code postal" 
-            htmlFor="postalCode" 
+          <FormField
+            label="Code postal"
+            htmlFor="postalCode"
             error={errors.postalCode}
+            value={formData.postalCode}
             required
+            hint="5 chiffres"
           >
             <Input
               id="postalCode"
@@ -134,12 +138,14 @@ const WizardStepLocation = ({ formData, updateFormData, errors }: Props) => {
               inputMode="numeric"
             />
           </FormField>
-          
-          <FormField 
-            label="Ville" 
-            htmlFor="city" 
+
+          <FormField
+            label="Ville"
+            htmlFor="city"
             error={errors.city}
+            value={formData.city}
             required
+            hint="Nom de la commune"
           >
             <Input
               id="city"
@@ -154,14 +160,15 @@ const WizardStepLocation = ({ formData, updateFormData, errors }: Props) => {
           </FormField>
         </div>
 
-        {/* Cadastral Reference */}
-        <div className="bg-muted/50 rounded-xl p-5 border border-border">
+        {/* Cadastral Reference and Surface */}
+        <div className="bg-muted/30 rounded-2xl p-6 border border-border/50 space-y-6">
           <div className="flex items-start justify-between gap-4">
-            <FormField 
-              label="Référence cadastrale" 
-              htmlFor="cadastral" 
+            <FormField
+              label="Référence cadastrale"
+              htmlFor="cadastral"
               error={errors.cadastralReference}
-              hint="Cliquez sur 'Rechercher' pour trouver automatiquement la parcelle"
+              value={formData.cadastralReference}
+              hint="Cliquez sur 'Rechercher' pour trouver automatiquement"
               className="flex-1"
             >
               <Input
@@ -176,12 +183,12 @@ const WizardStepLocation = ({ formData, updateFormData, errors }: Props) => {
                 )}
               />
             </FormField>
-            <Button 
-              variant="outline" 
-              size="sm"
+            <Button
+              variant="outline"
+              size="lg"
               onClick={handleSearchCadastre}
               disabled={!selectedAddress || isCadastreLoading}
-              className="gap-2 mt-8"
+              className="gap-2 mt-8 h-12 rounded-xl"
             >
               {isCadastreLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -192,12 +199,33 @@ const WizardStepLocation = ({ formData, updateFormData, errors }: Props) => {
             </Button>
           </div>
 
+          <FormField
+            label="Surface du terrain (m²)"
+            htmlFor="terrainSurface"
+            error={errors.terrainSurface}
+            value={formData.terrainSurface}
+            icon={Ruler}
+            hint="Surface totale de l'unité foncière"
+          >
+            <Input
+              id="terrainSurface"
+              placeholder="500"
+              value={formData.terrainSurface}
+              onChange={(e) => updateFormData("terrainSurface", e.target.value)}
+              className={cn(
+                "h-12",
+                errors.terrainSurface && "border-destructive focus-visible:ring-destructive"
+              )}
+              inputMode="numeric"
+            />
+          </FormField>
+
           {/* Cadastre Error */}
           {cadastreError && (
-            <motion.p 
+            <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-sm text-destructive mt-2"
+              className="text-sm text-destructive mt-2 font-medium"
             >
               {cadastreError}
             </motion.p>
@@ -210,22 +238,22 @@ const WizardStepLocation = ({ formData, updateFormData, errors }: Props) => {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
-                className="mt-4"
+                className="mt-4 pt-4 border-t border-border/50"
               >
-                <p className="text-sm font-medium text-foreground mb-2">
+                <p className="text-sm font-bold text-foreground mb-3 uppercase tracking-wider">
                   Parcelles trouvées à proximité :
                 </p>
-                <div className="grid gap-2">
+                <div className="grid gap-3">
                   {parcelles.map((parcelle) => (
                     <motion.button
                       key={parcelle.id}
                       type="button"
                       onClick={() => handleSelectParcelle(parcelle)}
                       className={cn(
-                        "w-full p-3 rounded-lg border text-left transition-all",
+                        "w-full p-4 rounded-xl border text-left transition-all",
                         selectedParcelle?.id === parcelle.id
-                          ? "border-primary bg-primary/5"
-                          : "border-border hover:border-primary/50 hover:bg-muted/50"
+                          ? "border-primary bg-primary/10 shadow-sm"
+                          : "border-border/50 bg-background/50 hover:border-primary/50 hover:bg-background"
                       )}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -233,22 +261,19 @@ const WizardStepLocation = ({ formData, updateFormData, errors }: Props) => {
                       whileTap={{ scale: 0.99 }}
                     >
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                            <MapPin className="h-5 w-5 text-primary" />
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                            <MapPin className="h-6 w-6 text-primary" />
                           </div>
                           <div>
-                            <p className="font-semibold text-foreground">
+                            <p className="font-bold text-lg text-foreground">
                               {parcelle.reference}
                             </p>
-                            <p className="text-sm text-muted-foreground">
-                              Surface : {parcelle.contenance.toLocaleString("fr-FR")} m²
+                            <p className="text-sm text-muted-foreground font-medium">
+                              Contenance : {parcelle.contenance.toLocaleString("fr-FR")} m²
                             </p>
                           </div>
                         </div>
-                        {selectedParcelle?.id === parcelle.id && (
-                          <CheckCircle2 className="h-5 w-5 text-primary" />
-                        )}
                       </div>
                     </motion.button>
                   ))}
@@ -259,11 +284,14 @@ const WizardStepLocation = ({ formData, updateFormData, errors }: Props) => {
         </div>
 
         {/* Map placeholder */}
-        <div className="bg-muted rounded-xl h-48 flex items-center justify-center border border-dashed border-border">
-          <div className="text-center">
-            <MapPin className="h-10 w-10 text-muted-foreground mx-auto mb-2" />
-            <p className="text-muted-foreground">
-              {selectedAddress 
+        <div className="bg-muted/20 rounded-2xl h-56 flex items-center justify-center border-2 border-dashed border-border/50 relative overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="text-center relative z-10">
+            <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-3 shadow-inner">
+              <MapPin className="h-6 w-6 text-muted-foreground" />
+            </div>
+            <p className="text-muted-foreground font-medium">
+              {selectedAddress
                 ? `📍 ${selectedAddress.coordinates[1].toFixed(5)}, ${selectedAddress.coordinates[0].toFixed(5)}`
                 : "Carte interactive bientôt disponible"
               }

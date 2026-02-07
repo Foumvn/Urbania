@@ -1,54 +1,27 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-    Box,
-    Container,
-    Typography,
-    Grid,
-    Card,
-    CardContent,
-    Button,
-    List,
-    ListItem,
-    ListItemText,
-    ListItemIcon,
-    ListItemSecondaryAction,
-    IconButton,
-    Chip,
-    Paper,
-    Divider,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    Avatar,
-    Accordion,
-    AccordionSummary,
-    AccordionDetails,
-    AppBar,
-    Toolbar,
-    CircularProgress,
-} from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import DescriptionIcon from '@mui/icons-material/Description';
-import FolderIcon from '@mui/icons-material/Folder';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import PendingIcon from '@mui/icons-material/Pending';
-import DownloadIcon from '@mui/icons-material/Download';
-import DeleteIcon from '@mui/icons-material/Delete';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import SettingsIcon from '@mui/icons-material/Settings';
-import PersonIcon from '@mui/icons-material/Person';
-import HelpIcon from '@mui/icons-material/Help';
-import ExitToAppIcon from '@mui/icons-material/ExitToApp';
-import HomeWorkIcon from '@mui/icons-material/HomeWork';
-import BuildIcon from '@mui/icons-material/Build';
-import LandscapeIcon from '@mui/icons-material/Landscape';
+import { motion } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import { useForm } from '../../context/FormContext';
-
 import { useI18n } from '../../context/I18nContext';
+import { useAuthLoading } from '../../context/AuthLoadingProvider';
+import logoUrbania from '../../assets/logo-urbania.jpg';
+import {
+    Plus,
+    FileText,
+    Folder,
+    CheckCircle,
+    Clock,
+    Download,
+    Eye,
+    Trash2,
+    Settings,
+    User,
+    LogOut,
+    HelpCircle,
+    Home,
+    ChevronRight
+} from 'lucide-react';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8010/api';
 
@@ -68,7 +41,7 @@ function UserDashboard() {
 
     const fetchDossiers = async () => {
         try {
-            const token = localStorage.getItem('urbania_token');
+            const token = localStorage.getItem('access_token');
             const response = await fetch(`${API_BASE}/dossiers/`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -83,24 +56,11 @@ function UserDashboard() {
         }
     };
 
-    const faqItems = [
-        {
-            question: "Qu'est-ce qu'une Déclaration Préalable (DP) ?",
-            answer: "C'est une autorisation d'urbanisme obligatoire pour des travaux de faible importance (piscine, clôture, ravalement, etc.)."
-        },
-        {
-            question: "Quel est le délai d'instruction ?",
-            answer: "Le délai d'instruction est généralement de 1 mois à partir du dépôt en mairie."
-        },
-        {
-            question: "Quelles pièces sont nécessaires ?",
-            answer: "Un plan de situation, un plan de masse, et selon les travaux, un plan de façades ou une insertion paysagère."
-        }
-    ];
+    const { startLoading } = useAuthLoading();
 
     const handleNewDossier = () => {
         reset();
-        navigate('/formulaire');
+        startLoading('/formulaire');
     };
 
     const handleLogout = () => {
@@ -116,290 +76,310 @@ function UserDashboard() {
             'EXTENSION': 'Extension / Agrandissement',
             'ABRI_JARDIN': 'Abri de jardin',
         };
-        return labels[nature] || nature || 'Projet sans titre';
+        return labels[nature] || nature || 'Nouveau projet';
     };
 
-    const getNatureIcon = (nature) => {
-        switch (nature) {
-            case 'RAVALEMENT': return <HomeWorkIcon />;
-            case 'PISCINE': return <LandscapeIcon />;
-            case 'EXTENSION': return <BuildIcon />;
-            default: return <DescriptionIcon />;
-        }
-    };
-
-    const handleDownload = (dossier) => {
-        console.log('Téléchargement du CERFA pour le dossier', dossier.id);
-    };
+    const completedCount = dossiers.filter(d => d.status === 'completed').length;
+    const pendingCount = dossiers.filter(d => d.status !== 'completed').length;
 
     return (
-        <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', color: 'text.primary' }}>
-            {/* Header local */}
-            <AppBar position="static" elevation={0} sx={{ bgcolor: 'background.paper', borderBottom: 1, borderColor: 'divider' }}>
-                <Toolbar sx={{ justifyContent: 'space-between' }}>
-                    <Box
-                        sx={{ display: 'flex', alignItems: 'center', gap: 1.5, cursor: 'pointer' }}
-                        onClick={() => navigate('/dashboard')}
+        <div className="min-h-screen bg-slate-50">
+            {/* Header */}
+            <header className="bg-white border-b border-slate-200 sticky top-0 z-50">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex items-center justify-between h-16">
+                        <div
+                            className="flex items-center gap-3 cursor-pointer"
+                            onClick={() => navigate('/dashboard')}
+                        >
+                            <img
+                                src={logoUrbania}
+                                alt="Urbania"
+                                className="h-10 w-auto rounded-lg"
+                            />
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            {user?.role === 'admin' && (
+                                <button
+                                    onClick={() => navigate('/admin')}
+                                    className="px-3 py-2 text-sm text-slate-600 hover:text-[#002395] transition-colors"
+                                >
+                                    Admin
+                                </button>
+                            )}
+                            <button
+                                onClick={() => navigate('/profile')}
+                                className="p-2 text-slate-600 hover:text-[#002395] hover:bg-slate-100 rounded-lg transition-all"
+                            >
+                                <User className="h-5 w-5" />
+                            </button>
+                            <button
+                                onClick={() => navigate('/settings')}
+                                className="p-2 text-slate-600 hover:text-[#002395] hover:bg-slate-100 rounded-lg transition-all"
+                            >
+                                <Settings className="h-5 w-5" />
+                            </button>
+                            <button
+                                onClick={handleLogout}
+                                className="p-2 text-slate-600 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                            >
+                                <LogOut className="h-5 w-5" />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                {/* Welcome Section */}
+                <motion.div
+                    className="mb-8"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                >
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div>
+                            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">
+                                Bonjour, {user?.first_name || 'Utilisateur'} 👋
+                            </h1>
+                            <p className="text-slate-500 mt-1">
+                                Gérez vos déclarations préalables de travaux
+                            </p>
+                        </div>
+                        <motion.button
+                            onClick={handleNewDossier}
+                            className="inline-flex items-center gap-2 px-5 py-3 bg-[#002395] text-white font-semibold rounded-xl shadow-lg shadow-[#002395]/20 hover:shadow-xl hover:shadow-[#002395]/30 transition-all"
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                        >
+                            <Plus className="h-5 w-5" />
+                            Nouveau dossier
+                        </motion.button>
+                    </div>
+                </motion.div>
+
+                {/* Stats Cards */}
+                <motion.div
+                    className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.1 }}
+                >
+                    <div className="bg-white rounded-2xl border border-slate-200 p-5">
+                        <div className="text-3xl font-bold text-[#002395]">{dossiers.length}</div>
+                        <div className="text-sm text-slate-500 mt-1">Total dossiers</div>
+                    </div>
+                    <div className="bg-white rounded-2xl border border-slate-200 p-5">
+                        <div className="text-3xl font-bold text-emerald-500">{completedCount}</div>
+                        <div className="text-sm text-slate-500 mt-1">Terminés</div>
+                    </div>
+                    <div className="bg-white rounded-2xl border border-slate-200 p-5">
+                        <div className="text-3xl font-bold text-amber-500">{pendingCount}</div>
+                        <div className="text-sm text-slate-500 mt-1">En cours</div>
+                    </div>
+                    <div className="bg-white rounded-2xl border border-slate-200 p-5">
+                        <div className="text-3xl font-bold text-[#002395]">6</div>
+                        <div className="text-sm text-slate-500 mt-1">Plans générés</div>
+                    </div>
+                </motion.div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    {/* Main Content - Dossiers List */}
+                    <motion.div
+                        className="lg:col-span-2"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.2 }}
                     >
-                        <Box
-                            component="img"
-                            src="/logo.png"
-                            alt="Urbania"
-                            sx={{ height: 40, width: 'auto' }}
-                        />
-                    </Box>
-                    <Box sx={{ display: 'flex', gap: 1 }}>
-                        <Button color="inherit" onClick={() => navigate('/admin')} sx={{ color: 'text.secondary', display: user?.role === 'admin' ? 'block' : 'none' }}>
-                            {t('nav.admin')}
-                        </Button>
-                        <IconButton onClick={() => navigate('/profile')} color="inherit" size="small">
-                            <PersonIcon />
-                        </IconButton>
-                        <IconButton onClick={() => navigate('/settings')} color="inherit" size="small">
-                            <SettingsIcon />
-                        </IconButton>
-                        <IconButton onClick={handleLogout} color="error" size="small">
-                            <ExitToAppIcon />
-                        </IconButton>
-                    </Box>
-                </Toolbar>
-            </AppBar>
-
-            <Container maxWidth="lg" sx={{ py: 4 }}>
-                {/* Welcome */}
-                <Box sx={{ mb: 4, display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'flex-start' }, gap: 2 }}>
-                    <Box>
-                        <Typography variant="h4" fontWeight={700} gutterBottom sx={{ fontSize: { xs: '1.75rem', sm: '2.125rem' } }}>
-                            {t('dashboard.welcome')} {user?.first_name || 'Utilisateur'} 👋
-                        </Typography>
-                        <Typography variant="body1" color="text.secondary">
-                            {lang === 'fr' ? 'Contrôlez et gérez vos dossiers de déclaration préalable.' : 'Control and manage your preliminary declaration files.'}
-                        </Typography>
-                    </Box>
-                    <Button
-                        variant="contained"
-                        startIcon={<AddIcon />}
-                        onClick={handleNewDossier}
-                        sx={{ borderRadius: 2, px: 3, py: { xs: 1.5, sm: 1 } }}
-                    >
-                        {t('nav.form')}
-                    </Button>
-                </Box>
-
-                <Grid container spacing={4}>
-                    <Grid item xs={12} md={8}>
-                        {/* Stats */}
-                        <Grid container spacing={3} sx={{ mb: 4 }}>
-                            <Grid item xs={6} sm={3}>
-                                <Card elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 3 }}>
-                                    <CardContent sx={{ textAlign: 'center' }}>
-                                        <Typography variant="h3" fontWeight={700} color="primary.main">
-                                            {dossiers.length}
-                                        </Typography>
-                                        <Typography variant="body2" color="text.secondary">
-                                            Dossiers
-                                        </Typography>
-                                    </CardContent>
-                                </Card>
-                            </Grid>
-                            <Grid item xs={6} sm={3}>
-                                <Card elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 3 }}>
-                                    <CardContent sx={{ textAlign: 'center' }}>
-                                        <Typography variant="h3" fontWeight={700} color="success.main">
-                                            {dossiers.filter(d => d.status === 'completed').length}
-                                        </Typography>
-                                        <Typography variant="body2" color="text.secondary">
-                                            Terminés
-                                        </Typography>
-                                    </CardContent>
-                                </Card>
-                            </Grid>
-                        </Grid>
-
-                        {/* Dossiers List */}
-                        <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 3 }}>
-                            <Box sx={{ p: 3, borderBottom: 1, borderColor: 'divider' }}>
-                                <Typography variant="h6" fontWeight={700}>
-                                    {t('dashboard.recent')}
-                                </Typography>
-                            </Box>
+                        <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+                            <div className="px-6 py-4 border-b border-slate-100">
+                                <h2 className="text-lg font-semibold text-slate-900">Mes dossiers</h2>
+                            </div>
 
                             {loading ? (
-                                <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-                                    <CircularProgress size={32} />
-                                </Box>
-                            ) : (
-                                <List sx={{ py: 0 }}>
-                                    {dossiers.map((dossier, index) => (
-                                        <ListItem
-                                            key={dossier.id}
-                                            divider={index < dossiers.length - 1}
-                                            sx={{
-                                                py: 2.5,
-                                                px: { xs: 2, sm: 3 },
-                                                flexDirection: { xs: 'column', sm: 'row' },
-                                                alignItems: { xs: 'flex-start', sm: 'center' },
-                                                gap: { xs: 1.5, sm: 0 }
-                                            }}
-                                        >
-                                            <ListItemIcon sx={{ minWidth: { xs: 'auto', sm: 56 } }}>
-                                                <Avatar
-                                                    sx={{
-                                                        bgcolor: dossier.status === 'completed' ? 'success.50' : 'warning.50',
-                                                        color: dossier.status === 'completed' ? 'success.main' : 'warning.main',
-                                                        width: { xs: 32, sm: 40 },
-                                                        height: { xs: 32, sm: 40 }
-                                                    }}
-                                                >
-                                                    {getNatureIcon(dossier.data?.natureTravaux)}
-                                                </Avatar>
-                                            </ListItemIcon>
-                                            <ListItemText
-                                                primary={
-                                                    <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
-                                                        <Typography fontWeight={600} sx={{ fontSize: { xs: '0.9rem', sm: '1rem' } }}>
-                                                            {getNatureLabel(dossier.data?.natureTravaux)}
-                                                        </Typography>
-                                                        <Chip
-                                                            label={dossier.status === 'completed' ? 'Terminé' : 'En cours'}
-                                                            size="small"
-                                                            color={dossier.status === 'completed' ? 'success' : 'warning'}
-                                                            icon={dossier.status === 'completed' ? <CheckCircleIcon /> : <PendingIcon />}
-                                                            sx={{ fontWeight: 500, height: 20, '& .MuiChip-label': { px: 1, fontSize: '0.7rem' } }}
-                                                        />
-                                                    </Box>
-                                                }
-                                                secondary={
-                                                    <Box sx={{ mt: 0.5 }}>
-                                                        <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
-                                                            {dossier.data?.terrainVille || 'Adresse non renseignée'} •
-                                                            {new Date(dossier.createdAt).toLocaleDateString('fr-FR')}
-                                                        </Typography>
-                                                    </Box>
-                                                }
-                                                sx={{ m: 0 }}
-                                            />
-                                            <Box sx={{
-                                                display: 'flex',
-                                                gap: 0.5,
-                                                width: { xs: '100%', sm: 'auto' },
-                                                justifyContent: { xs: 'flex-end', sm: 'flex-start' },
-                                                mt: { xs: 1, sm: 0 }
-                                            }}>
-                                                {dossier.status === 'completed' && (
-                                                    <IconButton size="small" color="primary" onClick={() => handleDownload(dossier)}>
-                                                        <DownloadIcon fontSize="small" />
-                                                    </IconButton>
-                                                )}
-                                                <IconButton size="small" onClick={() => navigate(`/formulaire?id=${dossier.id}`)}>
-                                                    <VisibilityIcon fontSize="small" />
-                                                </IconButton>
-                                                <IconButton
-                                                    size="small"
-                                                    onClick={() => { setSelectedDossier(dossier); setDeleteDialogOpen(true); }}
-                                                >
-                                                    <DeleteIcon fontSize="small" />
-                                                </IconButton>
-                                            </Box>
-                                        </ListItem>
+                                <div className="divide-y divide-slate-100">
+                                    {[1, 2, 3].map((i) => (
+                                        <div key={i} className="p-8 animate-pulse flex gap-4">
+                                            <div className="w-12 h-12 bg-slate-100 rounded-xl" />
+                                            <div className="flex-1 space-y-3">
+                                                <div className="h-4 bg-slate-100 rounded w-1/4" />
+                                                <div className="h-3 bg-slate-50 rounded w-1/2" />
+                                            </div>
+                                        </div>
                                     ))}
+                                </div>
+                            ) : dossiers.length === 0 ? (
+                                <div className="py-16 text-center">
+                                    <Folder className="h-12 w-12 text-slate-300 mx-auto mb-4" />
+                                    <p className="text-slate-500">Aucun dossier pour le moment</p>
+                                    <button
+                                        onClick={handleNewDossier}
+                                        className="mt-4 text-[#002395] font-medium hover:underline"
+                                    >
+                                        Créer votre premier dossier
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="divide-y divide-slate-100">
+                                    {dossiers.map((dossier, index) => (
+                                        <motion.div
+                                            key={dossier.id}
+                                            className="p-4 sm:p-5 hover:bg-slate-50 transition-colors"
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: index * 0.05 }}
+                                        >
+                                            <div className="flex items-start sm:items-center gap-4">
+                                                <div className={`p-3 rounded-xl ${dossier.status === 'completed'
+                                                    ? 'bg-emerald-50 text-emerald-600'
+                                                    : 'bg-amber-50 text-amber-600'
+                                                    }`}>
+                                                    <FileText className="h-5 w-5" />
+                                                </div>
 
-                                    {dossiers.length === 0 && (
-                                        <Box sx={{ py: 8, textAlign: 'center' }}>
-                                            <FolderIcon sx={{ fontSize: 48, color: 'text.disabled', mb: 2 }} />
-                                            <Typography color="text.secondary">
-                                                {t('dashboard.no_dossiers')}
-                                            </Typography>
-                                        </Box>
-                                    )}
-                                </List>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center gap-2 flex-wrap">
+                                                        <h3 className="font-semibold text-slate-900 truncate">
+                                                            {getNatureLabel(dossier.data?.natureTravaux)}
+                                                        </h3>
+                                                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${dossier.status === 'completed'
+                                                            ? 'bg-emerald-100 text-emerald-700'
+                                                            : 'bg-amber-100 text-amber-700'
+                                                            }`}>
+                                                            {dossier.status === 'completed' ? (
+                                                                <>
+                                                                    <CheckCircle className="h-3 w-3" />
+                                                                    Terminé
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    <Clock className="h-3 w-3" />
+                                                                    En cours
+                                                                </>
+                                                            )}
+                                                        </span>
+                                                    </div>
+                                                    <p className="text-sm text-slate-500 mt-0.5">
+                                                        {dossier.data?.terrainVille || 'Adresse non renseignée'} • {new Date(dossier.createdAt).toLocaleDateString('fr-FR')}
+                                                    </p>
+                                                </div>
+
+                                                <div className="flex items-center gap-1">
+                                                    {dossier.status === 'completed' && (
+                                                        <button className="p-2 text-slate-400 hover:text-[#002395] hover:bg-[#002395]/5 rounded-lg transition-all">
+                                                            <Download className="h-4 w-4" />
+                                                        </button>
+                                                    )}
+                                                    <button
+                                                        onClick={() => navigate(`/formulaire?id=${dossier.id}`)}
+                                                        className="p-2 text-slate-400 hover:text-[#002395] hover:bg-[#002395]/5 rounded-lg transition-all"
+                                                    >
+                                                        <Eye className="h-4 w-4" />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => { setSelectedDossier(dossier); setDeleteDialogOpen(true); }}
+                                                        className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                                                    >
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </motion.div>
+                                    ))}
+                                </div>
                             )}
-                        </Paper>
-                    </Grid>
+                        </div>
+                    </motion.div>
 
-                    <Grid item xs={12} md={4}>
+                    {/* Sidebar */}
+                    <motion.div
+                        className="space-y-6"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.3 }}
+                    >
                         {/* Quick Actions */}
-                        <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 3, p: 3, mb: 3 }}>
-                            <Typography variant="h6" fontWeight={700} gutterBottom>
-                                Actions rapides
-                            </Typography>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                                <Button
-                                    fullWidth
-                                    variant="outlined"
-                                    startIcon={<HelpIcon />}
-                                    sx={{ justifyContent: 'flex-start', py: 1.5 }}
+                        <div className="bg-white rounded-2xl border border-slate-200 p-5">
+                            <h3 className="text-lg font-semibold text-slate-900 mb-4">Actions rapides</h3>
+                            <div className="space-y-2">
+                                <button
+                                    onClick={handleNewDossier}
+                                    className="w-full flex items-center gap-3 p-3 text-left rounded-xl border border-slate-200 hover:border-[#002395] hover:bg-[#002395]/5 transition-all group"
                                 >
-                                    Centre d'aide
-                                </Button>
-                                <Button
-                                    fullWidth
-                                    variant="outlined"
-                                    startIcon={<PersonIcon />}
+                                    <div className="p-2 bg-[#002395]/10 rounded-lg text-[#002395] group-hover:bg-[#002395] group-hover:text-white transition-all">
+                                        <Plus className="h-4 w-4" />
+                                    </div>
+                                    <span className="font-medium text-slate-700">Nouveau dossier</span>
+                                    <ChevronRight className="h-4 w-4 text-slate-400 ml-auto" />
+                                </button>
+                                <button
                                     onClick={() => navigate('/profile')}
-                                    sx={{ justifyContent: 'flex-start', py: 1.5 }}
+                                    className="w-full flex items-center gap-3 p-3 text-left rounded-xl border border-slate-200 hover:border-[#002395] hover:bg-[#002395]/5 transition-all group"
                                 >
-                                    {t('nav.profile')}
-                                </Button>
-                                <Button
-                                    fullWidth
-                                    variant="outlined"
-                                    startIcon={<SettingsIcon />}
-                                    onClick={() => navigate('/settings')}
-                                    sx={{ justifyContent: 'flex-start', py: 1.5 }}
+                                    <div className="p-2 bg-slate-100 rounded-lg text-slate-600 group-hover:bg-[#002395] group-hover:text-white transition-all">
+                                        <User className="h-4 w-4" />
+                                    </div>
+                                    <span className="font-medium text-slate-700">Mon profil</span>
+                                    <ChevronRight className="h-4 w-4 text-slate-400 ml-auto" />
+                                </button>
+                                <button
+                                    className="w-full flex items-center gap-3 p-3 text-left rounded-xl border border-slate-200 hover:border-[#002395] hover:bg-[#002395]/5 transition-all group"
                                 >
-                                    {t('nav.settings')}
-                                </Button>
-                            </Box>
-                        </Paper>
+                                    <div className="p-2 bg-slate-100 rounded-lg text-slate-600 group-hover:bg-[#002395] group-hover:text-white transition-all">
+                                        <HelpCircle className="h-4 w-4" />
+                                    </div>
+                                    <span className="font-medium text-slate-700">Centre d'aide</span>
+                                    <ChevronRight className="h-4 w-4 text-slate-400 ml-auto" />
+                                </button>
+                            </div>
+                        </div>
 
-                        {/* FAQ */}
-                        <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 3, p: 3 }}>
-                            <Typography variant="h6" fontWeight={700} gutterBottom>
-                                Questions fréquentes
-                            </Typography>
-                            {faqItems.map((item, index) => (
-                                <Accordion
-                                    key={index}
-                                    elevation={0}
-                                    sx={{
-                                        '&:before': { display: 'none' },
-                                        bgcolor: 'transparent',
-                                    }}
-                                >
-                                    <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ px: 0 }}>
-                                        <Typography variant="body2" fontWeight={500}>
-                                            {item.question}
-                                        </Typography>
-                                    </AccordionSummary>
-                                    <AccordionDetails sx={{ px: 0 }}>
-                                        <Typography variant="body2" color="text.secondary">
-                                            {item.answer}
-                                        </Typography>
-                                    </AccordionDetails>
-                                </Accordion>
-                            ))}
-                        </Paper>
-                    </Grid>
-                </Grid>
-            </Container>
+                        {/* Info Card */}
+                        <div className="bg-gradient-to-br from-[#002395] to-[#3b5fc4] rounded-2xl p-6 text-white">
+                            <h3 className="text-lg font-semibold mb-2">Besoin d'aide ?</h3>
+                            <p className="text-white/80 text-sm mb-4">
+                                Notre équipe est disponible pour vous accompagner dans vos démarches.
+                            </p>
+                            <button className="w-full py-2.5 px-4 bg-white text-[#002395] font-semibold rounded-xl hover:bg-white/90 transition-colors">
+                                Nous contacter
+                            </button>
+                        </div>
+                    </motion.div>
+                </div>
+            </main>
 
             {/* Delete Dialog */}
-            <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
-                <DialogTitle>Supprimer ce dossier ?</DialogTitle>
-                <DialogContent>
-                    <Typography>
-                        Cette action est irréversible. Voulez-vous vraiment supprimer ce dossier ?
-                    </Typography>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setDeleteDialogOpen(false)}>Annuler</Button>
-                    <Button color="error" variant="contained" onClick={() => setDeleteDialogOpen(false)}>
-                        Supprimer
-                    </Button>
-                </DialogActions>
-            </Dialog>
-        </Box>
+            {deleteDialogOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+                    <motion.div
+                        className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl"
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                    >
+                        <h3 className="text-lg font-semibold text-slate-900 mb-2">Supprimer ce dossier ?</h3>
+                        <p className="text-slate-500 mb-6">
+                            Cette action est irréversible. Voulez-vous vraiment supprimer ce dossier ?
+                        </p>
+                        <div className="flex gap-3 justify-end">
+                            <button
+                                onClick={() => setDeleteDialogOpen(false)}
+                                className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                            >
+                                Annuler
+                            </button>
+                            <button
+                                onClick={() => setDeleteDialogOpen(false)}
+                                className="px-4 py-2 bg-red-500 text-white font-medium rounded-lg hover:bg-red-600 transition-colors"
+                            >
+                                Supprimer
+                            </button>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
+        </div>
     );
 }
 

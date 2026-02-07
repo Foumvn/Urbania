@@ -65,7 +65,7 @@ function ActivityLog() {
     const fetchActivities = async () => {
         setLoading(true);
         try {
-            const token = localStorage.getItem('urbania_token');
+            const token = localStorage.getItem('access_token');
             const response = await fetch(`${API_BASE}/activity/`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });

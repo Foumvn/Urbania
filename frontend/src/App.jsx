@@ -3,6 +3,8 @@ import { FormProvider } from './context/FormContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { I18nProvider } from './context/I18nContext';
 import { NotificationProvider } from './context/NotificationContext';
+import { AuthLoadingProvider } from './context/AuthLoadingProvider';
+import { Toaster } from './components/ui/toaster';
 
 // Pages
 import LandingPage from './components/Landing/LandingPage';
@@ -26,13 +28,8 @@ import { Box, CircularProgress } from '@mui/material';
 function ProtectedRoute({ children, adminOnly = false }) {
     const { isAuthenticated, isAdmin, loading } = useAuth();
 
-    if (loading) {
-        return (
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', bgcolor: 'background.default' }}>
-                <CircularProgress color="primary" />
-            </Box>
-        );
-    }
+    if (loading) return null;
+
 
     if (!isAuthenticated) {
         return <Navigate to="/auth/login" replace />;
@@ -49,13 +46,8 @@ function ProtectedRoute({ children, adminOnly = false }) {
 function AuthRoute({ children }) {
     const { isAuthenticated, loading } = useAuth();
 
-    if (loading) {
-        return (
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', bgcolor: 'background.default' }}>
-                <CircularProgress color="primary" />
-            </Box>
-        );
-    }
+    if (loading) return null;
+
 
     if (isAuthenticated) {
         return <Navigate to="/dashboard" replace />;
@@ -93,9 +85,7 @@ function AppRoutes() {
 
             <Route path="/formulaire" element={
                 <ProtectedRoute>
-                    <Layout>
-                        <Wizard />
-                    </Layout>
+                    <Wizard />
                 </ProtectedRoute>
             } />
 
@@ -136,16 +126,21 @@ function AppRoutes() {
 }
 
 
+
+
 function App() {
     return (
         <I18nProvider>
-            <NotificationProvider>
-                <AuthProvider>
-                    <FormProvider>
-                        <AppRoutes />
-                    </FormProvider>
-                </AuthProvider>
-            </NotificationProvider>
+            <AuthLoadingProvider>
+                <NotificationProvider>
+                    <AuthProvider>
+                        <FormProvider>
+                            <AppRoutes />
+                            <Toaster />
+                        </FormProvider>
+                    </AuthProvider>
+                </NotificationProvider>
+            </AuthLoadingProvider>
         </I18nProvider>
     );
 }

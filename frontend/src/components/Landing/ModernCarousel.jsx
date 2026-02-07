@@ -39,7 +39,9 @@ const CarouselContainer = styled(Box)({
     overflow: 'hidden',
 });
 
-const SlideWrapper = styled(Box)(({ active }) => ({
+const SlideWrapper = styled(Box, {
+    shouldForwardProp: (prop) => prop !== 'active',
+})(({ active }) => ({
     position: 'absolute',
     inset: 0,
     opacity: active ? 1 : 0,

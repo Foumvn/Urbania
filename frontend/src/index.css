@@ -1,24 +1,57 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 
 :root {
-  --primary-main: #583da1;
-  --primary-dark: #432d80;
-  --primary-light: #7c62c1;
-  --secondary-main: #7c62c1;
-  --secondary-light: #a996db;
-  --background: #f3f4f6;
+  --background: 220 25% 98%;
+  --foreground: 225 40% 12%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 225 40% 12%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 225 40% 12%;
+
+  --primary: 225 100% 29%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 225 20% 95%;
+  --secondary-foreground: 225 40% 20%;
+
+  --muted: 225 15% 94%;
+  --muted-foreground: 225 15% 45%;
+
+  --accent: 225 80% 45%;
+  --accent-foreground: 0 0% 100%;
+
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+
+  --border: 225 15% 90%;
+  --input: 225 15% 90%;
+  --ring: 225 100% 29%;
+
+  --radius: 0.75rem;
+
+  /* Urbania Blue Theme */
+  --primary-main: #002395;
+  --primary-dark: #001a70;
+  --primary-light: #3b5fc4;
+  --secondary-main: #3b5fc4;
+  --secondary-light: #6b8be8;
   --surface: #ffffff;
   --text-primary: #1e293b;
   --text-secondary: #64748b;
   --text-muted: #94a3b8;
-  --border: #e2e8f0;
   --success: #10b981;
   --success-light: #34d399;
   --warning: #f59e0b;
   --error: #ef4444;
   --info: #3b82f6;
-  --header-primary: #8B5CF6;
+  --header-primary: #002395;
   --font-display: 'Space Grotesk', sans-serif;
 }
 

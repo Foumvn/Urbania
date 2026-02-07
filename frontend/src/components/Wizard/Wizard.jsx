@@ -1,16 +1,36 @@
-import { useState, useEffect, useMemo } from 'react';
-import { useLocation } from 'react-router-dom';
-import { Box, Paper, Grid, Snackbar, Alert, Typography, Chip, Fade, Button } from '@mui/material';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+    X,
+    ChevronRight,
+    ArrowLeft,
+    Check,
+    FileText,
+    Sparkles,
+    User,
+    Building2,
+    MapPin,
+    Hammer,
+    Layers,
+    Paperclip,
+    CheckCircle2,
+    Info,
+    Search,
+    Calendar,
+    Contact,
+    ShieldCheck,
+    Download
+} from 'lucide-react';
 import { useForm } from '../../context/FormContext';
+import { useI18n } from '../../context/I18nContext';
 import { validateStep } from '../../utils/validation';
 import { generateCerfaPDF } from '../../utils/pdfGenerator';
-import StepNavigation from './StepNavigation';
-import CerfaOfficialPreview from '../Preview/CerfaOfficialPreview';
-import { useI18n } from '../../context/I18nContext';
+import { Button } from '../ui/button';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8010/api';
+import { useToast } from '../ui/use-toast';
 
-// Import all step components
+// Import all step components (we'll need to update these to match the new look)
 import Step1TypeDeclarant from '../Steps/Step1TypeDeclarant';
 import Step2IdentiteDeclarant from '../Steps/Step2IdentiteDeclarant';
 import Step3Coordonnees from '../Steps/Step3Coordonnees';
@@ -21,62 +41,49 @@ import Step7Surfaces from '../Steps/Step7Surfaces';
 import Step8PiecesJointes from '../Steps/Step8PiecesJointes';
 import Step9Engagements from '../Steps/Step9Engagements';
 import Step10Recapitulatif from '../Steps/Step10Recapitulatif';
-import Step11CadastralPlan from '../Steps/Step11CadastralPlan';
-import VerticalStepper from './VerticalStepper';
+import CadastreGenerator from '../Common/CadastreGenerator';
 
-// Configuration des étapes avec conditions d'affichage
+
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8010/api';
+
 const ALL_STEPS = [
-    { component: Step1TypeDeclarant, title: 'wizard.step1.title', subtitle: 'wizard.step1.subtitle', key: 'declarant', alwaysShow: true },
-    { component: Step2IdentiteDeclarant, title: 'wizard.step2.title', subtitle: 'wizard.step2.subtitle', key: 'identite', alwaysShow: true },
-    { component: Step3Coordonnees, title: 'wizard.step3.title', subtitle: 'wizard.step3.subtitle', key: 'coordonnees', alwaysShow: true },
-    { component: Step4Terrain, title: 'wizard.step4.title', subtitle: 'wizard.step4.subtitle', key: 'terrain', alwaysShow: true },
-    { component: Step5TypeTravaux, title: 'wizard.step5.title', subtitle: 'wizard.step5.subtitle', key: 'travaux', alwaysShow: true },
-    { component: Step6DescriptionProjet, title: 'wizard.step6.title', subtitle: 'wizard.step6.subtitle', key: 'description', alwaysShow: true },
-    { component: Step7Surfaces, title: 'wizard.step7.title', subtitle: 'wizard.step7.subtitle', key: 'surfaces', requiresSection: 'surfaces' },
-    { component: Step8PiecesJointes, title: 'wizard.step8.title', subtitle: 'wizard.step8.subtitle', key: 'pieces', alwaysShow: true },
-    { component: Step9Engagements, title: 'wizard.step9.title', subtitle: 'wizard.step9.subtitle', key: 'engagements', alwaysShow: true },
-    { component: Step11CadastralPlan, title: 'wizard.step11.title', subtitle: 'wizard.step11.subtitle', key: 'cadastre', alwaysShow: true },
-    { component: Step10Recapitulatif, title: 'wizard.step10.title', subtitle: 'wizard.step10.subtitle', key: 'recap', alwaysShow: true },
+    { id: 1, component: Step1TypeDeclarant, title: 'Profil', key: 'declarant', icon: User, alwaysShow: true },
+    { id: 2, component: Step2IdentiteDeclarant, title: 'Identité', key: 'identite', icon: Contact, alwaysShow: true },
+    { id: 3, component: Step3Coordonnees, title: 'Coordonnées', key: 'coordonnees', icon: Hammer, alwaysShow: true },
+    { id: 4, component: Step4Terrain, title: 'Terrain', key: 'terrain', icon: MapPin, alwaysShow: true },
+    { id: 5, component: Step5TypeTravaux, title: 'Projet', key: 'travaux', icon: Sparkles, alwaysShow: true },
+    { id: 6, component: Step6DescriptionProjet, title: 'Description', key: 'description', icon: FileText, alwaysShow: true },
+    { id: 7, component: Step7Surfaces, title: 'Surfaces', key: 'surfaces', icon: Layers, requiresSection: 'surfaces' },
+    { id: 8, component: Step8PiecesJointes, title: 'Documents', key: 'pieces', icon: Paperclip, alwaysShow: true },
+    { id: 9, component: Step9Engagements, title: 'Engagement', key: 'engagements', icon: ShieldCheck, alwaysShow: true },
+    { id: 10, component: Step10Recapitulatif, title: 'Récapitulatif', key: 'recap', icon: CheckCircle2, alwaysShow: true },
 ];
 
-
-function Wizard() {
+export default function Wizard() {
     const { currentStep, data, setErrors, nextStep, prevStep, goToStep, getProgress, loadDossier, projectConfig } = useForm();
     const { t } = useI18n();
     const location = useLocation();
-    const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+    const navigate = useNavigate();
+    const { toast } = useToast();
     const [isGenerating, setIsGenerating] = useState(false);
-    const [showPreview, setShowPreview] = useState(window.innerWidth > 1200);
 
-    // Calcule les étapes filtrées selon le type de projet
-    const { filteredSteps, stepComponents, stepTitles } = useMemo(() => {
-        // Récupérer les sections PDF du projectConfig (ex: ['terrain', 'surfaces', 'description'])
+
+    // Urbania Blue: #002395
+    const urbaniaBlue = "#002395";
+
+    // Filtering steps based on project config
+    const filteredSteps = useMemo(() => {
         const pdfSections = projectConfig?.pdfSections || [];
-
-        // Avant la sélection du type de travaux (étape 5), afficher toutes les étapes
-        // Après, filtrer selon le type sélectionné
         const hasSelectedType = data.natureTravaux && data.natureTravaux.length > 0;
 
-        const filtered = ALL_STEPS.filter(step => {
-            // Toujours afficher les étapes marquées 'alwaysShow'
+        return ALL_STEPS.filter(step => {
             if (step.alwaysShow) return true;
-
-            // Si aucun type n'est sélectionné, afficher toutes les étapes
             if (!hasSelectedType) return true;
-
-            // Si l'étape nécessite une section spécifique du PDF
             if (step.requiresSection) {
                 return pdfSections.includes(step.requiresSection);
             }
-
             return true;
         });
-
-        return {
-            filteredSteps: filtered,
-            stepComponents: filtered.map(s => s.component),
-            stepTitles: filtered.map(s => ({ title: s.title, subtitle: s.subtitle }))
-        };
     }, [projectConfig, data.natureTravaux]);
 
     useEffect(() => {
@@ -85,94 +92,27 @@ function Wizard() {
         if (id) {
             loadDossier(id);
         }
-    }, [location.search]);
-
-    useEffect(() => {
-        const handleResize = () => {
-            if (window.innerWidth > 1200) setShowPreview(true);
-        };
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
-
-    // Utiliser l'index courant dans la liste filtrée
-    const effectiveStep = Math.min(currentStep, stepComponents.length - 1);
-    const StepComponent = stepComponents[effectiveStep];
-    const isLastStep = effectiveStep === stepComponents.length - 1;
-    const currentStepInfo = stepTitles[effectiveStep];
-    const progress = getProgress();
-
+    }, [location.search, loadDossier]);
 
     const handleNext = () => {
         const errors = validateStep(currentStep, data);
         if (Object.keys(errors).length > 0) {
             setErrors(errors);
-            setSnackbar({
-                open: true,
-                message: 'Veuillez corriger les erreurs avant de continuer',
-                severity: 'error',
+            toast({
+                variant: "destructive",
+                title: "Information manquante",
+                description: "Veuillez vérifier les champs obligatoires.",
             });
             return;
         }
         setErrors({});
         nextStep();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
-
-    const handlePrev = () => {
-        setErrors({});
-        prevStep();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
-
-    const handleSave = async () => {
-        try {
-            const response = await fetch(`${API_BASE}/sessions/`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ data, currentStep }),
-            });
-
-            if (response.ok) {
-                const result = await response.json();
-                setSnackbar({
-                    open: true,
-                    message: `Brouillon sauvegardé avec succès !`,
-                    severity: 'success',
-                });
-            } else {
-                throw new Error('Erreur serveur');
-            }
-        } catch (error) {
-            setSnackbar({
-                open: true,
-                message: 'Brouillon sauvegardé localement',
-                severity: 'info',
-            });
-        }
     };
 
     const handleGenerate = async () => {
-        let allErrors = {};
-        for (let i = 0; i < stepComponents.length - 1; i++) {
-            const stepErrors = validateStep(i, data);
-            allErrors = { ...allErrors, ...stepErrors };
-        }
-
-        if (Object.keys(allErrors).length > 0) {
-            setErrors(allErrors);
-            setSnackbar({
-                open: true,
-                message: 'Veuillez compléter tous les champs requis',
-                severity: 'error',
-            });
-            return;
-        }
-
         setIsGenerating(true);
         try {
-            // Save to backend
-            const token = localStorage.getItem('urbania_token');
+            const token = localStorage.getItem('access_token');
             const response = await fetch(`${API_BASE}/dossiers/`, {
                 method: 'POST',
                 headers: {
@@ -182,194 +122,192 @@ function Wizard() {
                 body: JSON.stringify({ data, status: 'completed' }),
             });
 
-            if (!response.ok) throw new Error('Erreur lors de la sauvegarde du dossier');
+            if (!response.ok) throw new Error('Erreur lors de la sauvegarde');
 
-            // Generate PDF
-            console.log('Génération du PDF en cours...');
             await generateCerfaPDF(data);
 
-            setSnackbar({
-                open: true,
-                message: 'Félicitations ! Votre dossier a été enregistré et votre PDF est en cours de téléchargement.',
-                severity: 'success',
+            toast({
+                title: "Dossier généré !",
+                description: "Votre CERFA est prêt et a été sauvegardé.",
             });
 
-            // Redirect to dashboard after a longer delay to let user see the toast
             setTimeout(() => {
-                window.location.href = '/dashboard';
-            }, 4000);
+                navigate('/dashboard');
+            }, 3000);
 
         } catch (error) {
-            console.error('Erreur:', error);
-            setSnackbar({
-                open: true,
-                message: 'Erreur lors de la génération du dossier',
-                severity: 'error',
+            toast({
+                variant: "destructive",
+                title: "Erreur",
+                description: "Une erreur est survenue lors de la génération.",
             });
         } finally {
             setIsGenerating(false);
         }
     };
 
-    const handleCloseSnackbar = () => {
-        setSnackbar({ ...snackbar, open: false });
-    };
+    const currentStepInfo = filteredSteps[currentStep] || filteredSteps[0];
+    const StepComponent = currentStepInfo.component;
+    const isLastStep = currentStep === filteredSteps.length - 1;
 
     return (
-        <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
-            {/* Header */}
-            <Box
-                sx={{
-                    bgcolor: 'background.paper',
-                    borderBottom: 1,
-                    borderColor: 'divider',
-                    position: 'sticky',
-                    top: 0,
-                    zIndex: 100,
-                }}
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-100/50 backdrop-blur-3xl p-0 md:p-8 overflow-hidden">
+            {/* Background Decorative Elements */}
+            <div className="absolute inset-0 mesh-bg-light opacity-40 pointer-events-none" />
+            <CadastreGenerator />
+
+            <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                className="relative w-full max-w-7xl h-full md:h-[90vh] bg-white/70 backdrop-blur-2xl border border-white md:rounded-[48px] shadow-2xl overflow-hidden flex flex-col md:flex-row shadow-blue-500/5"
+
             >
-                <Box sx={{ maxWidth: 1200, mx: 'auto', px: { xs: 2, md: 4 }, py: { xs: 1.5, md: 2.5 } }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Box>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, md: 2 }, mb: 0.5 }}>
-                                <Typography variant="h5" fontWeight={700} color="primary.main" sx={{ fontSize: { xs: '1.1rem', md: '1.5rem' } }}>
-                                    {t(currentStepInfo.title)}
-                                </Typography>
-                                <Chip
-                                    label={`Étape ${currentStep + 1}/${stepComponents.length}`}
-                                    size="small"
-                                    sx={{
-                                        bgcolor: 'primary.main',
-                                        color: 'white',
-                                        fontWeight: 600,
-                                        fontSize: '0.7rem',
-                                        height: 20
-                                    }}
-                                />
-                            </Box>
-                            <Typography variant="body2" color="text.secondary" sx={{ display: { xs: 'none', sm: 'block' }, fontSize: '0.8rem' }}>
-                                {t(currentStepInfo.subtitle)}
-                            </Typography>
-                        </Box>
-                        <Box sx={{ display: { xs: 'block', lg: 'none' } }}>
-                            <Button
-                                size="small"
-                                variant="outlined"
-                                onClick={() => setShowPreview(!showPreview)}
-                                sx={{ borderRadius: 2, fontSize: '0.75rem', py: 0.5 }}
-                            >
-                                {showPreview ? (t('preview.hide') || 'Cacher l\'aperçu') : (t('preview.show') || 'Voir l\'aperçu')}
-                            </Button>
-                        </Box>
-                    </Box>
-                </Box>
-            </Box>
-
-            {/* Overleaf-Style Content Layout */}
-            <Box sx={{
-                height: 'calc(100vh - 73px)', // Height minus header
-                display: 'flex',
-                overflow: 'hidden',
-                bgcolor: '#f1f3f4'
-            }}>
-                {/* Left Column: Compact Stepper Sidebar */}
-                <Box sx={{
-                    width: { xs: 0, lg: 240 },
-                    display: { xs: 'none', lg: 'block' },
-                    borderRight: '1px solid',
-                    borderColor: 'divider',
-                    bgcolor: 'background.paper',
-                    overflowY: 'auto',
-                    flexShrink: 0
-                }}>
-                    <VerticalStepper
-                        currentStep={currentStep}
-                        steps={stepTitles}
-                        onStepClick={goToStep}
-                    />
-                </Box>
-
-                {/* Center Column: Form Section */}
-                <Box sx={{
-                    flex: showPreview ? 1 : 2,
-                    overflowY: 'auto',
-                    p: { xs: 2, md: 4 },
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center'
-                }}>
-                    <Fade in key={currentStep}>
-                        <Paper
-                            elevation={0}
-                            sx={{
-                                width: '100%',
-                                maxWidth: 800,
-                                p: { xs: 2, md: 3, lg: 5 },
-                                borderRadius: 3,
-                                border: 1,
-                                borderColor: 'divider',
-                                bgcolor: 'background.paper',
-                                mb: 4,
-                                boxShadow: (theme) => `0 4px 20px ${theme.palette.mode === 'light' ? 'rgba(0,0,0,0.04)' : 'rgba(0,0,0,0.1)'}`,
-                            }}
-                        >
-                            <StepComponent />
-
-                            <Box sx={{ mt: 5 }}>
-                                <StepNavigation
-                                    currentStep={currentStep}
-                                    totalSteps={stepComponents.length}
-                                    onNext={handleNext}
-                                    onPrev={handlePrev}
-                                    onSave={handleSave}
-                                    onGenerate={handleGenerate}
-                                    isLastStep={isLastStep}
-                                    isValid={!isGenerating}
-                                />
-                            </Box>
-                        </Paper>
-                    </Fade>
-                </Box>
-
-                {/* Right Column: Preview Section (The "Overleaf PDF" side) */}
-                {showPreview && (
-                    <Box sx={{
-                        width: { xs: '100%', lg: '45%' },
-                        height: '100%',
-                        borderLeft: '1px solid',
-                        borderColor: 'divider',
-                        bgcolor: '#2c3e50', // Dark background for contrast
-                        position: 'relative',
-                        display: 'flex',
-                        flexDirection: 'column'
-                    }}>
-                        <CerfaOfficialPreview data={data} currentStep={currentStep} />
-                    </Box>
-                )}
-            </Box>
-
-            <Snackbar
-                open={snackbar.open}
-                autoHideDuration={4000}
-                onClose={handleCloseSnackbar}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-            >
-                <Alert
-                    onClose={handleCloseSnackbar}
-                    severity={snackbar.severity}
-                    variant="filled"
-                    sx={{
-                        width: '100%',
-                        borderRadius: 2,
-                        fontWeight: 500,
-                        boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
-                    }}
+                {/* Close Button / Dashboard Link */}
+                <button
+                    onClick={() => navigate('/dashboard')}
+                    className="absolute top-6 right-6 z-50 w-10 h-10 rounded-full bg-white/40 backdrop-blur-md flex items-center justify-center text-[#002395] hover:bg-[#002395] hover:text-white transition-all border border-white"
                 >
-                    {snackbar.message}
-                </Alert>
-            </Snackbar>
-        </Box>
+                    <X className="w-5 h-5" />
+                </button>
+
+                {/* Sidebar */}
+                <div className="hidden md:flex w-80 bg-white/20 backdrop-blur-xl border-r border-slate-100 p-10 flex-col justify-between shrink-0">
+                    <div>
+                        <div className="flex items-center gap-3 mb-12">
+                            <div className="w-8 h-8 rounded-lg bg-[#002395] flex items-center justify-center shadow-lg shadow-blue-200/50">
+                                <Sparkles className="w-5 h-5 text-white" />
+                            </div>
+                            <span className="font-bold tracking-tight text-[#002395] text-lg uppercase">Urbania</span>
+                        </div>
+
+                        <div className="space-y-6">
+                            {filteredSteps.map((step, idx) => {
+                                const isActive = idx === currentStep;
+                                const isCompleted = idx < currentStep;
+
+                                return (
+                                    <div
+                                        key={step.id}
+                                        className="flex items-center gap-4 group cursor-pointer"
+                                        onClick={() => idx <= currentStep && goToStep(idx)}
+                                    >
+                                        <div className={`w-2 h-2 rounded-full transition-all duration-500 ${isActive
+                                            ? "h-6 bg-[#002395] ring-4 ring-[#002395]/10"
+                                            : isCompleted
+                                                ? "bg-[#002395]/40"
+                                                : "bg-slate-200"
+                                            }`} />
+                                        <div className="flex items-center gap-2">
+                                            <step.icon className={`w-4 h-4 ${isActive ? "text-[#002395]" : "text-slate-400"}`} />
+                                            <span className={`text-[10px] font-bold uppercase tracking-widest ${isActive ? "text-[#002395]" : "text-slate-400"
+                                                }`}>
+                                                {step.title}
+                                            </span>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    <div className="mt-10 pt-6 border-t border-slate-100">
+                        <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2 text-center">Progression du dossier</div>
+                        <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                            <motion.div
+                                className="h-full bg-[#002395]"
+                                initial={{ width: 0 }}
+                                animate={{ width: `${getProgress()}%` }}
+                                transition={{ duration: 1, ease: "easeOut" }}
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Main Content Area */}
+                <div className="flex-1 flex flex-col min-w-0 bg-white/30">
+                    <div className="flex-1 overflow-y-auto p-10 md:p-20">
+                        <AnimatePresence mode="wait">
+                            <motion.div
+                                key={currentStep}
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -20 }}
+                                transition={{ duration: 0.4 }}
+                                className="max-w-5xl mx-auto"
+                            >
+                                <header className="mb-10">
+                                    <h1 className="text-4xl md:text-5xl font-black text-[#002395] leading-tight tracking-tight mb-4">
+                                        {t(currentStepInfo.title)}
+                                    </h1>
+                                    <p className="text-slate-400 text-lg font-medium">
+                                        {t(`wizard.step${currentStep + 1}.subtitle`)}
+                                    </p>
+                                </header>
+
+                                <div className="wizard-step-container">
+                                    <StepComponent />
+                                </div>
+                            </motion.div>
+                        </AnimatePresence>
+                    </div>
+
+                    {/* Footer Controls */}
+                    <div className="p-8 border-t border-slate-100 bg-white/50 backdrop-blur-md flex items-center justify-between">
+                        <button
+                            onClick={prevStep}
+                            disabled={currentStep === 0}
+                            className={`flex items-center gap-2 text-xs font-bold uppercase tracking-widest transition-all ${currentStep === 0 ? "opacity-0 pointer-events-none" : "text-slate-400 hover:text-[#002395]"
+                                }`}
+                        >
+                            <ArrowLeft className="w-4 h-4" />
+                            Retour
+                        </button>
+
+                        <div className="flex items-center gap-4">
+                            {!isLastStep ? (
+                                <button
+                                    onClick={handleNext}
+                                    className="bg-[#002395] text-white font-bold py-4 px-10 rounded-2xl shadow-xl shadow-blue-900/10 hover:shadow-blue-900/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-3 group"
+                                >
+                                    <span className="tracking-widest uppercase text-[10px]">Continuer</span>
+                                    <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={handleGenerate}
+                                    disabled={isGenerating}
+                                    className="bg-emerald-500 text-white font-bold py-4 px-10 rounded-2xl shadow-xl shadow-emerald-900/10 hover:shadow-emerald-900/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-3 group"
+                                >
+                                    <span className="tracking-widest uppercase text-[10px]">
+                                        {isGenerating ? "Génération..." : "Générer mon dossier"}
+                                    </span>
+                                    {!isGenerating && <Download className="w-4 h-4 group-hover:translate-y-1 transition-transform" />}
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+
+            </motion.div>
+
+            <style dangerouslySetInnerHTML={{
+                __html: `
+                .mesh-bg-light {
+                    background: radial-gradient(at 0% 0%, hsla(225,100%,29%,0.1) 0, transparent 50%),
+                                radial-gradient(at 50% 0%, hsla(225,100%,45%,0.05) 0, transparent 50%),
+                                radial-gradient(at 100% 0%, hsla(225,100%,20%,0.1) 0, transparent 50%);
+                }
+                .wizard-step-container .MuiPaper-root {
+                  background: white !important;
+                  border-radius: 24px !important;
+                  border: 1px solid #f1f5f9 !important;
+                  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.04) !important;
+                }
+                .wizard-step-container .MuiTypography-root {
+                  font-family: inherit !important;
+                }
+            `}} />
+        </div>
     );
 }
-
-export default Wizard;

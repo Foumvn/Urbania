@@ -13,6 +13,7 @@ from .serializers import (
 from django.db.models import Count, Q
 from django.utils import timezone
 from datetime import datetime, timedelta
+from django.http import HttpResponse
 from .services.ai_service import AIService
 
 
@@ -504,3 +505,42 @@ class AIConfigureProjectView(APIView):
         
         config = AIService.configure_custom_project(description)
         return Response(config)
+
+class AIGenerateDescriptionView(APIView):
+    """
+    Génère une description automatique du projet.
+    POST /api/ai/generate-description/
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        project_type = request.data.get('type_travaux', '')
+        nature_travaux = request.data.get('nature_travaux', [])
+        other_nature = request.data.get('autre_nature', '')
+        
+        description = AIService.generate_description(project_type, nature_travaux, other_nature)
+        return Response({"description": description})
+
+class AIGenerateDocumentView(APIView):
+    """
+    Génère un document technique (DP1, DP2) en format SVG.
+    POST /api/ai/generate-document/
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        doc_type = request.data.get('doc_type') # 'dp1' ou 'dp2'
+        data = request.data.get('data', {})
+
+        if doc_type == 'dp1':
+            svg = AIService.generate_dp1_svg(
+                data.get('adresse', ''),
+                data.get('ville', ''),
+                data.get('codePostal', '')
+            )
+        elif doc_type == 'dp2':
+            svg = AIService.generate_dp2_svg(data)
+        else:
+            return Response({"error": "Type de document invalide"}, status=status.HTTP_400_BAD_REQUEST)
+
+        return HttpResponse(svg, content_type="image/svg+xml")

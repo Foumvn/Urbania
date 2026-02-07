@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Map, Download, ExternalLink, MapPin, Layers, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { CerfaFormData } from "@/pages/NouveauDossier";
+import { CerfaFormData } from "@/lib/pdfGenerator";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -42,7 +42,7 @@ const WizardStepCadastre = ({ formData, updateFormData, errors }: Props) => {
 
       <div className="space-y-6">
         {/* Map placeholder */}
-        <motion.div 
+        <motion.div
           className="relative bg-gradient-to-br from-primary/5 to-primary/10 rounded-2xl border-2 border-dashed border-primary/30 overflow-hidden"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -55,7 +55,7 @@ const WizardStepCadastre = ({ formData, updateFormData, errors }: Props) => {
               Carte cadastrale
             </h3>
             <p className="text-sm text-muted-foreground max-w-md mb-4">
-              L'intégration de la carte interactive sera disponible prochainement. 
+              L'intégration de la carte interactive sera disponible prochainement.
               En attendant, vous pouvez consulter le cadastre officiel.
             </p>
             <div className="flex flex-wrap gap-3 justify-center">
@@ -77,7 +77,7 @@ const WizardStepCadastre = ({ formData, updateFormData, errors }: Props) => {
             <MapPin className="h-5 w-5 text-primary" />
             Récapitulatif de localisation
           </h3>
-          
+
           <div className="space-y-3">
             <div className="flex justify-between items-start py-2 border-b border-border">
               <span className="text-sm text-muted-foreground">Adresse du terrain</span>
@@ -85,13 +85,13 @@ const WizardStepCadastre = ({ formData, updateFormData, errors }: Props) => {
                 "text-sm font-medium text-right max-w-[60%]",
                 hasLocation ? "text-foreground" : "text-muted-foreground italic"
               )}>
-                {hasLocation 
+                {hasLocation
                   ? `${formData.address}, ${formData.postalCode} ${formData.city}`
                   : "Non renseignée"
                 }
               </span>
             </div>
-            
+
             <div className="flex justify-between items-center py-2 border-b border-border">
               <span className="text-sm text-muted-foreground">Code INSEE</span>
               <span className={cn(
@@ -101,7 +101,7 @@ const WizardStepCadastre = ({ formData, updateFormData, errors }: Props) => {
                 {formData.codeInsee || "—"}
               </span>
             </div>
-            
+
             <div className="flex justify-between items-center py-2">
               <span className="text-sm text-muted-foreground">Référence cadastrale</span>
               <span className={cn(
@@ -115,7 +115,7 @@ const WizardStepCadastre = ({ formData, updateFormData, errors }: Props) => {
         </div>
 
         {/* Info about cadastral extract */}
-        <motion.div 
+        <motion.div
           className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -128,8 +128,8 @@ const WizardStepCadastre = ({ formData, updateFormData, errors }: Props) => {
                 Extrait cadastral requis
               </p>
               <p className="text-blue-700 dark:text-blue-400 mt-1">
-                L'extrait cadastral (pièce DP1) peut être téléchargé gratuitement 
-                sur cadastre.gouv.fr. Il doit montrer clairement la parcelle concernée 
+                L'extrait cadastral (pièce DP1) peut être téléchargé gratuitement
+                sur cadastre.gouv.fr. Il doit montrer clairement la parcelle concernée
                 par votre projet.
               </p>
             </div>
@@ -143,7 +143,7 @@ const WizardStepCadastre = ({ formData, updateFormData, errors }: Props) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <Button 
+            <Button
               onClick={openCadastreGouv}
               className="w-full gap-2"
               size="lg"

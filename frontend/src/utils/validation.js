@@ -159,18 +159,18 @@ export function validateCadastralReference(prefix, section, numero) {
     }
 
     // Section: 1 or 2 uppercase letters
-    if (!/^[A-Z]{1,2}$/i.test(section.trim())) {
+    if (!/^[A-Z]{1,2}$/i.test(String(section).trim())) {
         return { valid: false, message: 'La section doit contenir 1 ou 2 lettres (ex: A, AB)' };
     }
 
     // Numero: 1 to 4 digits
-    if (!/^\d{1,4}$/.test(numero.trim())) {
-        return { valid: false, message: 'Le numéro de parcelle doit contenir 1 à 4 chiffres' };
+    if (!/^\d{1,5}$/.test(String(numero).trim())) {
+        return { valid: false, message: 'Le numéro de parcelle doit contenir 1 à 5 chiffres' };
     }
 
-    // Prefix is optional but if provided, should be 3 digits
-    if (prefix && prefix.trim() !== '' && !/^\d{3}$/.test(prefix.trim())) {
-        return { valid: false, message: 'Le préfixe doit contenir 3 chiffres (ex: 000)' };
+    // Prefix is optional but if provided, should be 1-3 digits
+    if (prefix && String(prefix).trim() !== '' && !/^\d{1,3}$/.test(String(prefix).trim())) {
+        return { valid: false, message: 'Le préfixe doit contenir 1 à 3 chiffres (ex: 000, 23)' };
     }
 
     return { valid: true, message: '' };
@@ -294,9 +294,10 @@ export function validateStep(step, data) {
             break;
 
         case 5: // Description
-            if (!data.descriptionProjet || data.descriptionProjet.trim() === '') {
+            const description = String(data.descriptionProjet || '');
+            if (!description || description.trim() === '') {
                 errors.descriptionProjet = 'La description du projet est requise';
-            } else if (data.descriptionProjet.trim().length < 20) {
+            } else if (description.trim().length < 20) {
                 errors.descriptionProjet = 'La description est trop courte (minimum 20 caractères)';
             }
             break;

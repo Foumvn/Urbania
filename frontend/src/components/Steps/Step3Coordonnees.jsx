@@ -1,6 +1,7 @@
-import { Box, Typography, Grid, Checkbox, FormControlLabel } from '@mui/material';
+import { Box, Typography, Grid, Checkbox, FormControlLabel, Alert } from '@mui/material';
 import { useForm } from '../../context/FormContext';
 import FormField from '../Common/FormField';
+import { Mail, Phone, MapPin, Navigation } from 'lucide-react';
 
 function Step3Coordonnees() {
     const { data, setField, errors } = useForm();
@@ -11,15 +12,13 @@ function Step3Coordonnees() {
 
     return (
         <Box>
-            <Typography variant="h4" gutterBottom fontWeight={600} color="primary.dark">
-                Vos coordonnées
-            </Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-                Adresse à laquelle vous souhaitez recevoir les courriers relatifs à votre déclaration.
+            <Typography variant="body1" color="text.secondary" sx={{ mb: 6, lineHeight: 1.7, fontSize: '1.1rem' }}>
+                Indiquez l'adresse de correspondance pour le suivi de votre dossier.
             </Typography>
 
             <Grid container spacing={3}>
-                <Grid item xs={12} sm={3}>
+                {/* Ligne 1: Adresse principale */}
+                <Grid item xs={12} sm={2}>
                     <FormField
                         label="Numéro"
                         name="numero"
@@ -29,7 +28,7 @@ function Step3Coordonnees() {
                         placeholder="12"
                     />
                 </Grid>
-                <Grid item xs={12} sm={9}>
+                <Grid item xs={12} sm={10}>
                     <FormField
                         label="Voie / Rue"
                         name="adresse"
@@ -37,17 +36,18 @@ function Step3Coordonnees() {
                         onChange={handleChange}
                         error={errors.adresse}
                         required
-                        helpTooltip="Nom de la rue, avenue, etc."
                         placeholder="rue de la République"
                     />
                 </Grid>
 
+                {/* Ligne 2: Compléments */}
                 <Grid item xs={12} sm={6}>
                     <FormField
                         label="Lieu-dit"
                         name="lieuDit"
                         value={data.lieuDit}
                         onChange={handleChange}
+                        error={errors.lieuDit}
                         placeholder="Quartier..."
                     />
                 </Grid>
@@ -57,11 +57,13 @@ function Step3Coordonnees() {
                         name="localite"
                         value={data.localite}
                         onChange={handleChange}
+                        error={errors.localite}
                         placeholder="Hameau..."
                     />
                 </Grid>
 
-                <Grid item xs={12} sm={4}>
+                {/* Ligne 3: Ville et CP */}
+                <Grid item xs={12} sm={3}>
                     <FormField
                         label="Code postal"
                         name="codePostal"
@@ -72,26 +74,7 @@ function Step3Coordonnees() {
                         placeholder="75001"
                     />
                 </Grid>
-                <Grid item xs={12} sm={4}>
-                    <FormField
-                        label="BP"
-                        name="bp"
-                        value={data.bp}
-                        onChange={handleChange}
-                        placeholder="Boîte postale"
-                    />
-                </Grid>
-                <Grid item xs={12} sm={4}>
-                    <FormField
-                        label="Cedex"
-                        name="cedex"
-                        value={data.cedex}
-                        onChange={handleChange}
-                        placeholder="CEDEX"
-                    />
-                </Grid>
-
-                <Grid item xs={12} sm={8}>
+                <Grid item xs={12} sm={9}>
                     <FormField
                         label="Ville"
                         name="ville"
@@ -102,15 +85,37 @@ function Step3Coordonnees() {
                         placeholder="Paris"
                     />
                 </Grid>
-                <Grid item xs={12} sm={4}>
+
+                {/* Ligne 4: BP / Cedex / Pays */}
+                <Grid item xs={12} sm={3}>
+                    <FormField
+                        label="BP"
+                        name="bp"
+                        value={data.bp}
+                        onChange={handleChange}
+                        placeholder="Boîte postale"
+                    />
+                </Grid>
+                <Grid item xs={12} sm={3}>
+                    <FormField
+                        label="Cedex"
+                        name="cedex"
+                        value={data.cedex}
+                        onChange={handleChange}
+                        placeholder="CEDEX"
+                    />
+                </Grid>
+                <Grid item xs={12} sm={6}>
                     <FormField
                         label="Pays"
                         name="pays"
                         value={data.pays}
                         onChange={handleChange}
+                        placeholder="France"
                     />
                 </Grid>
 
+                {/* Ligne 5: Contact */}
                 <Grid item xs={12} sm={6}>
                     <FormField
                         label="Téléphone"
@@ -119,6 +124,7 @@ function Step3Coordonnees() {
                         onChange={handleChange}
                         error={errors.telephone}
                         placeholder="06 12 34 56 78"
+                        startAdornment={<Phone size={16} />}
                     />
                 </Grid>
                 <Grid item xs={12} sm={6}>
@@ -131,24 +137,33 @@ function Step3Coordonnees() {
                         required
                         type="email"
                         placeholder="jean.dupont@email.fr"
+                        startAdornment={<Mail size={16} />}
                     />
                 </Grid>
 
                 <Grid item xs={12}>
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                checked={data.acceptEmail || false}
-                                onChange={(e) => handleChange('acceptEmail', e.target.checked)}
-                                color="primary"
-                            />
-                        }
-                        label={
-                            <Typography variant="body2">
-                                J'accepte de recevoir les réponses de l'administration par email
-                            </Typography>
-                        }
-                    />
+                    <Box sx={{
+                        mt: 2,
+                        p: 2,
+                        borderRadius: '16px',
+                        bgcolor: 'rgba(0, 35, 149, 0.02)',
+                        border: '1px solid rgba(0, 35, 149, 0.05)'
+                    }}>
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={data.acceptEmail || false}
+                                    onChange={(e) => handleChange('acceptEmail', e.target.checked)}
+                                    sx={{ color: '#002395', '&.Mui-checked': { color: '#002395' } }}
+                                />
+                            }
+                            label={
+                                <Typography variant="body2" fontWeight={500}>
+                                    J'accepte de recevoir les réponses de l'administration par email
+                                </Typography>
+                            }
+                        />
+                    </Box>
                 </Grid>
             </Grid>
         </Box>

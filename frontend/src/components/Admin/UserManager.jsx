@@ -32,7 +32,7 @@ function UserManager() {
     const fetchUsers = async () => {
         setLoading(true);
         try {
-            const token = localStorage.getItem('urbania_token');
+            const token = localStorage.getItem('access_token');
             const response = await fetch(`/api/admin/users/?role=${roles[tab]}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });

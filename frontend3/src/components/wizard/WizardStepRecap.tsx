@@ -1,12 +1,12 @@
 import { motion } from "framer-motion";
-import { 
-  FileText, 
-  Check, 
-  Edit3, 
-  User, 
-  Home, 
-  MapPin, 
-  Ruler, 
+import {
+  FileText,
+  Check,
+  Edit3,
+  User,
+  Home,
+  MapPin,
+  Ruler,
   Paperclip,
   Shield,
   Map,
@@ -14,7 +14,7 @@ import {
   Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { CerfaFormData } from "@/pages/NouveauDossier";
+import { CerfaFormData } from "@/lib/pdfGenerator";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -87,11 +87,11 @@ const WizardStepRecap = ({ formData, onGoToStep, onGeneratePDF, isGeneratingPDF 
       icon: Paperclip,
       isComplete: (formData.piecesRequired?.length || 0) > 0,
       fields: [
-        { 
-          label: "Pièces sélectionnées", 
-          value: formData.piecesRequired?.length 
+        {
+          label: "Pièces sélectionnées",
+          value: formData.piecesRequired?.length
             ? `${formData.piecesRequired.length} pièce(s) : ${formData.piecesRequired.map(p => p.toUpperCase()).join(", ")}`
-            : null 
+            : null
         },
       ],
     },
@@ -139,10 +139,10 @@ const WizardStepRecap = ({ formData, onGoToStep, onGeneratePDF, isGeneratingPDF 
       </div>
 
       {/* Completion status */}
-      <motion.div 
+      <motion.div
         className={cn(
           "rounded-xl p-4 mb-6 border",
-          allComplete 
+          allComplete
             ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
             : "bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800"
         )}
@@ -171,8 +171,8 @@ const WizardStepRecap = ({ formData, onGoToStep, onGeneratePDF, isGeneratingPDF 
               "text-sm",
               allComplete ? "text-green-700 dark:text-green-400" : "text-amber-700 dark:text-amber-400"
             )}>
-              {allComplete 
-                ? "Vous pouvez générer votre CERFA" 
+              {allComplete
+                ? "Vous pouvez générer votre CERFA"
                 : "Complétez les sections manquantes pour continuer"
               }
             </p>
@@ -187,7 +187,7 @@ const WizardStepRecap = ({ formData, onGoToStep, onGeneratePDF, isGeneratingPDF 
             key={section.step}
             className={cn(
               "rounded-xl border p-4 transition-all",
-              section.isComplete 
+              section.isComplete
                 ? "border-green-200 dark:border-green-800 bg-green-50/30 dark:bg-green-900/10"
                 : "border-border"
             )}
@@ -198,7 +198,7 @@ const WizardStepRecap = ({ formData, onGoToStep, onGeneratePDF, isGeneratingPDF 
             <div className="flex items-start gap-4">
               <div className={cn(
                 "w-10 h-10 rounded-full flex items-center justify-center shrink-0",
-                section.isComplete 
+                section.isComplete
                   ? "bg-green-500 text-white"
                   : "bg-muted text-muted-foreground"
               )}>
@@ -208,7 +208,7 @@ const WizardStepRecap = ({ formData, onGoToStep, onGeneratePDF, isGeneratingPDF 
                   <section.icon className="h-5 w-5" />
                 )}
               </div>
-              
+
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="font-semibold text-foreground">
@@ -224,7 +224,7 @@ const WizardStepRecap = ({ formData, onGoToStep, onGeneratePDF, isGeneratingPDF 
                     Modifier
                   </Button>
                 </div>
-                
+
                 <div className="space-y-1">
                   {section.fields.map((field, idx) => (
                     <div key={idx} className="flex items-center gap-2 text-sm">
@@ -250,7 +250,7 @@ const WizardStepRecap = ({ formData, onGoToStep, onGeneratePDF, isGeneratingPDF 
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
       >
-        <Button 
+        <Button
           onClick={onGeneratePDF}
           disabled={!allComplete || isGeneratingPDF}
           className="w-full gap-2 h-14 text-lg"
@@ -268,7 +268,7 @@ const WizardStepRecap = ({ formData, onGoToStep, onGeneratePDF, isGeneratingPDF 
             </>
           )}
         </Button>
-        
+
         {!allComplete && (
           <p className="text-xs text-muted-foreground text-center mt-2">
             Veuillez compléter toutes les sections pour activer la génération

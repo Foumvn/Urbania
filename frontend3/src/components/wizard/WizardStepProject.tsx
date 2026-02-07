@@ -2,18 +2,20 @@ import { motion } from "framer-motion";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
-import { 
-  Home, 
-  Waves, 
-  TreeDeciduous, 
-  Car, 
-  Fence, 
+import {
+  Home,
+  Waves,
+  TreeDeciduous,
+  Car,
+  Fence,
   Building,
   LayoutGrid,
-  AlertCircle
+  AlertCircle,
+  FileText
 } from "lucide-react";
-import { CerfaFormData } from "@/pages/NouveauDossier";
+import { CerfaFormData } from "@/lib/pdfGenerator";
 import { cn } from "@/lib/utils";
+import FormField from "./FormField";
 
 interface Props {
   formData: CerfaFormData;
@@ -52,83 +54,81 @@ const WizardStepProject = ({ formData, updateFormData, errors }: Props) => {
         </p>
       </div>
 
-      {errors.projectType && (
-        <motion.div
-          initial={{ opacity: 0, y: -5 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-2 text-sm text-destructive mb-4 bg-destructive/10 p-3 rounded-lg"
-        >
-          <AlertCircle className="h-4 w-4 shrink-0" />
-          <span>{errors.projectType}</span>
-        </motion.div>
-      )}
-
-      <RadioGroup
+      <FormField
+        label="Type de projet"
+        htmlFor="project-type"
+        error={errors.projectType}
         value={formData.projectType}
-        onValueChange={(value) => updateFormData("projectType", value)}
-        className="grid sm:grid-cols-2 gap-3"
+        required
+        hint="Choisissez une catégorie"
       >
-        {projectTypes.map((type) => (
-          <motion.div 
-            key={type.value}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <Label
-              htmlFor={type.value}
-              className={cn(
-                "flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all",
-                formData.projectType === type.value 
-                  ? "border-primary bg-primary/5 shadow-md" 
-                  : errors.projectType
-                    ? "border-destructive/50 hover:border-destructive"
-                    : "border-border hover:border-primary/50 hover:bg-muted/50"
-              )}
+        <RadioGroup
+          id="project-type"
+          value={formData.projectType}
+          onValueChange={(value) => updateFormData("projectType", value)}
+          className="grid sm:grid-cols-2 gap-3"
+        >
+          {projectTypes.map((type) => (
+            <motion.div
+              key={type.value}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
             >
-              <RadioGroupItem value={type.value} id={type.value} className="sr-only" />
-              <div className={cn(
-                "w-12 h-12 rounded-xl flex items-center justify-center transition-colors",
-                formData.projectType === type.value 
-                  ? "bg-primary text-primary-foreground" 
-                  : "bg-muted text-muted-foreground"
-              )}>
-                <type.icon className="h-6 w-6" />
-              </div>
-              <div>
-                <p className="font-semibold text-foreground">{type.label}</p>
-                <p className="text-sm text-muted-foreground">{type.description}</p>
-              </div>
-            </Label>
-          </motion.div>
-        ))}
-      </RadioGroup>
+              <Label
+                htmlFor={type.value}
+                className={cn(
+                  "flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all",
+                  formData.projectType === type.value
+                    ? "border-primary bg-primary/5 shadow-md"
+                    : errors.projectType
+                      ? "border-destructive/50 hover:border-destructive"
+                      : "border-border hover:border-primary/50 hover:bg-muted/50"
+                )}
+              >
+                <RadioGroupItem value={type.value} id={type.value} className="sr-only" />
+                <div className={cn(
+                  "w-12 h-12 rounded-xl flex items-center justify-center transition-colors",
+                  formData.projectType === type.value
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground"
+                )}>
+                  <type.icon className="h-6 w-6" />
+                </div>
+                <div>
+                  <p className="font-semibold text-foreground">{type.label}</p>
+                  <p className="text-sm text-muted-foreground">{type.description}</p>
+                </div>
+              </Label>
+            </motion.div>
+          ))}
+        </RadioGroup>
+      </FormField>
 
       <div className="mt-8">
-        <Label htmlFor="description" className="text-base font-semibold">
-          Décrivez brièvement votre projet
-        </Label>
-        <p className="text-sm text-muted-foreground mb-3">
-          Cette description nous aidera à pré-remplir votre CERFA
-        </p>
-        <Textarea
-          id="description"
-          placeholder="Ex: Construction d'une extension de 20m² à l'arrière de ma maison pour créer une nouvelle chambre..."
+        <FormField
+          label="Description du projet"
+          htmlFor="description"
+          error={errors.projectDescription}
           value={formData.projectDescription}
-          onChange={(e) => updateFormData("projectDescription", e.target.value)}
-          className={cn(
-            "min-h-[120px] resize-none",
-            charCount > maxChars && "border-destructive focus-visible:ring-destructive"
-          )}
-          maxLength={maxChars + 50}
-        />
-        <div className="flex justify-between mt-2">
-          <div>
-            {errors.projectDescription && (
-              <span className="text-sm text-destructive">{errors.projectDescription}</span>
+          required
+          icon={FileText}
+          hint="Détaillez la nature des travaux pour le CERFA"
+        >
+          <Textarea
+            id="description"
+            placeholder="Ex: Construction d'une extension de 20m² à l'arrière de ma maison pour créer une nouvelle chambre..."
+            value={formData.projectDescription}
+            onChange={(e) => updateFormData("projectDescription", e.target.value)}
+            className={cn(
+              "min-h-[120px] resize-none",
+              charCount > maxChars && "border-destructive focus-visible:ring-destructive"
             )}
-          </div>
+            maxLength={maxChars + 50}
+          />
+        </FormField>
+        <div className="flex justify-end mt-2">
           <span className={cn(
-            "text-sm",
+            "text-sm font-medium",
             charCount > maxChars ? "text-destructive" : "text-muted-foreground"
           )}>
             {charCount} / {maxChars}

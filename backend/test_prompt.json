@@ -1,0 +1,8 @@
+{
+    "model": "open-mistral-7b",
+    "messages": [
+      {"role": "system", "content": "Tu es un expert en urbanisme français. Tu réponds uniquement en format JSON valide, sans blabla."},
+      {"role": "user", "content": "Analyse la description suivante d'un projet de travaux pour un formulaire CERFA. Extrais les informations sous forme de JSON uniquement. Description: 'Je suis entrain de refaire mon hangars. Il fera 5m de haut avec des tuiles grises et un enduit beige.' Structure JSON attendue: {\"couleurFacade\": \"...\", \"couleurToiture\": \"...\", \"materiauFacade\": \"...\", \"materiauToiture\": \"...\", \"hauteurConstruction\": 5.0}"}
+    ],
+    "response_format": {"type": "json_object"}
+}

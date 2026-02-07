@@ -1,98 +1,81 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from "react";
+import api from "../services/api";
 
-const AuthContext = createContext(null);
+const AuthContext = createContext(undefined);
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8010/api';
-
-export function AuthProvider({ children }) {
+export const AuthProvider = ({ children }) => {
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Check for existing session
-        try {
-            const savedToken = localStorage.getItem('urbania_token');
-            const savedUser = localStorage.getItem('urbania_user');
-            if (savedToken && savedUser) {
-                setUser(JSON.parse(savedUser));
-            }
-        } catch (error) {
-            console.error('Failed to parse saved user:', error);
-            localStorage.removeItem('urbania_token');
-            localStorage.removeItem('urbania_user');
-        } finally {
-            setLoading(false);
-        }
+        checkAuthStatus();
     }, []);
 
-    const login = async (email, password) => {
-        try {
-            const response = await fetch(`${API_BASE}/auth/login/`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username: email, password }),
-            });
+    const checkAuthStatus = async () => {
+        const token = localStorage.getItem("access_token");
+        const savedUser = localStorage.getItem("urbania_user");
 
-            const data = await response.json();
-
-            if (response.ok) {
-                setUser(data.user);
-                localStorage.setItem('urbania_token', data.access);
-                localStorage.setItem('urbania_user', JSON.stringify(data.user));
-                return { success: true, user: data.user };
-            } else {
-                throw new Error(data.error || 'Identifiants invalides');
+        if (token) {
+            setIsAuthenticated(true);
+            if (savedUser) {
+                try {
+                    setUser(JSON.parse(savedUser));
+                } catch (e) {
+                    console.error("Failed to parse saved user", e);
+                }
             }
+        }
+        setLoading(false);
+    };
+
+    const login = async (credentials) => {
+        try {
+            const response = await api.post("/auth/login/", credentials);
+            const { access, refresh, user: userData } = response.data;
+
+            localStorage.setItem("access_token", access);
+            localStorage.setItem("refresh_token", refresh);
+            localStorage.setItem("urbania_user", JSON.stringify(userData));
+
+            setIsAuthenticated(true);
+            setUser(userData);
+            return { success: true, user: userData };
         } catch (error) {
-            return { success: false, error: error.message };
+            console.error("Login failed:", error);
+            return {
+                success: false,
+                error: error.response?.data?.error || error.response?.data?.detail || "Identifiants invalides"
+            };
         }
     };
 
-    const register = async (formData) => {
+    const register = async (userData) => {
         try {
-            const response = await fetch(`${API_BASE}/auth/register/`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    username: formData.email,
-                    email: formData.email,
-                    password: formData.password,
-                    confirm_password: formData.confirmPassword,
-                    first_name: formData.prenom,
-                    last_name: formData.nom,
-                }),
-            });
+            const response = await api.post("/auth/register/", userData);
+            const { access, refresh, user: registeredUser } = response.data;
 
-            const data = await response.json();
-
-            if (response.ok) {
-                setUser(data.user);
-                localStorage.setItem('urbania_token', data.access);
-                localStorage.setItem('urbania_user', JSON.stringify(data.user));
-                return { success: true, user: data.user };
-            } else {
-                // Handle complex validation errors from Django Rest Framework
-                let errorMsg = 'Erreur lors de l\'inscription';
-                if (typeof data === 'object') {
-                    // Extract all error messages and join them nicely
-                    const messages = [];
-                    for (const [key, value] of Object.entries(data)) {
-                        const fieldName = key === 'non_field_errors' ? '' : `${key} : `;
-                        messages.push(Array.isArray(value) ? value[0] : value);
-                    }
-                    errorMsg = messages.join('\n');
-                }
-                throw new Error(errorMsg);
+            if (access) {
+                localStorage.setItem("access_token", access);
+                localStorage.setItem("refresh_token", refresh);
+                localStorage.setItem("urbania_user", JSON.stringify(registeredUser));
+                setIsAuthenticated(true);
+                setUser(registeredUser);
             }
+
+            return { success: true, user: registeredUser };
         } catch (error) {
-            return { success: false, error: error.message };
+            console.error("Registration failed:", error);
+            throw error;
         }
     };
 
     const logout = () => {
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+        localStorage.removeItem("urbania_user");
+        setIsAuthenticated(false);
         setUser(null);
-        localStorage.removeItem('urbania_token');
-        localStorage.removeItem('urbania_user');
     };
 
     const updateUser = (updates) => {
@@ -101,6 +84,7 @@ export function AuthProvider({ children }) {
         localStorage.setItem('urbania_user', JSON.stringify(updatedUser));
     };
 
+    // Keep addDossier for backward compatibility if needed
     const addDossier = (dossier) => {
         const newDossier = {
             id: `dossier_${Date.now()}`,
@@ -116,15 +100,15 @@ export function AuthProvider({ children }) {
     };
 
     const value = {
-        user,
+        isAuthenticated,
         loading,
-        isAuthenticated: !!user,
+        user,
         isAdmin: user?.role === 'admin',
         login,
         register,
         logout,
         updateUser,
-        addDossier,
+        addDossier
     };
 
     return (
@@ -132,14 +116,14 @@ export function AuthProvider({ children }) {
             {children}
         </AuthContext.Provider>
     );
-}
+};
 
-export function useAuth() {
+export const useAuth = () => {
     const context = useContext(AuthContext);
-    if (!context) {
-        throw new Error('useAuth must be used within an AuthProvider');
+    if (context === undefined) {
+        throw new Error("useAuth must be used within an AuthProvider");
     }
     return context;
-}
+};
 
 export default AuthContext;

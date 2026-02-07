@@ -3,9 +3,10 @@ from .views import (
     RegisterView, LoginView, CerfaSessionView, CerfaSessionListView,
     DossierListCreateView, DossierDetailView, AdminStatsView, ActivityLogView,
     CadastreParcellesView, CadastreBatimentsView, CadastreParcelleDetailView,
-    CadastreGeocodeView, CadastreSectionsView, CadastreSearchView,
+    CadastreGeocodeView, CadastreSectionsView, CadastreSearchView, CadastreParcelleByCoordinatesView,
     AdminNotificationListView, AdminNotificationMarkReadView, AdminUserListView,
-    AIAnalyzeProjectView, AISuggestDocumentsView, AIConfigureProjectView
+    AIAnalyzeProjectView, AISuggestDocumentsView, AIConfigureProjectView, AIGenerateDescriptionView,
+    AIGenerateDocumentView
 )
 
 from rest_framework_simplejwt.views import TokenRefreshView
@@ -39,6 +40,10 @@ urlpatterns = [
     path('ai/analyze-project/', AIAnalyzeProjectView.as_view(), name='ai_analyze'),
     path('ai/suggest-documents/', AISuggestDocumentsView.as_view(), name='ai_suggest_docs'),
     path('ai/configure-project/', AIConfigureProjectView.as_view(), name='ai_configure_project'),
+    path('ai/generate-description/', AIGenerateDescriptionView.as_view(), name='ai_generate_description'),
+    path('ai/generate-document/', AIGenerateDocumentView.as_view(), name='ai_generate_document'),
+    
+    path('cadastre/parcelle/coords/', CadastreParcelleByCoordinatesView.as_view(), name='cadastre_parcelle_coords'),
 ]
 
 

@@ -1,0 +1,254 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Urbania - Bleu Drapeau Français (#002395 = 225 100% 29%) */
+    --background: 220 25% 98%;
+    --foreground: 225 40% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 225 40% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 225 40% 12%;
+
+    /* Bleu drapeau français - profond et professionnel */
+    --primary: 225 100% 29%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 225 20% 95%;
+    --secondary-foreground: 225 40% 20%;
+
+    --muted: 225 15% 94%;
+    --muted-foreground: 225 15% 45%;
+
+    --accent: 225 80% 45%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 225 15% 90%;
+    --input: 225 15% 90%;
+    --ring: 225 100% 29%;
+
+    --radius: 0.75rem;
+
+    /* Urbania custom tokens - Bleu France */
+    --urbania-blue: 225 100% 29%;
+    --urbania-blue-light: 225 60% 96%;
+    --urbania-blue-hover: 225 100% 35%;
+    --urbania-navy: 225 100% 20%;
+    --urbania-accent: 225 80% 55%;
+    --gradient-primary: linear-gradient(135deg, hsl(225 100% 29%), hsl(225 100% 22%));
+    --gradient-hero: linear-gradient(180deg, hsl(225 60% 96%) 0%, hsl(0 0% 100%) 100%);
+    --shadow-soft: 225 40% 12%;
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .dark {
+    --background: 225 30% 6%;
+    --foreground: 225 15% 95%;
+
+    --card: 225 30% 10%;
+    --card-foreground: 225 15% 95%;
+
+    --popover: 225 30% 10%;
+    --popover-foreground: 225 15% 95%;
+
+    --primary: 225 85% 55%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 225 25% 18%;
+    --secondary-foreground: 225 15% 90%;
+
+    --muted: 225 25% 15%;
+    --muted-foreground: 225 15% 60%;
+
+    --accent: 225 70% 50%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 225 25% 18%;
+    --input: 225 25% 18%;
+    --ring: 225 85% 55%;
+
+    /* Dark mode Urbania tokens */
+    --urbania-blue: 225 85% 55%;
+    --urbania-blue-light: 225 40% 15%;
+    --urbania-blue-hover: 225 85% 60%;
+    --urbania-navy: 225 100% 10%;
+    --urbania-accent: 225 70% 60%;
+    --shadow-soft: 0 0% 0%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif tracking-tight;
+  }
+}
+
+@layer utilities {
+  .card-hover {
+    @apply transition-all duration-500 hover:scale-[1.02];
+    box-shadow: 0 4px 20px -4px hsl(var(--shadow-soft) / 0.1);
+  }
+
+  .card-hover:hover {
+    box-shadow: 0 20px 40px -10px hsl(var(--shadow-soft) / 0.15);
+  }
+
+  .pill-nav {
+    @apply rounded-full bg-[hsl(var(--surface-elevated))] backdrop-blur-lg border border-border/50;
+  }
+
+  .floating-button {
+    @apply w-12 h-12 rounded-full bg-[hsl(var(--cream)/0.9)] backdrop-blur-sm flex items-center justify-center text-[hsl(var(--cream-foreground))] hover:bg-[hsl(var(--cream))] hover:scale-110 transition-all duration-300;
+    box-shadow: 0 4px 12px -2px hsl(var(--shadow-soft) / 0.15);
+  }
+
+  /* Animation keyframes */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.6s ease-out;
+  }
+
+  .animate-slide-down {
+    animation: slideDown 0.6s ease-out;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.5s ease-out;
+  }
+
+  /* Stagger animations */
+  .stagger-1 {
+    animation-delay: 0.1s;
+    opacity: 0;
+    animation-fill-mode: forwards;
+  }
+
+  .stagger-2 {
+    animation-delay: 0.2s;
+    opacity: 0;
+    animation-fill-mode: forwards;
+  }
+
+  .stagger-3 {
+    animation-delay: 0.3s;
+    opacity: 0;
+    animation-fill-mode: forwards;
+  }
+
+  .stagger-4 {
+    animation-delay: 0.4s;
+    opacity: 0;
+    animation-fill-mode: forwards;
+  }
+
+  .stagger-5 {
+    animation-delay: 0.5s;
+    opacity: 0;
+    animation-fill-mode: forwards;
+  }
+
+  .stagger-6 {
+    animation-delay: 0.6s;
+    opacity: 0;
+    animation-fill-mode: forwards;
+  }
+
+  .tag-financing {
+    @apply bg-[hsl(var(--tag-financing))] text-primary;
+  }
+
+  .tag-lifestyle {
+    @apply bg-[hsl(var(--tag-lifestyle))] text-primary;
+  }
+
+  .tag-community {
+    @apply bg-[hsl(var(--tag-community))] text-primary;
+  }
+
+  .tag-wellness {
+    @apply bg-[hsl(var(--tag-wellness))] text-primary;
+  }
+
+  .tag-travel {
+    @apply bg-[hsl(var(--tag-travel))] text-primary;
+  }
+
+  .tag-creativity {
+    @apply bg-[hsl(var(--tag-creativity))] text-primary;
+  }
+
+  .tag-growth {
+    @apply bg-[hsl(var(--tag-growth))] text-primary;
+  }
+}

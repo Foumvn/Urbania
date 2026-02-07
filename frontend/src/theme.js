@@ -1,23 +1,28 @@
 import { alpha } from '@mui/material/styles';
 
+// Bleu Urbania officiel
+const BLUE_PRIMARY = '#002395';
+const BLUE_DARK = '#001a70';
+const BLUE_LIGHT = '#3b5fc4';
+
 const getTheme = (mode) => ({
     palette: {
         mode,
         primary: {
-            main: '#583da1', // Modern Purple from maquette
-            dark: '#432d80',
-            light: '#7c62c1',
+            main: BLUE_PRIMARY,
+            dark: BLUE_DARK,
+            light: BLUE_LIGHT,
             contrastText: '#ffffff',
         },
         secondary: {
-            main: '#7c62c1', // Lighter Violet
-            light: '#a996db',
-            dark: '#583da1',
+            main: BLUE_LIGHT,
+            light: '#6b8be8',
+            dark: BLUE_PRIMARY,
             contrastText: '#ffffff',
         },
         background: {
-            default: mode === 'light' ? '#f3f4f6' : '#111827',
-            paper: mode === 'light' ? '#ffffff' : '#1f2937',
+            default: mode === 'light' ? '#f8fafc' : '#0f172a',
+            paper: mode === 'light' ? '#ffffff' : '#1e293b',
         },
         text: {
             primary: mode === 'light' ? '#1e293b' : '#f8fafc',
@@ -43,10 +48,10 @@ const getTheme = (mode) => ({
             light: '#60a5fa',
             dark: '#2563eb',
         },
-        divider: mode === 'light' ? '#e2e8f0' : '#374151',
+        divider: mode === 'light' ? '#e2e8f0' : '#334155',
         action: {
-            hover: alpha('#583da1', 0.04),
-            selected: alpha('#583da1', 0.08),
+            hover: alpha(BLUE_PRIMARY, 0.04),
+            selected: alpha(BLUE_PRIMARY, 0.08),
         },
     },
     typography: {
@@ -134,7 +139,7 @@ const getTheme = (mode) => ({
         MuiCssBaseline: {
             styleOverrides: {
                 body: {
-                    backgroundColor: mode === 'light' ? '#f3f4f6' : '#111827',
+                    backgroundColor: mode === 'light' ? '#f8fafc' : '#0f172a',
                     transition: 'all 0.3s ease',
                 },
             },
@@ -153,20 +158,20 @@ const getTheme = (mode) => ({
                     },
                 },
                 containedPrimary: {
-                    backgroundColor: '#583da1',
-                    boxShadow: '0 4px 6px -1px rgba(88, 61, 161, 0.2)',
+                    backgroundColor: BLUE_PRIMARY,
+                    boxShadow: '0 4px 6px -1px rgba(0, 35, 149, 0.2)',
                     '&:hover': {
-                        backgroundColor: '#432d80',
-                        boxShadow: '0 10px 15px -3px rgba(88, 61, 161, 0.3)',
+                        backgroundColor: BLUE_DARK,
+                        boxShadow: '0 10px 15px -3px rgba(0, 35, 149, 0.3)',
                     },
                 },
                 outlinedPrimary: {
-                    borderColor: '#583da1',
-                    color: '#583da1',
+                    borderColor: BLUE_PRIMARY,
+                    color: BLUE_PRIMARY,
                     borderWidth: 1.5,
                     '&:hover': {
                         borderWidth: 1.5,
-                        backgroundColor: alpha('#583da1', 0.05),
+                        backgroundColor: alpha(BLUE_PRIMARY, 0.05),
                     },
                 },
             },
@@ -176,17 +181,17 @@ const getTheme = (mode) => ({
                 root: {
                     '& .MuiOutlinedInput-root': {
                         borderRadius: 10,
-                        backgroundColor: mode === 'light' ? '#ffffff' : '#1f2937',
+                        backgroundColor: mode === 'light' ? '#ffffff' : '#1e293b',
                         '& fieldset': {
-                            borderColor: mode === 'light' ? '#e2e8f0' : '#374151',
+                            borderColor: mode === 'light' ? '#e2e8f0' : '#334155',
                             borderWidth: 1,
                         },
                         '&:hover fieldset': {
-                            borderColor: '#583da1',
+                            borderColor: BLUE_PRIMARY,
                         },
                         '&.Mui-focused fieldset': {
                             borderWidth: 2,
-                            borderColor: '#583da1',
+                            borderColor: BLUE_PRIMARY,
                         },
                     },
                 },
@@ -197,8 +202,8 @@ const getTheme = (mode) => ({
                 root: {
                     borderRadius: 16,
                     boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
-                    border: mode === 'light' ? '1px solid #e2e8f0' : '1px solid #374151',
-                    backgroundColor: mode === 'light' ? '#ffffff' : '#1f2937',
+                    border: mode === 'light' ? '1px solid #e2e8f0' : '1px solid #334155',
+                    backgroundColor: mode === 'light' ? '#ffffff' : '#1e293b',
                 },
             },
         },
@@ -206,7 +211,7 @@ const getTheme = (mode) => ({
             styleOverrides: {
                 root: {
                     backgroundImage: 'none',
-                    backgroundColor: mode === 'light' ? '#ffffff' : '#1f2937',
+                    backgroundColor: mode === 'light' ? '#ffffff' : '#1e293b',
                 },
                 rounded: {
                     borderRadius: 16,
@@ -226,8 +231,8 @@ const getTheme = (mode) => ({
             styleOverrides: {
                 paper: {
                     borderRight: '1px solid',
-                    borderColor: mode === 'light' ? '#e2e8f0' : '#374151',
-                    backgroundColor: mode === 'light' ? '#ffffff' : '#111827',
+                    borderColor: mode === 'light' ? '#e2e8f0' : '#334155',
+                    backgroundColor: mode === 'light' ? '#ffffff' : '#0f172a',
                 },
             },
         },
@@ -237,13 +242,13 @@ const getTheme = (mode) => ({
                     borderRadius: 10,
                     margin: '4px 8px',
                     '&.Mui-selected': {
-                        backgroundColor: alpha('#583da1', 0.1),
-                        color: '#583da1',
+                        backgroundColor: alpha(BLUE_PRIMARY, 0.1),
+                        color: BLUE_PRIMARY,
                         '&:hover': {
-                            backgroundColor: alpha('#583da1', 0.15),
+                            backgroundColor: alpha(BLUE_PRIMARY, 0.15),
                         },
                         '& .MuiListItemIcon-root': {
-                            color: '#583da1',
+                            color: BLUE_PRIMARY,
                         },
                     },
                 },

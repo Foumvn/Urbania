@@ -78,7 +78,7 @@ function AdminDashboard() {
         fetchNotifications(false);
 
         try {
-            const token = localStorage.getItem('urbania_token');
+            const token = localStorage.getItem('access_token');
             const response = await fetch(`${API_BASE}/stats/`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -103,7 +103,7 @@ function AdminDashboard() {
 
         // Fetch recent activity
         try {
-            const token = localStorage.getItem('urbania_token');
+            const token = localStorage.getItem('access_token');
             const actResponse = await fetch(`${API_BASE}/activity/`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -128,7 +128,7 @@ function AdminDashboard() {
 
     const fetchNotifications = async (isPoll = false) => {
         try {
-            const token = localStorage.getItem('urbania_token');
+            const token = localStorage.getItem('access_token');
             const response = await fetch(`${API_BASE}/admin/notifications/`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -155,7 +155,7 @@ function AdminDashboard() {
 
     const handleMarkAllRead = async () => {
         try {
-            const token = localStorage.getItem('urbania_token');
+            const token = localStorage.getItem('access_token');
             await fetch(`${API_BASE}/admin/notifications/mark-read/`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` }

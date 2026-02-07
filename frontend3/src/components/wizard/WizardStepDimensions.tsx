@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Ruler, Square, ArrowUpFromLine, Footprints, Info } from "lucide-react";
-import { CerfaFormData } from "@/pages/NouveauDossier";
+import { CerfaFormData } from "@/lib/pdfGenerator";
 import FormField from "./FormField";
 import { cn } from "@/lib/utils";
 
@@ -76,13 +76,15 @@ const WizardStepDimensions = ({ formData, updateFormData, errors }: Props) => {
 
       {/* Info banner */}
       <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 mb-6 flex items-start gap-3">
-        <Info className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+        <span className="shrink-0 mt-0.5">
+          <Info className="h-5 w-5 text-primary" />
+        </span>
         <div>
           <p className="text-sm text-foreground font-medium">
             Déclaration Préalable obligatoire
           </p>
           <p className="text-sm text-muted-foreground">
-            Pour toute construction créant entre 5m² et 20m² de surface de plancher 
+            Pour toute construction créant entre 5m² et 20m² de surface de plancher
             (ou 40m² en zone urbaine PLU).
           </p>
         </div>
@@ -90,7 +92,7 @@ const WizardStepDimensions = ({ formData, updateFormData, errors }: Props) => {
 
       <div className="grid sm:grid-cols-2 gap-6">
         {dimensionFields.map((field) => (
-          <motion.div 
+          <motion.div
             key={field.id}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -101,6 +103,7 @@ const WizardStepDimensions = ({ formData, updateFormData, errors }: Props) => {
               htmlFor={field.id}
               hint={field.hint}
               error={errors[field.id]}
+              value={formData[field.id as keyof CerfaFormData]}
               required={field.required}
               icon={field.icon}
             >
@@ -128,7 +131,7 @@ const WizardStepDimensions = ({ formData, updateFormData, errors }: Props) => {
 
       {/* Total surface calculation */}
       {formData.existingSurface && formData.newSurface && (
-        <motion.div 
+        <motion.div
           className="mt-8 bg-gradient-to-r from-primary/10 to-primary/5 rounded-xl p-5 border border-primary/20"
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}

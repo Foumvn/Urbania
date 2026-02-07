@@ -1,21 +1,60 @@
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 
 export interface CerfaFormData {
+  // Projet
   projectType: string;
   projectDescription: string;
+
+  // Terrain
   address: string;
   postalCode: string;
   city: string;
+  codeInsee?: string;
   cadastralReference: string;
+  terrainSurface: string;
+
+  // Surfaces
   existingSurface: string;
   newSurface: string;
   totalHeight: string;
   groundFootprint: string;
-  ownerFirstName: string;
+
+  // Déclarant - Identité
+  ownerType: "particulier" | "societe";
+  ownerCivilite: string;
   ownerLastName: string;
+  ownerFirstName: string;
+  ownerDateNaissance?: string;
+  ownerLieuNaissance?: string;
+
+  // Déclarant - Société
+  ownerDenomination?: string;
+  ownerRaisonSociale?: string;
+  ownerSiret?: string;
+  ownerTypeSociete?: string;
+  ownerRepresentantNom?: string;
+  ownerRepresentantPrenom?: string;
+  ownerRepresentantQualite?: string;
+
+  // Déclarant - Coordonnées (Adresse de correspondance)
+  ownerAddressNumber: string;
+  ownerAddress: string;
+  ownerLieuDit: string;
+  ownerLocalite: string;
+  ownerBP: string;
+  ownerCedex: string;
+  ownerPostalCode: string;
+  ownerCity: string;
+  ownerCountry: string;
   ownerEmail: string;
   ownerPhone: string;
-  codeInsee?: string;
+  acceptEmailCorrespondence: boolean;
+
+  // Engagement et Pièces
+  engagementAccepted: boolean;
+  engagementSignature: string;
+  engagementDate: string;
+  piecesRequired: string[];
 }
 
 // Field positions on CERFA 13703*08 (approximate, based on form structure)
@@ -24,23 +63,23 @@ const FIELD_MAPPINGS = {
   // Section 1 - Identité du déclarant
   ownerLastName: { page: 0, x: 120, y: 705, maxWidth: 200 },
   ownerFirstName: { page: 0, x: 350, y: 705, maxWidth: 150 },
-  
+
   // Section 2 - Coordonnées
   address: { page: 0, x: 120, y: 635, maxWidth: 350 },
   postalCode: { page: 0, x: 120, y: 610, maxWidth: 60 },
   city: { page: 0, x: 200, y: 610, maxWidth: 200 },
   ownerPhone: { page: 0, x: 120, y: 585, maxWidth: 150 },
   ownerEmail: { page: 0, x: 300, y: 585, maxWidth: 200 },
-  
+
   // Section 3 - Terrain
   terrainAddress: { page: 0, x: 120, y: 490, maxWidth: 350 },
   terrainPostalCode: { page: 0, x: 120, y: 465, maxWidth: 60 },
   terrainCity: { page: 0, x: 200, y: 465, maxWidth: 200 },
   cadastralReference: { page: 0, x: 120, y: 440, maxWidth: 200 },
-  
+
   // Section 4 - Nature du projet
   projectDescription: { page: 0, x: 120, y: 350, maxWidth: 400, maxLines: 3 },
-  
+
   // Section 5 - Surfaces (page 2)
   existingSurface: { page: 1, x: 350, y: 650, maxWidth: 80 },
   newSurface: { page: 1, x: 350, y: 625, maxWidth: 80 },
@@ -71,14 +110,14 @@ export async function generateCerfaPDF(formData: CerfaFormData): Promise<Blob> {
       mapping: { page: number; x: number; y: number; maxWidth: number; maxLines?: number }
     ) => {
       if (!text || mapping.page >= pages.length) return;
-      
+
       const page = pages[mapping.page];
       const { height } = page.getSize();
-      
+
       // Truncate text if too long
       let displayText = text;
       const textWidth = helveticaFont.widthOfTextAtSize(text, fontSize);
-      
+
       if (textWidth > mapping.maxWidth) {
         // Truncate with ellipsis
         while (
@@ -100,38 +139,38 @@ export async function generateCerfaPDF(formData: CerfaFormData): Promise<Blob> {
     };
 
     // Fill in the form fields
-    
+
     // Section 1 - Identité
     drawText(formData.ownerLastName.toUpperCase(), FIELD_MAPPINGS.ownerLastName);
     drawText(formData.ownerFirstName, FIELD_MAPPINGS.ownerFirstName);
-    
+
     // Section 2 - Coordonnées du déclarant (same as terrain for owner)
     drawText(formData.address, FIELD_MAPPINGS.address);
     drawText(formData.postalCode, FIELD_MAPPINGS.postalCode);
     drawText(formData.city, FIELD_MAPPINGS.city);
     drawText(formData.ownerPhone, FIELD_MAPPINGS.ownerPhone);
     drawText(formData.ownerEmail, FIELD_MAPPINGS.ownerEmail);
-    
+
     // Section 3 - Terrain
     drawText(formData.address, FIELD_MAPPINGS.terrainAddress);
     drawText(formData.postalCode, FIELD_MAPPINGS.terrainPostalCode);
     drawText(formData.city, FIELD_MAPPINGS.terrainCity);
     drawText(formData.cadastralReference, FIELD_MAPPINGS.cadastralReference);
-    
+
     // Section 4 - Nature du projet
     const projectText = `${formData.projectType} - ${formData.projectDescription}`;
     drawText(projectText, FIELD_MAPPINGS.projectDescription);
-    
+
     // Section 5 - Surfaces (if page 2 exists)
     if (pages.length > 1) {
       drawText(`${formData.existingSurface} m²`, FIELD_MAPPINGS.existingSurface);
       drawText(`${formData.newSurface} m²`, FIELD_MAPPINGS.newSurface);
-      
+
       // Calculate total surface
       const existing = parseFloat(formData.existingSurface) || 0;
       const newSurf = parseFloat(formData.newSurface) || 0;
       drawText(`${existing + newSurf} m²`, FIELD_MAPPINGS.totalSurface);
-      
+
       drawText(`${formData.totalHeight} m`, FIELD_MAPPINGS.totalHeight);
       drawText(`${formData.groundFootprint} m²`, FIELD_MAPPINGS.groundFootprint);
     }
@@ -139,7 +178,7 @@ export async function generateCerfaPDF(formData: CerfaFormData): Promise<Blob> {
     // Add generation metadata
     const firstPage = pages[0];
     const { width } = firstPage.getSize();
-    
+
     firstPage.drawText(`Généré par Urbania le ${new Date().toLocaleDateString("fr-FR")}`, {
       x: width - 200,
       y: 20,
@@ -150,7 +189,7 @@ export async function generateCerfaPDF(formData: CerfaFormData): Promise<Blob> {
 
     // Save the PDF
     const pdfBytes = await pdfDoc.save();
-    
+
     return new Blob([new Uint8Array(pdfBytes)], { type: "application/pdf" });
   } catch (error) {
     console.error("Error generating PDF:", error);
