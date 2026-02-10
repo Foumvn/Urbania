@@ -89,6 +89,12 @@ DATABASES = {
     )
 }
 
+# Force psycopg3 for PostgreSQL if using it
+if DATABASES['default']['ENGINE'] == 'django.db.backends.postgresql':
+    DATABASES['default']['ENGINE'] = 'django.db.backends.postgresql'
+    # psycopg3 is auto-detected by Django 4.2+
+
+
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
