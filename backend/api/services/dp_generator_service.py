@@ -93,8 +93,8 @@ class DPGeneratorService:
                 image = client.text_to_image(
                     prompt, 
                     model=model_id,
-                    width=1024,
-                    height=1024,
+                    width=512,
+                    height=512,
                     num_inference_steps=4,
                     guidance_scale=0.0
                 )
