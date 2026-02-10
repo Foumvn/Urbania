@@ -113,7 +113,7 @@ class DPGeneratorService:
                 print(f"DEBUG HF Lib Error avec {masked_key}: {e}")
                 # 2. Fallback to direct API request
                 try:
-                    API_URL = f"https://api-inference.huggingface.co/models/{model_id}"
+                    API_URL = f"https://router.huggingface.co/hf-inference/models/{model_id}"
                     headers = {"Authorization": f"Bearer {api_key}"}
                     response = requests.post(API_URL, headers=headers, json={"inputs": prompt})
                     

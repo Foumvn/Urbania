@@ -474,7 +474,7 @@ export async function generateCerfaPDF(data) {
             });
             pDoc.drawText(`Urbania - Dossier de ${data.nom || ''}`, { x: MARGIN, y: 20, size: 8, font: helveticaItalic, color: rgb(0.5, 0.5, 0.5) });
 
-            if (content.startsWith('data:image/')) {
+            if (content && typeof content === 'string' && content.startsWith('data:image/')) {
                 const imgBytes = content.split(',')[1];
                 let img;
                 if (content.includes('png')) img = await pdfDoc.embedPng(imgBytes);
