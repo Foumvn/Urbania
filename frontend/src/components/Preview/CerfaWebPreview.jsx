@@ -66,8 +66,8 @@ const PageWrapper = ({ children, pageNumber, totalPages }) => (
             bgcolor: 'white',
             color: 'black',
             width: '100%',
-            maxWidth: '800px',
-            minHeight: '1120px', // A4 Ratio approximately
+            maxWidth: '1000px',
+            minHeight: '1400px', // Increased proportionally
             mx: 'auto',
             mb: 4,
             fontFamily: 'Arial, sans-serif',

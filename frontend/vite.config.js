@@ -5,11 +5,32 @@ export default defineConfig({
     plugins: [react()],
     server: {
         port: 5173,
+        host: true, // Listen on all addresses
+        strictPort: true,
+        hmr: {
+            host: '127.0.0.1'
+        },
         proxy: {
             '/api': {
-                target: 'http://localhost:8010',
-                changeOrigin: true
+                target: 'http://127.0.0.1:8010',
+                changeOrigin: true,
+                secure: false,
             }
+        }
+    },
+    optimizeDeps: {
+        include: ['maplibre-gl'],
+        esbuildOptions: {
+            target: 'es2022'
+        }
+    },
+    build: {
+        target: 'es2022'
+    },
+    esbuild: {
+        target: 'es2022',
+        supported: {
+            'class-field': true
         }
     }
 })

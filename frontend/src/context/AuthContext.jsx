@@ -99,6 +99,17 @@ export const AuthProvider = ({ children }) => {
         return newDossier;
     };
 
+    const loginSuccess = (userData, tokens) => {
+        setIsAuthenticated(true);
+        setUser(userData);
+
+        if (tokens) {
+            if (tokens.access) localStorage.setItem("access_token", tokens.access);
+            if (tokens.refresh) localStorage.setItem("refresh_token", tokens.refresh);
+        }
+        localStorage.setItem("urbania_user", JSON.stringify(userData));
+    };
+
     const value = {
         isAuthenticated,
         loading,
@@ -107,6 +118,7 @@ export const AuthProvider = ({ children }) => {
         login,
         register,
         logout,
+        loginSuccess, // Nouvelle fonction exposée
         updateUser,
         addDossier
     };

@@ -1,0 +1,31 @@
+# Variables d'environnement à mettre sur Render
+
+## Backend (Web Service)
+
+| Clé | Valeur |
+|-----|--------|
+| `FIREBASE_CREDENTIALS_PATH` | `/etc/secrets/firebase-credentials.json` (Si vous utilisez les Secret Files de Render) |
+| `GOOGLE_CLIENT_ID` | `100737257486873402762` |
+| `MISTRAL_API_KEY` | `VOTRE_ALE_API_KEY_MISTRAL` |
+| `HUGGINGFACE_API_KEY` | `hf_VOTRE_TOKEN_ICI` |
+| `IMAGE_PROVIDER` | `HUGGINGFACE` |
+| `DATABASE_URL` | (Automatiquement géré si vous liez la DB PostgreSQL sur Render) |
+| `SECRET_KEY` | (Générez une clé aléatoire) |
+| `DEBUG` | `False` |
+
+## Frontend (Static Site)
+
+| Clé | Valeur |
+|-----|--------|
+| `VITE_API_URL` | `https://votre-backend.onrender.com/api` (Remplacez par l'URL de votre backend) |
+| `VITE_FIREBASE_API_KEY` | `VOTRE_API_KEY_FIREBASE` |
+| `VITE_FIREBASE_AUTH_DOMAIN` | `urbaniaa-86d1f.firebaseapp.com` |
+| `VITE_FIREBASE_PROJECT_ID` | `urbaniaa-86d1f` |
+| `VITE_FIREBASE_STORAGE_BUCKET` | `urbaniaa-86d1f.firebasestorage.app` |
+| `VITE_FIREBASE_MESSAGING_SENDER_ID` | `882102517131` |
+| `VITE_FIREBASE_APP_ID` | `1:882102517131:web:815c1602925decccbb838e` |
+| `VITE_FIREBASE_MEASUREMENT_ID` | `G-41TE9Z2JGM` |
+
+## Secret File (Backend)
+Nom du fichier : `firebase-credentials.json`
+Contenu : (Copiez le contenu du fichier `urbaniaa-86d1f-firebase-adminsdk-fbsvc-886c2c07f3.json`)

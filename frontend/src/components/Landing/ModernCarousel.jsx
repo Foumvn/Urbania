@@ -63,11 +63,11 @@ const UrbaniaSlide1 = () => (
         </Box>
 
         <GlassCard sx={{ position: 'absolute', top: '10%', right: '-10%', animationDelay: '0s' }}>
-            <Avatar sx={{ bgcolor: 'rgba(88, 61, 161, 0.1)', color: '#583da1' }}>
+            <Avatar sx={{ bgcolor: 'rgba(0, 35, 149, 0.1)', color: '#002395' }}>
                 <AutoAwesomeIcon />
             </Avatar>
             <Box>
-                <Typography variant="caption" sx={{ display: 'block', fontWeight: 700, color: '#583da1', textTransform: 'uppercase' }}>Analyse IA</Typography>
+                <Typography variant="caption" sx={{ display: 'block', fontWeight: 700, color: '#002395', textTransform: 'uppercase' }}>Analyse IA</Typography>
                 <Typography variant="body2" sx={{ fontWeight: 600 }}>Dossier Conforme</Typography>
             </Box>
         </GlassCard>
@@ -83,7 +83,7 @@ const UrbaniaSlide1 = () => (
         </GlassCard>
 
         <Box sx={{ mt: 6, textAlign: 'center' }}>
-            <DescriptionIcon sx={{ fontSize: 100, color: '#583da1', opacity: 0.1 }} />
+            <DescriptionIcon sx={{ fontSize: 100, color: '#002395', opacity: 0.1 }} />
         </Box>
     </Box>
 );
@@ -107,9 +107,9 @@ const UrbaniaSlide2 = () => (
             })}
         </Box>
         <GlassCard sx={{ position: 'absolute', top: '40%', left: '25%', zIndex: 10, animationDelay: '-1s' }}>
-            <TranslateIcon sx={{ color: '#583da1' }} />
+            <TranslateIcon sx={{ color: '#002395' }} />
             <Box>
-                <Typography variant="caption" sx={{ display: 'block', fontWeight: 700, color: '#583da1', textTransform: 'uppercase' }}>Extraction</Typography>
+                <Typography variant="caption" sx={{ display: 'block', fontWeight: 700, color: '#002395', textTransform: 'uppercase' }}>Extraction</Typography>
                 <Typography variant="body2" sx={{ fontWeight: 600 }}>Données cadastrales</Typography>
             </Box>
         </GlassCard>
@@ -119,7 +119,7 @@ const UrbaniaSlide2 = () => (
 const UrbaniaSlide3 = () => (
     <Box sx={{ position: 'relative', width: '85%', height: '85%', bgcolor: '#fff', borderRadius: 6, border: '1px solid #e2e8f0', p: 4, display: 'flex', flexDirection: 'column', gap: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, pb: 2, borderBottom: '1px solid #f1f5f9' }}>
-            <Avatar sx={{ bgcolor: '#583da1' }}><AssignmentIcon /></Avatar>
+            <Avatar sx={{ bgcolor: '#002395', color: 'white' }}><AssignmentIcon /></Avatar>
             <Box>
                 <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>CERFA 13703*08</Typography>
                 <Typography variant="caption" color="text.secondary">Édition en cours...</Typography>
@@ -178,7 +178,7 @@ const ModernCarousel = () => {
                             width: index === activeIndex ? 32 : 10,
                             height: 10,
                             borderRadius: 5,
-                            bgcolor: index === activeIndex ? '#583da1' : 'rgba(88, 61, 161, 0.2)',
+                            bgcolor: index === activeIndex ? '#002395' : 'rgba(0, 35, 149, 0.2)',
                             transition: 'all 0.3s ease',
                             cursor: 'pointer',
                         }}

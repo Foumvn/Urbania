@@ -53,101 +53,101 @@ function UserManager() {
     };
 
     return (
-        <Box>
-            <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Avatar sx={{ bgcolor: 'secondary.main' }}>
-                    <PeopleIcon />
-                </Avatar>
-                <Box>
-                    <Typography variant="h5" fontWeight={700}>
-                        Gestion des Utilisateurs
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                        Consulter et gérer les comptes clients et administrateurs
-                    </Typography>
-                </Box>
-            </Box>
+        <div className="space-y-8 animate-in fade-in duration-500">
+            {/* Elegant Page Header */}
+            <div className="flex items-center gap-4">
+                <div className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl shadow-sm">
+                    <PeopleIcon fontSize="medium" />
+                </div>
+                <div>
+                    <h2 className="text-2xl font-black text-slate-900 tracking-tight">Gestion des Utilisateurs</h2>
+                    <p className="text-slate-500 font-medium text-sm">Consulter et gérer les comptes clients et administrateurs</p>
+                </div>
+            </div>
 
-            <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 3, overflow: 'hidden' }}>
-                <Tabs
-                    value={tab}
-                    onChange={(e, v) => setTab(v)}
-                    sx={{
-                        px: 2,
-                        pt: 1,
-                        bgcolor: 'background.neutral',
-                        borderBottom: 1,
-                        borderColor: 'divider',
-                    }}
-                >
-                    <Tab label="Clients" />
-                    <Tab label="Administrateurs" />
-                </Tabs>
+            <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
+                {/* Modern Tab Bar */}
+                <div className="p-2 border-b border-slate-50 bg-slate-50/50">
+                    <div className="flex bg-white rounded-2xl p-1 shadow-sm border border-slate-100 w-fit">
+                        <button
+                            onClick={() => setTab(0)}
+                            className={`px-8 py-2.5 rounded-xl font-bold text-sm transition-all ${tab === 0 ? 'bg-[#0f172a] text-white shadow-lg shadow-slate-900/20' : 'text-slate-500 hover:bg-slate-50'}`}
+                        >
+                            Clients
+                        </button>
+                        <button
+                            onClick={() => setTab(1)}
+                            className={`px-8 py-2.5 rounded-xl font-bold text-sm transition-all ${tab === 1 ? 'bg-[#0f172a] text-white shadow-lg shadow-slate-900/20' : 'text-slate-500 hover:bg-slate-50'}`}
+                        >
+                            Administrateurs
+                        </button>
+                    </div>
+                </div>
 
                 {loading ? (
-                    <LinearProgress />
+                    <div className="py-20 flex flex-col items-center justify-center space-y-4">
+                        <div className="h-10 w-10 border-4 border-slate-100 border-t-indigo-600 rounded-full animate-spin"></div>
+                        <p className="text-slate-400 font-bold text-xs uppercase tracking-widest">Chargement des utilisateurs...</p>
+                    </div>
                 ) : (
-                    <TableContainer>
-                        <Table>
+                    <div className="overflow-x-auto">
+                        <Table sx={{ minWidth: 800 }}>
                             <TableHead>
-                                <TableRow sx={{ bgcolor: 'action.hover' }}>
-                                    <TableCell sx={{ fontWeight: 700 }}>Utilisateur</TableCell>
-                                    <TableCell sx={{ fontWeight: 700 }}>Email</TableCell>
-                                    <TableCell sx={{ fontWeight: 700 }}>Rôle</TableCell>
-                                    <TableCell sx={{ fontWeight: 700 }}>Inscription</TableCell>
+                                <TableRow>
+                                    <TableCell sx={{ color: 'slate.400', fontWeight: 800, textTransform: 'uppercase', fontSize: '10px', tracking: '0.1em', borderBottom: '1px solid #f1f5f9' }}>Utilisateur</TableCell>
+                                    <TableCell sx={{ color: 'slate.400', fontWeight: 800, textTransform: 'uppercase', fontSize: '10px', tracking: '0.1em', borderBottom: '1px solid #f1f5f9' }}>Email</TableCell>
+                                    <TableCell sx={{ color: 'slate.400', fontWeight: 800, textTransform: 'uppercase', fontSize: '10px', tracking: '0.1em', borderBottom: '1px solid #f1f5f9' }}>Rôle</TableCell>
+                                    <TableCell sx={{ color: 'slate.400', fontWeight: 800, textTransform: 'uppercase', fontSize: '10px', tracking: '0.1em', borderBottom: '1px solid #f1f5f9' }}>Inscription</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
                                 {users.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={4} align="center" sx={{ py: 4 }}>
-                                            <Typography variant="body2" color="text.secondary">
-                                                Aucun utilisateur trouvé
-                                            </Typography>
+                                        <TableCell colSpan={4} align="center" sx={{ py: 12 }}>
+                                            <div className="flex flex-col items-center gap-4 text-slate-300">
+                                                <PeopleIcon sx={{ fontSize: 48 }} />
+                                                <p className="font-bold">Aucun utilisateur trouvé</p>
+                                            </div>
                                         </TableCell>
                                     </TableRow>
                                 ) : (
                                     users.map((user) => (
-                                        <TableRow key={user.id} hover>
+                                        <TableRow key={user.id} hover sx={{ '&:hover': { bgcolor: 'slate.50/50' }, '& td': { borderBottom: '1px solid #f8fafc' } }}>
                                             <TableCell>
-                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                                    <Avatar sx={{ width: 32, height: 32, bgcolor: user.role === 'admin' ? 'error.main' : 'primary.main', fontSize: '0.875rem' }}>
+                                                <div className="flex items-center gap-4">
+                                                    <div className={`h-10 w-10 rounded-2xl flex items-center justify-center font-black text-sm shadow-sm ${user.role === 'admin' ? 'bg-red-50 text-red-600 border border-red-100' : 'bg-blue-50 text-blue-600 border border-blue-100'}`}>
                                                         {(user.first_name?.[0] || user.username?.[0] || '?').toUpperCase()}
-                                                    </Avatar>
-                                                    <Typography variant="body2" fontWeight={500}>
-                                                        {user.first_name} {user.last_name}
-                                                    </Typography>
-                                                </Box>
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-bold text-slate-900 text-sm">
+                                                            {user.first_name || user.username} {user.last_name || ''}
+                                                        </p>
+                                                        <p className="text-[10px] text-slate-400 font-medium">Membre depuis {new Date(user.date_joined || Date.now()).getFullYear()}</p>
+                                                    </div>
+                                                </div>
                                             </TableCell>
                                             <TableCell>
-                                                <Typography variant="body2" color="text.secondary">
-                                                    {user.email}
-                                                </Typography>
+                                                <p className="text-sm font-medium text-slate-600">{user.email}</p>
                                             </TableCell>
                                             <TableCell>
-                                                <Chip
-                                                    icon={user.role === 'admin' ? <SecurityIcon sx={{ fontSize: '0.75rem !important' }} /> : <PeopleIcon sx={{ fontSize: '0.75rem !important' }} />}
-                                                    label={user.role === 'admin' ? 'Administrateur' : 'Client'}
-                                                    size="small"
-                                                    color={user.role === 'admin' ? 'error' : 'primary'}
-                                                    variant="outlined"
-                                                    sx={{ height: 24, fontSize: '0.7rem', fontWeight: 600 }}
-                                                />
+                                                <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider ${user.role === 'admin' ? 'bg-amber-50 text-amber-600 border border-amber-100' : 'bg-slate-50 text-slate-500 border border-slate-100'}`}>
+                                                    {user.role === 'admin' ? 'Administrateur' : 'Client'}
+                                                </span>
                                             </TableCell>
                                             <TableCell>
-                                                <Typography variant="body2" color="text.secondary">
+                                                <p className="text-sm font-medium text-slate-500">
                                                     {new Date(user.date_joined || Date.now()).toLocaleDateString('fr-FR')}
-                                                </Typography>
+                                                </p>
                                             </TableCell>
                                         </TableRow>
                                     ))
                                 )}
                             </TableBody>
                         </Table>
-                    </TableContainer>
+                    </div>
                 )}
-            </Paper>
-        </Box>
+            </div>
+        </div>
     );
 }
 

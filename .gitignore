@@ -24,3 +24,12 @@ old_version_backup/
 latex/
 *.sh
 code.html
+
+# Firebase Secrets
+firebase-credentials.json
+backend/firebase-credentials.json
+frontend/.env
+backend/.env
+# Mais on garde les .env.example
+!frontend/.env.example
+!backend/.env.example

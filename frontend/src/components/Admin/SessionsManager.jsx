@@ -199,122 +199,130 @@ function SessionsManager() {
     };
 
     return (
-        <Box>
-            <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 3 }}>
-                {/* Toolbar */}
-                <Toolbar sx={{ px: 3, py: { xs: 1.5, sm: 2 }, gap: 1.5, flexWrap: 'wrap', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'stretch', sm: 'center' } }}>
-                    <TextField
-                        placeholder="Rechercher..."
-                        size="small"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        InputProps={{
-                            startAdornment: (
-                                <InputAdornment position="start">
-                                    <SearchIcon color="action" />
-                                </InputAdornment>
-                            ),
-                        }}
-                        sx={{ flex: { xs: '1 1 auto', sm: '0 1 300px' } }}
-                    />
+        <>
+            <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden animate-in fade-in duration-500">
+                {/* Modern Toolbar */}
+                <div className="p-6 md:p-8 border-b border-slate-50 flex flex-col md:flex-row justify-between items-stretch md:items-center gap-6 bg-white">
+                    <div className="relative flex-grow max-w-md">
+                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <SearchIcon className="h-5 w-5 text-slate-400" fontSize="small" />
+                        </div>
+                        <input
+                            type="text"
+                            placeholder="Rechercher un déclarant, un email ou un ID..."
+                            className="block w-full pl-12 pr-4 py-3 bg-slate-50 border border-transparent rounded-2xl text-sm focus:bg-white focus:border-blue-500 focus:ring-0 transition-all text-slate-900 font-medium"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
 
-                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', width: { xs: '100%', sm: 'auto' } }}>
-                        <Button
-                            variant="outlined"
-                            startIcon={<FilterListIcon />}
-                            onClick={(e) => setFilterAnchor(e.currentTarget)}
-                            sx={{ borderColor: 'divider', flex: { xs: 1, sm: 'none' } }}
+                    <div className="flex items-center gap-3">
+                        <div className="flex bg-slate-50 p-1.5 rounded-2xl border border-slate-100">
+                            <button
+                                onClick={(e) => setFilterAnchor(e.currentTarget)}
+                                className="flex items-center gap-2 px-4 py-2 bg-white text-slate-700 rounded-xl text-sm font-bold shadow-sm border border-slate-100 hover:bg-slate-50 transition-all"
+                            >
+                                <FilterListIcon fontSize="small" />
+                                Filtrer
+                            </button>
+                            <button
+                                onClick={() => handleExport('csv')}
+                                className="flex items-center gap-2 px-4 py-2 hover:bg-slate-100 text-slate-600 rounded-xl text-sm font-bold transition-all"
+                            >
+                                <DownloadIcon fontSize="small" />
+                                Exporter
+                            </button>
+                        </div>
+
+                        <button
+                            onClick={fetchSessions}
+                            className="p-3 bg-slate-50 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-2xl transition-all border border-slate-100 active:scale-95"
                         >
-                            Filtrer
-                        </Button>
-
-                        <Button
-                            variant="outlined"
-                            startIcon={<DownloadIcon />}
-                            onClick={() => handleExport('csv')}
-                            sx={{ flex: { xs: 1, sm: 'none' } }}
-                        >
-                            Exporter
-                        </Button>
-                    </Box>
-
-                    <Menu
-                        anchorEl={filterAnchor}
-                        open={Boolean(filterAnchor)}
-                        onClose={() => setFilterAnchor(null)}
-                    >
-                        <MenuItem onClick={() => { setStatusFilter('all'); setFilterAnchor(null); }}>
-                            Tous les statuts
-                        </MenuItem>
-                        <MenuItem onClick={() => { setStatusFilter('completed'); setFilterAnchor(null); }}>
-                            <CheckCircleIcon sx={{ mr: 1, color: 'success.main' }} fontSize="small" />
-                            Terminées
-                        </MenuItem>
-                        <MenuItem onClick={() => { setStatusFilter('in_progress'); setFilterAnchor(null); }}>
-                            <PendingIcon sx={{ mr: 1, color: 'warning.main' }} fontSize="small" />
-                            En cours
-                        </MenuItem>
-                        <MenuItem onClick={() => { setStatusFilter('abandoned'); setFilterAnchor(null); }}>
-                            <ErrorIcon sx={{ mr: 1, color: 'error.main' }} fontSize="small" />
-                            Abandonnées
-                        </MenuItem>
-                    </Menu>
-
-                    <Box sx={{ flex: 1 }} />
+                            <RefreshIcon />
+                        </button>
+                    </div>
 
                     {selected.length > 0 && (
-                        <>
-                            <Typography variant="body2" color="text.secondary">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="flex items-center gap-4 bg-red-50 px-6 py-2 rounded-2xl border border-red-100"
+                        >
+                            <span className="text-sm font-bold text-red-600">
                                 {selected.length} sélectionné(s)
-                            </Typography>
-                            <Button
-                                color="error"
-                                startIcon={<DeleteIcon />}
+                            </span>
+                            <button
                                 onClick={() => setDeleteDialogOpen(true)}
+                                className="p-2 text-red-600 hover:bg-red-100 rounded-xl transition-colors"
                             >
-                                Supprimer
-                            </Button>
-                        </>
+                                <DeleteIcon />
+                            </button>
+                        </motion.div>
                     )}
+                </div>
 
-                    <Button
-                        variant="outlined"
-                        startIcon={<DownloadIcon />}
-                        onClick={() => handleExport('csv')}
-                    >
-                        Exporter CSV
-                    </Button>
-
-                    <IconButton onClick={fetchSessions}>
-                        <RefreshIcon />
-                    </IconButton>
-                </Toolbar>
-
-                <Divider />
+                <Menu
+                    anchorEl={filterAnchor}
+                    open={Boolean(filterAnchor)}
+                    onClose={() => setFilterAnchor(null)}
+                    PaperProps={{
+                        sx: {
+                            borderRadius: 3,
+                            mt: 1.5,
+                            boxShadow: '0 10px 40px rgba(15, 23, 42, 0.15)',
+                            border: '1px solid rgba(15, 23, 42, 0.05)'
+                        }
+                    }}
+                >
+                    <MenuItem sx={{ py: 1.5, px: 3, fontSize: '0.875rem', fontWeight: 600 }} onClick={() => { setStatusFilter('all'); setFilterAnchor(null); }}>
+                        Tous les statuts
+                    </MenuItem>
+                    <MenuItem sx={{ py: 1.5, px: 3, fontSize: '0.875rem', fontWeight: 600 }} onClick={() => { setStatusFilter('completed'); setFilterAnchor(null); }}>
+                        <div className="flex items-center gap-3">
+                            <div className="h-3 w-3 rounded-full bg-green-500"></div>
+                            Terminées
+                        </div>
+                    </MenuItem>
+                    <MenuItem sx={{ py: 1.5, px: 3, fontSize: '0.875rem', fontWeight: 600 }} onClick={() => { setStatusFilter('in_progress'); setFilterAnchor(null); }}>
+                        <div className="flex items-center gap-3">
+                            <div className="h-3 w-3 rounded-full bg-amber-500"></div>
+                            En cours
+                        </div>
+                    </MenuItem>
+                    <MenuItem sx={{ py: 1.5, px: 3, fontSize: '0.875rem', fontWeight: 600 }} onClick={() => { setStatusFilter('abandoned'); setFilterAnchor(null); }}>
+                        <div className="flex items-center gap-3">
+                            <div className="h-3 w-3 rounded-full bg-red-500"></div>
+                            Abandonnées
+                        </div>
+                    </MenuItem>
+                </Menu>
 
                 {loading ? (
-                    <LinearProgress />
+                    <div className="py-20 flex flex-col items-center justify-center space-y-4">
+                        <div className="h-12 w-12 border-4 border-slate-100 border-t-blue-600 rounded-full animate-spin"></div>
+                        <p className="text-slate-400 font-bold text-xs uppercase tracking-widest">Récupération des sessions...</p>
+                    </div>
                 ) : (
                     <>
-                        <TableContainer sx={{ maxHeight: 'calc(100vh - 350px)' }}>
-                            <Table stickyHeader sx={{ minWidth: 1000 }}>
+                        <div className="overflow-x-auto">
+                            <Table sx={{ minWidth: 1000 }}>
                                 <TableHead>
-                                    <TableRow>
-                                        <TableCell padding="checkbox">
+                                    <TableRow sx={{ bgcolor: 'slate.50/50' }}>
+                                        <TableCell padding="checkbox" sx={{ borderBottom: '1px solid #f1f5f9' }}>
                                             <Checkbox
                                                 indeterminate={selected.length > 0 && selected.length < filteredSessions.length}
                                                 checked={filteredSessions.length > 0 && selected.length === filteredSessions.length}
                                                 onChange={handleSelectAll}
+                                                sx={{ color: 'slate.300', '&.Mui-checked': { color: '#3b82f6' } }}
                                             />
                                         </TableCell>
-                                        <TableCell>Déclarant</TableCell>
-                                        <TableCell>Type</TableCell>
-                                        <TableCell>Email</TableCell>
-                                        <TableCell>Ville terrain</TableCell>
-                                        <TableCell>Progression</TableCell>
-                                        <TableCell>Statut</TableCell>
-                                        <TableCell>Dernière MàJ</TableCell>
-                                        <TableCell align="right">Actions</TableCell>
+                                        <TableCell sx={{ borderBottom: '1px solid #f1f5f9', color: 'slate.400', fontWeight: 800, textTransform: 'uppercase', fontSize: '10px', tracking: '0.1em' }}>Déclarant</TableCell>
+                                        <TableCell sx={{ borderBottom: '1px solid #f1f5f9', color: 'slate.400', fontWeight: 800, textTransform: 'uppercase', fontSize: '10px', tracking: '0.1em' }}>Type</TableCell>
+                                        <TableCell sx={{ borderBottom: '1px solid #f1f5f9', color: 'slate.400', fontWeight: 800, textTransform: 'uppercase', fontSize: '10px', tracking: '0.1em' }}>Ville terrain</TableCell>
+                                        <TableCell sx={{ borderBottom: '1px solid #f1f5f9', color: 'slate.400', fontWeight: 800, textTransform: 'uppercase', fontSize: '10px', tracking: '0.1em' }}>Progression</TableCell>
+                                        <TableCell sx={{ borderBottom: '1px solid #f1f5f9', color: 'slate.400', fontWeight: 800, textTransform: 'uppercase', fontSize: '10px', tracking: '0.1em' }}>Statut</TableCell>
+                                        <TableCell sx={{ borderBottom: '1px solid #f1f5f9', color: 'slate.400', fontWeight: 800, textTransform: 'uppercase', fontSize: '10px', tracking: '0.1em' }}>Dernière MàJ</TableCell>
+                                        <TableCell align="right" sx={{ borderBottom: '1px solid #f1f5f9', color: 'slate.400', fontWeight: 800, textTransform: 'uppercase', fontSize: '10px', tracking: '0.1em' }}>Actions</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -328,117 +336,119 @@ function SessionsManager() {
                                                     key={session.id}
                                                     hover
                                                     selected={isItemSelected}
-                                                    sx={{ '&:last-child td': { borderBottom: 0 } }}
+                                                    sx={{
+                                                        '&:hover': { bgcolor: 'slate.50/50' },
+                                                        '&.Mui-selected': { bgcolor: 'blue.50/30' },
+                                                        '& td': { borderBottom: '1px solid #f8fafc' }
+                                                    }}
                                                 >
                                                     <TableCell padding="checkbox">
                                                         <Checkbox
                                                             checked={isItemSelected}
                                                             onChange={() => handleSelect(session.id)}
+                                                            sx={{ color: 'slate.300', '&.Mui-checked': { color: '#3b82f6' } }}
                                                         />
                                                     </TableCell>
                                                     <TableCell>
-                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                                                            {session.data?.typeDeclarant === 'particulier' ? (
-                                                                <PersonIcon color="action" fontSize="small" />
-                                                            ) : (
-                                                                <BusinessIcon color="action" fontSize="small" />
-                                                            )}
-                                                            <Box>
-                                                                <Typography fontWeight={500} fontSize="0.875rem">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className={`p-2 rounded-xl bg-slate-100 text-slate-500`}>
+                                                                {session.data?.typeDeclarant === 'particulier' ? (
+                                                                    <PersonIcon fontSize="small" />
+                                                                ) : (
+                                                                    <BusinessIcon fontSize="small" />
+                                                                )}
+                                                            </div>
+                                                            <div>
+                                                                <p className="font-bold text-slate-900 text-sm">
                                                                     {getDeclarantName(session.data)}
-                                                                </Typography>
-                                                                <Typography variant="caption" color="text.secondary" fontFamily="monospace">
-                                                                    {String(session.id || '').substring(0, 16)}...
-                                                                </Typography>
-                                                            </Box>
-                                                        </Box>
+                                                                </p>
+                                                                <p className="text-[10px] font-mono text-slate-400">
+                                                                    ID: {String(session.id || '').substring(0, 8)}...
+                                                                </p>
+                                                            </div>
+                                                        </div>
                                                     </TableCell>
                                                     <TableCell>
-                                                        <Chip
-                                                            label={session.data?.typeDeclarant === 'particulier' ? 'Particulier' : 'Pers. morale'}
-                                                            size="small"
-                                                            variant="outlined"
-                                                            sx={{ fontSize: '0.75rem' }}
-                                                        />
+                                                        <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider ${session.data?.typeDeclarant === 'particulier' ? 'bg-indigo-50 text-indigo-600' : 'bg-emerald-50 text-emerald-600'}`}>
+                                                            {session.data?.typeDeclarant === 'particulier' ? 'Particulier' : 'Pers. morale'}
+                                                        </span>
                                                     </TableCell>
                                                     <TableCell>
-                                                        <Typography variant="body2">{session.data?.email || '-'}</Typography>
+                                                        <p className="text-sm font-medium text-slate-700">{session.data?.terrainVille || '-'}</p>
                                                     </TableCell>
                                                     <TableCell>
-                                                        <Typography variant="body2">{session.data?.terrainVille || '-'}</Typography>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                            <LinearProgress
-                                                                variant="determinate"
-                                                                value={(((session.current_step ?? session.currentStep ?? 0) + 1) / 11) * 100}
-                                                                sx={{ width: 60, height: 6, borderRadius: 3 }}
-                                                            />
-                                                            <Typography variant="caption" color="text.secondary">
+                                                        <div className="flex items-center gap-3 min-w-[120px]">
+                                                            <div className="flex-grow h-2 bg-slate-100 rounded-full overflow-hidden">
+                                                                <div
+                                                                    className="h-full bg-blue-500 rounded-full"
+                                                                    style={{ width: `${(((session.current_step ?? session.currentStep ?? 0) + 1) / 11) * 100}%` }}
+                                                                />
+                                                            </div>
+                                                            <span className="text-xs font-bold text-slate-400">
                                                                 {(session.current_step ?? session.currentStep ?? 0) + 1}/11
-                                                            </Typography>
-                                                        </Box>
+                                                            </span>
+                                                        </div>
                                                     </TableCell>
                                                     <TableCell>{getStatusChip(session.status)}</TableCell>
                                                     <TableCell>
-                                                        <Typography variant="body2" color="text.secondary">
+                                                        <p className="text-sm font-medium text-slate-500">
                                                             {new Date(session.updated_at || session.updatedAt || Date.now()).toLocaleDateString('fr-FR')}
-                                                        </Typography>
+                                                        </p>
                                                     </TableCell>
                                                     <TableCell align="right">
-                                                        <Tooltip title="Voir détails">
-                                                            <IconButton
-                                                                size="small"
+                                                        <div className="flex justify-end gap-1">
+                                                            <button
                                                                 onClick={() => { setSelectedSession(session); setDetailOpen(true); }}
+                                                                className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all"
                                                             >
                                                                 <VisibilityIcon fontSize="small" />
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                        <Tooltip title="Télécharger PDF">
-                                                            <IconButton size="small" color="primary">
+                                                            </button>
+                                                            <button className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all">
                                                                 <DownloadIcon fontSize="small" />
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                        <Tooltip title="Supprimer">
-                                                            <IconButton
-                                                                size="small"
-                                                                color="error"
+                                                            </button>
+                                                            <button
                                                                 onClick={() => { setSessionToDelete(session); setDeleteDialogOpen(true); }}
+                                                                className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
                                                             >
                                                                 <DeleteIcon fontSize="small" />
-                                                            </IconButton>
-                                                        </Tooltip>
+                                                            </button>
+                                                        </div>
                                                     </TableCell>
                                                 </TableRow>
                                             );
                                         })}
                                     {filteredSessions.length === 0 && (
                                         <TableRow>
-                                            <TableCell colSpan={9} align="center" sx={{ py: 6 }}>
-                                                <Typography color="text.secondary">
-                                                    Aucune session trouvée
-                                                </Typography>
+                                            <TableCell colSpan={9} align="center" sx={{ py: 12 }}>
+                                                <div className="flex flex-col items-center gap-4">
+                                                    <div className="p-4 bg-slate-50 rounded-full">
+                                                        <SearchIcon className="h-8 w-8 text-slate-200" />
+                                                    </div>
+                                                    <p className="text-slate-400 font-bold">Aucune session ne correspond à votre recherche</p>
+                                                </div>
                                             </TableCell>
                                         </TableRow>
                                     )}
                                 </TableBody>
                             </Table>
-                        </TableContainer>
+                        </div>
 
-                        <TablePagination
-                            component="div"
-                            count={filteredSessions.length}
-                            page={page}
-                            onPageChange={(e, p) => setPage(p)}
-                            rowsPerPage={rowsPerPage}
-                            onRowsPerPageChange={(e) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); }}
-                            rowsPerPageOptions={[5, 10, 25, 50]}
-                            labelRowsPerPage="Lignes par page"
-                            labelDisplayedRows={({ from, to, count }) => `${from}–${to} sur ${count}`}
-                        />
+                        <div className="p-4 bg-slate-50/50 border-t border-slate-50">
+                            <TablePagination
+                                component="div"
+                                count={filteredSessions.length}
+                                page={page}
+                                onPageChange={(e, p) => setPage(p)}
+                                rowsPerPage={rowsPerPage}
+                                onRowsPerPageChange={(e) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); }}
+                                rowsPerPageOptions={[10, 25, 50]}
+                                labelRowsPerPage="Afficher"
+                                sx={{ borderBottom: 0, '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows': { fontSize: '0.75rem', fontWeight: 600, color: 'slate.500' } }}
+                            />
+                        </div>
                     </>
                 )}
-            </Paper>
+            </div>
 
             {/* Detail Dialog */}
             <Dialog open={detailOpen} onClose={() => setDetailOpen(false)} maxWidth="md" fullWidth>
@@ -555,7 +565,7 @@ function SessionsManager() {
                     </Button>
                 </DialogActions>
             </Dialog>
-        </Box>
+        </>
     );
 }
 

@@ -1,10 +1,10 @@
 import { createContext, useContext, useReducer, useEffect, useCallback, useMemo } from 'react';
 import { saveToStorage, loadFromStorage } from '../utils/storage';
 import { getProjectConfig, isFieldRequired, isDocumentRequired } from '../config/projectConfigs';
+import api from '../services/api';
 
 const FormContext = createContext(null);
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8010/api';
 
 const initialState = {
     currentStep: 0,
@@ -145,10 +145,12 @@ const initialState = {
         aiProjectConfig: null,
         signature: null,    // Image de la signature numérique
         preGeneratedDescription: '', // Cache for background generation
+        noticeDescriptive: '', // DP11 Notice descriptive (générée par IA)
     },
     errors: {},
     touched: {},
     isGeneratingDP1: false,
+    mapTriggerCount: 0,
 };
 
 function formReducer(state, action) {
@@ -209,7 +211,7 @@ function formReducer(state, action) {
         case 'NEXT_STEP':
             return {
                 ...state,
-                currentStep: Math.min(state.currentStep + 1, 10),
+                currentStep: Math.min(state.currentStep + 1, 11),
             };
 
         case 'PREV_STEP':
@@ -245,6 +247,21 @@ function formReducer(state, action) {
                 isGeneratingDP1: action.value
             };
 
+        case 'TRIGGER_MAP_REGEN':
+            return {
+                ...state,
+                mapTriggerCount: state.mapTriggerCount + 1
+            };
+
+        case 'UPDATE_CADASTRE_MAP':
+            return {
+                ...state,
+                data: {
+                    ...state.data,
+                    cadastralPlanImage: action.payload.imageData
+                }
+            };
+
         default:
             return state;
     }
@@ -262,25 +279,24 @@ export function FormProvider({ children }) {
 
         const fetchBackendSession = async () => {
             const token = localStorage.getItem('access_token');
-            if (!token) return;
+            if (!token) return; // Ne pas appeler l'API si l'utilisateur n'est pas connecté
 
             try {
-                const response = await fetch(`${API_BASE}/sessions/`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (response.ok) {
-                    const session = await response.json();
-                    if (session.data && Object.keys(session.data).length > 0) {
-                        dispatch({
-                            type: 'LOAD_STATE', state: {
-                                data: session.data,
-                                currentStep: session.current_step
-                            }
-                        });
-                    }
+                const response = await api.get('/sessions/');
+                const session = response.data;
+                if (session.data && Object.keys(session.data).length > 0) {
+                    dispatch({
+                        type: 'LOAD_STATE', state: {
+                            data: session.data,
+                            currentStep: session.current_step
+                        }
+                    });
                 }
             } catch (error) {
-                console.error('Failed to fetch session from backend', error);
+                // Ignorer les erreurs 401 silencieusement ici car c'est un check initial
+                if (error.response && error.response.status !== 401) {
+                    console.error('Failed to fetch session from backend', error);
+                }
             }
         };
 
@@ -293,22 +309,18 @@ export function FormProvider({ children }) {
 
         const debouncedSave = setTimeout(async () => {
             const token = localStorage.getItem('access_token');
-            if (!token) return;
+            if (!token) return; // Only save to backend if logged in
 
             try {
-                await fetch(`${API_BASE}/sessions/`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        data: state.data,
-                        currentStep: state.currentStep
-                    }),
+                await api.post('/sessions/', {
+                    data: state.data,
+                    currentStep: state.currentStep
                 });
             } catch (error) {
-                console.error('Failed to save session to backend', error);
+                // Only log if it's not a 401 (token might have expired)
+                if (error.response?.status !== 401) {
+                    console.error('Failed to save session to backend', error);
+                }
             }
         }, 1000);
 
@@ -357,29 +369,22 @@ export function FormProvider({ children }) {
     };
 
     const getProgress = () => {
-        const totalSteps = 11;
+        const totalSteps = 12;
         return Math.round((state.currentStep / (totalSteps - 1)) * 100);
     };
 
     const loadDossier = async (id) => {
-        const token = localStorage.getItem('access_token');
-        if (!token) return false;
-
         try {
-            const response = await fetch(`${API_BASE}/dossiers/${id}/`, {
-                headers: { 'Authorization': `Bearer ${token}` }
+            const response = await api.get(`/dossiers/${id}/`);
+            const dossier = response.data;
+            dispatch({
+                type: 'LOAD_STATE',
+                state: {
+                    data: dossier.data,
+                    currentStep: 10 // Default to summary for completed dossiers
+                }
             });
-            if (response.ok) {
-                const dossier = await response.json();
-                dispatch({
-                    type: 'LOAD_STATE',
-                    state: {
-                        data: dossier.data,
-                        currentStep: 10 // Default to summary for completed dossiers
-                    }
-                });
-                return true;
-            }
+            return true;
         } catch (error) {
             console.error('Failed to load dossier:', error);
         }
@@ -387,22 +392,11 @@ export function FormProvider({ children }) {
     };
 
     const analyzeProjectWithAI = useCallback(async (description) => {
-        const token = localStorage.getItem('access_token');
-        if (!token || !description) return null;
+        if (!description) return null;
 
         try {
-            const response = await fetch(`${API_BASE}/ai/analyze-project/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ description }),
-            });
-            if (response.ok) {
-                const suggestions = await response.json();
-                return suggestions;
-            }
+            const response = await api.post('/ai/analyze-project/', { description });
+            return response.data;
         } catch (error) {
             console.error('Failed to analyze project with AI:', error);
         }
@@ -410,22 +404,11 @@ export function FormProvider({ children }) {
     }, []);
 
     const suggestDocumentsWithAI = useCallback(async (description) => {
-        const token = localStorage.getItem('access_token');
-        if (!token || !description) return null;
+        if (!description) return null;
 
         try {
-            const response = await fetch(`${API_BASE}/ai/suggest-documents/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ description }),
-            });
-            if (response.ok) {
-                const suggestions = await response.json();
-                return suggestions;
-            }
+            const response = await api.post('/ai/suggest-documents/', { description });
+            return response.data;
         } catch (error) {
             console.error('Failed to suggest documents with AI:', error);
         }
@@ -434,22 +417,11 @@ export function FormProvider({ children }) {
 
     // Configure custom project using AI (for "autre" type)
     const configureCustomProjectWithAI = useCallback(async (description) => {
-        const token = localStorage.getItem('access_token');
-        if (!token || !description) return null;
+        if (!description) return null;
 
         try {
-            const response = await fetch(`${API_BASE}/ai/configure-project/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ description }),
-            });
-            if (response.ok) {
-                const config = await response.json();
-                return config;
-            }
+            const response = await api.post('/ai/configure-project/', { description });
+            return response.data;
         } catch (error) {
             console.error('Failed to configure custom project with AI:', error);
         }
@@ -457,57 +429,104 @@ export function FormProvider({ children }) {
     }, []);
 
     const generateDescriptionWithAI = useCallback(async (projectType, natureTravaux, otherNature) => {
-        const token = localStorage.getItem('access_token');
-        if (!token) return null;
-
         try {
-            const response = await fetch(`${API_BASE}/ai/generate-description/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    type_travaux: projectType,
-                    nature_travaux: natureTravaux,
-                    autre_nature: otherNature
-                }),
+            const response = await api.post('/ai/generate-description/', {
+                type_travaux: projectType,
+                nature_travaux: natureTravaux,
+                autre_nature: otherNature
             });
-            if (response.ok) {
-                const result = await response.json();
-                // Safely extract description string
-                const desc = typeof result.description === 'object'
-                    ? (result.description.description || JSON.stringify(result.description))
-                    : result.description;
-                return desc;
-            }
+            const result = response.data;
+            // Safely extract description string
+            const desc = typeof result.description === 'object'
+                ? (result.description.description || JSON.stringify(result.description))
+                : result.description;
+            return desc;
         } catch (error) {
             console.error('Failed to generate description with AI:', error);
         }
         return null;
     }, []);
 
-    const generateTechnicalDocument = useCallback(async (docType, data) => {
-        const token = localStorage.getItem('access_token');
-        if (!token) return null;
-
+    const generateNoticeDescriptiveWithAI = useCallback(async (formData) => {
         try {
-            const response = await fetch(`${API_BASE}/ai/generate-document/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ doc_type: docType, data }),
+            const response = await api.post('/ai/generate-notice/', {
+                data: formData
             });
-            if (response.ok) {
-                const blob = await response.blob();
-                return URL.createObjectURL(blob);
-            }
+            return response.data.notice;
         } catch (error) {
-            console.error(`Failed to generate ${docType}:`, error);
+            console.error('Failed to generate notice descriptive with AI:', error);
         }
         return null;
+    }, []);
+
+    const generateTechnicalDocument = useCallback(async (docType, data) => {
+        try {
+            // New endpoint for DP1, DP2, DP3, DP4 using Flux (Advanced AI)
+            if (['dp1', 'dp2', 'dp3', 'dp4'].includes(docType)) {
+                const response = await api.post('/ai/generate-plan/', {
+                    type: docType,
+                    data: data
+                });
+
+                if (response.data && response.data.image) {
+                    // Check if it's already a data URL or raw base64
+                    let base64 = response.data.image;
+                    const format = response.data.format || 'image/png';
+
+                    // Helper to convert base64 to Blob
+                    const byteCharacters = atob(base64);
+                    const byteNumbers = new Array(byteCharacters.length);
+                    for (let i = 0; i < byteCharacters.length; i++) {
+                        byteNumbers[i] = byteCharacters.charCodeAt(i);
+                    }
+                    const byteArray = new Uint8Array(byteNumbers);
+                    const blob = new Blob([byteArray], { type: format });
+                    return URL.createObjectURL(blob);
+                }
+                throw new Error("Réponse invalide de l'IA (Image manquante)");
+            }
+
+            // If not in DP1-DP4, we don't have other AI generators yet
+            throw new Error(`Génération non supportée pour le type: ${docType}`);
+
+        } catch (error) {
+            console.error(`Failed to generate ${docType}:`, error);
+            // Return null so UI can handle error
+            return null;
+        }
+    }, []);
+
+    const blobToBase64 = (blob) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+        });
+    };
+
+    const generateCadastreInBackground = useCallback(async (terrain) => {
+        try {
+            const response = await api.post('/cadastre/generate/', {
+                commune: terrain.terrainVille || terrain.commune,
+                section: terrain.section,
+                parcelle: terrain.numeroParcelle || terrain.numero_parcelle
+            }, {
+                responseType: 'blob'
+            });
+
+            const base64 = await blobToBase64(response.data);
+
+            dispatch({
+                type: 'UPDATE_CADASTRE_MAP',
+                payload: { imageData: base64 }
+            });
+
+            return base64;
+        } catch (error) {
+            console.error('Erreur génération cadastre:', error);
+            return null;
+        }
     }, []);
 
     // Compute project configuration based on selected natureTravaux
@@ -560,11 +579,14 @@ export function FormProvider({ children }) {
         suggestDocumentsWithAI,
         configureCustomProjectWithAI,
         generateDescriptionWithAI,
+        generateNoticeDescriptiveWithAI,
         generateTechnicalDocument,
         projectConfig,
+        triggerMapGeneration: () => dispatch({ type: 'TRIGGER_MAP_REGEN' }),
         isFieldRequired: (field) => projectConfig.requiredFields.includes(field),
         isDocumentRequired: (docId) => projectConfig.requiredDocuments.includes(docId),
         setIsGeneratingDP1: (val) => dispatch({ type: 'SET_GENERATING_DP1', value: val }),
+        generateCadastreInBackground,
     };
 
 

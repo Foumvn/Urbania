@@ -23,7 +23,7 @@ function Step1TypeDeclarant() {
 
     return (
         <Box>
-            <Typography variant="body1" color="text.secondary" sx={{ mb: 6, lineHeight: 1.7, fontSize: '1.1rem' }}>
+            <Typography variant="body1" color="text.secondary" sx={{ mb: 4, lineHeight: 1.7, fontSize: '1.05rem' }}>
                 Sélectionnez si vous êtes un particulier ou une personne morale. Cette information est essentielle pour adapter les champs de votre déclaration.
             </Typography>
 
@@ -39,7 +39,7 @@ function Step1TypeDeclarant() {
                                     elevation={0}
                                     onClick={() => setField('typeDeclarant', option.value)}
                                     sx={{
-                                        p: 6,
+                                        p: 4,
                                         textAlign: 'center',
                                         cursor: 'pointer',
                                         border: '2px solid',

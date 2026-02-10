@@ -15,14 +15,14 @@ export function validatePhone(phone) {
     if (!phone) return { valid: true, message: '' }; // Optional
     const cleanPhone = phone.replace(/[\s.-]/g, '');
 
-    // French phone formats
-    if (cleanPhone.startsWith('0') && cleanPhone.length === 10) {
-        if (!/^0[1-9][0-9]{8}$/.test(cleanPhone)) {
-            return { valid: false, message: 'Numéro de téléphone invalide' };
+    // French phone formats (01-09) or omitting leading zero
+    if (cleanPhone.length === 10 || cleanPhone.length === 9) {
+        if (/^(0)?[1-9]\d{8}$/.test(cleanPhone)) {
+            return { valid: true, message: '' };
         }
-        return { valid: true, message: '' };
     }
 
+    // International formats (+33 or 0033)
     if (cleanPhone.startsWith('+33') || cleanPhone.startsWith('0033')) {
         const suffix = cleanPhone.replace(/^\+33|^0033/, '');
         if (suffix.length !== 9 || !/^[1-9][0-9]{8}$/.test(suffix)) {
@@ -262,20 +262,13 @@ export function validateStep(step, data) {
             break;
 
         case 3: // Terrain
-            if (!data.terrainAdresse || data.terrainAdresse.trim() === '') {
-                errors.terrainAdresse = 'L\'adresse du terrain est requise';
-            }
-
-            const terrainCpValidation = validatePostalCode(data.terrainCodePostal);
-            if (!terrainCpValidation.valid) errors.terrainCodePostal = terrainCpValidation.message;
-
             if (!data.terrainVille || data.terrainVille.trim() === '') {
-                errors.terrainVille = 'La ville du terrain est requise';
+                errors.terrainVille = 'La commune est requise';
             }
 
             const cadastreValidation = validateCadastralReference(data.prefixe, data.section, data.numeroParcelle);
             if (!cadastreValidation.valid) {
-                errors.referenceCadastrale = cadastreValidation.message;
+                errors.numeroParcelle = cadastreValidation.message;
             }
 
             if (data.surfaceTerrain) {
@@ -302,7 +295,16 @@ export function validateStep(step, data) {
             }
             break;
 
-        case 6: // Surfaces
+        case 6: // Notice Descriptive
+            const notice = String(data.noticeDescriptive || '');
+            if (!notice || notice.trim() === '') {
+                errors.noticeDescriptive = 'La notice descriptive est obligatoire pour votre dossier.';
+            } else if (notice.trim().length < 50) {
+                errors.noticeDescriptive = 'La notice est trop courte. Veuillez donner plus de détails sur le projet.';
+            }
+            break;
+
+        case 7: // Surfaces
             if (data.surfacePlancherCreee) {
                 const validation = validateSurface(data.surfacePlancherCreee);
                 if (!validation.valid) errors.surfacePlancherCreee = validation.message;
@@ -313,11 +315,11 @@ export function validateStep(step, data) {
             }
             break;
 
-        case 7: // Pièces jointes
+        case 8: // Pièces jointes
             // Optional - no mandatory validation
             break;
 
-        case 8: // Engagements
+        case 9: // Engagements
             if (!data.engagementExactitude) {
                 errors.engagementExactitude = 'Vous devez attester de l\'exactitude des informations fournies';
             }
@@ -329,11 +331,11 @@ export function validateStep(step, data) {
             }
             break;
 
-        case 9: // Plan cadastral
+        case 10: // Plan cadastral
             // No strict validation for now
             break;
 
-        case 10: // Récapitulatif
+        case 11: // Récapitulatif
             // Final check - usually no errors
             break;
 

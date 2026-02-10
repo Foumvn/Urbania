@@ -21,7 +21,7 @@ import ClearIcon from '@mui/icons-material/Clear';
 import GridOnIcon from '@mui/icons-material/GridOn';
 import debounce from 'lodash.debounce';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8010/api';
+const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
 export default function ParcelleSearch({
     onCommuneSelect,

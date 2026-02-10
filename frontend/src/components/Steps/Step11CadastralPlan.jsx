@@ -20,7 +20,7 @@ import { useForm } from '../../context/FormContext';
 import CadastralMap from '../Cadastral/CadastralMap';
 import ParcelleSearch from '../Cadastral/ParcelleSearch';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8010/api';
+const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
 function Step11CadastralPlan() {
     const { data, setField } = useForm();

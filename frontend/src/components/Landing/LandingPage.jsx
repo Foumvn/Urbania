@@ -34,6 +34,7 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import ModernCarousel from './ModernCarousel';
+import logoUrbania from '../../assets/logo-urbania-rb.png';
 
 const features = [
     {
@@ -126,36 +127,12 @@ function LandingPage() {
                         >
                             <Box
                                 component="img"
-                                src="/logo.png"
+                                src={logoUrbania}
                                 alt="Urbania Logo"
                                 sx={{
-                                    height: { xs: 60, md: 90 }, // Increased logo size
+                                    height: { xs: 80, md: 120 }, // Increased logo size
                                     width: 'auto',
-                                    filter: 'drop-shadow(0 0 10px rgba(139, 92, 246, 0.3))'
-                                }}
-                            />
-                            <Typography
-                                variant="h6"
-                                sx={{
-                                    color: 'text.primary',
-                                    fontWeight: 700,
-                                    fontFamily: 'var(--font-display)',
-                                    display: { xs: 'none', sm: 'block' },
-                                    fontSize: '1.5rem',
-                                    letterSpacing: '-0.02em'
-                                }}
-                            >
-                                Urbania
-                            </Typography>
-                            <Chip
-                                label="BETA"
-                                size="small"
-                                sx={{
-                                    bgcolor: 'var(--header-primary)',
-                                    color: 'white',
-                                    fontWeight: 700,
-                                    fontSize: '0.65rem',
-                                    fontFamily: 'var(--font-display)'
+                                    filter: 'drop-shadow(0 0 10px rgba(0, 35, 149, 0.3))'
                                 }}
                             />
                         </Box>
@@ -241,10 +218,10 @@ function LandingPage() {
                                             px: 4,
                                             textTransform: 'none',
                                             fontSize: '0.9rem',
-                                            boxShadow: '0 4px 14px rgba(139, 92, 246, 0.3)',
+                                            boxShadow: '0 4px 14px rgba(0, 35, 149, 0.3)',
                                             '&:hover': {
-                                                bgcolor: '#7c4dff',
-                                                boxShadow: '0 6px 20px rgba(139, 92, 246, 0.4)',
+                                                bgcolor: '#001a70',
+                                                boxShadow: '0 6px 20px rgba(0, 35, 149, 0.4)',
                                                 transform: 'translateY(-1px)',
                                             }
                                         }}
@@ -283,7 +260,7 @@ function LandingPage() {
                         fullWidth
                         variant="contained"
                         onClick={() => { handleGetStarted(); setMobileMenuOpen(false); }}
-                        sx={{ mt: 2, background: 'linear-gradient(135deg, #583da1 0%, #7c62c1 100%)' }}
+                        sx={{ mt: 2, background: 'linear-gradient(135deg, #002395 0%, #3b5fc4 100%)' }}
                     >
                         Commencer
                     </Button>
@@ -309,7 +286,7 @@ function LandingPage() {
                         width: 400,
                         height: 400,
                         borderRadius: '50%',
-                        background: 'radial-gradient(circle, rgba(88, 61, 161, 0.1) 0%, transparent 70%)',
+                        background: 'radial-gradient(circle, rgba(0, 35, 149, 0.1) 0%, transparent 70%)',
                     }}
                 />
                 <Box
@@ -320,17 +297,13 @@ function LandingPage() {
                         width: 300,
                         height: 300,
                         borderRadius: '50%',
-                        background: 'radial-gradient(circle, rgba(124, 98, 193, 0.08) 0%, transparent 70%)',
+                        background: 'radial-gradient(circle, rgba(0, 35, 149, 0.08) 0%, transparent 70%)',
                     }}
                 />
 
                 <Container maxWidth="lg">
                     <Grid container spacing={6} alignItems="center">
                         <Grid item xs={12} md={6}>
-                            <Chip
-                                label="🚀 Nouveau : Génération IA des plans"
-                                sx={{ mb: 3, fontWeight: 500, bgcolor: 'rgba(88, 61, 161, 0.1)', color: 'primary.dark' }}
-                            />
                             <Typography
                                 variant="h1"
                                 sx={{
@@ -366,10 +339,10 @@ function LandingPage() {
                                         px: 4,
                                         fontSize: '1.1rem',
                                         fontWeight: 600,
-                                        background: 'linear-gradient(135deg, #583da1 0%, #7c62c1 100%)',
-                                        boxShadow: '0 8px 24px rgba(88, 61, 161, 0.35)',
+                                        background: 'linear-gradient(135deg, #002395 0%, #3b5fc4 100%)',
+                                        boxShadow: '0 8px 24px rgba(0, 35, 149, 0.35)',
                                         '&:hover': {
-                                            boxShadow: '0 12px 32px rgba(88, 61, 161, 0.45)',
+                                            boxShadow: '0 12px 32px rgba(0, 35, 149, 0.45)',
                                             transform: 'translateY(-2px)',
                                         },
                                         transition: 'all 0.2s ease',
@@ -442,7 +415,7 @@ function LandingPage() {
                                         '&:hover': {
                                             borderColor: 'secondary.main',
                                             transform: 'translateY(-8px)',
-                                            boxShadow: '0 16px 40px rgba(88, 61, 161, 0.15)',
+                                            boxShadow: '0 16px 40px rgba(0, 35, 149, 0.15)',
                                         },
                                     }}
                                 >
@@ -450,7 +423,7 @@ function LandingPage() {
                                         sx={{
                                             width: 64,
                                             height: 64,
-                                            bgcolor: 'rgba(88, 61, 161, 0.1)',
+                                            bgcolor: 'rgba(0, 35, 149, 0.1)',
                                             color: 'primary.main',
                                             mb: 2,
                                         }}
@@ -491,7 +464,7 @@ function LandingPage() {
                                         sx={{
                                             fontSize: '5rem',
                                             fontWeight: 800,
-                                            color: 'rgba(88, 61, 161, 0.15)',
+                                            color: 'rgba(0, 35, 149, 0.15)',
                                             mb: -3,
                                         }}
                                     >
@@ -518,8 +491,8 @@ function LandingPage() {
                                 py: 1.5,
                                 px: 4,
                                 fontSize: '1.1rem',
-                                background: 'linear-gradient(135deg, #583da1 0%, #7c62c1 100%)',
-                                boxShadow: '0 8px 24px rgba(88, 61, 161, 0.35)',
+                                background: 'linear-gradient(135deg, #002395 0%, #3b5fc4 100%)',
+                                boxShadow: '0 8px 24px rgba(0, 35, 149, 0.35)',
                             }}
                         >
                             Commencer maintenant
@@ -603,7 +576,7 @@ function LandingPage() {
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                             <Box
                                 component="img"
-                                src="/logo.png"
+                                src={logoUrbania}
                                 alt="Urbania"
                                 sx={{ height: 24, width: 'auto' }}
                             />

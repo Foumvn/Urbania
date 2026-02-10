@@ -20,7 +20,7 @@ import {
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8010/api';
+const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
 function StatsPanel() {
     const [stats, setStats] = useState(null);
@@ -71,263 +71,195 @@ function StatsPanel() {
     const maxNature = Math.max(...Object.values(stats?.byNature || { a: 1 }));
 
     return (
-        <Box>
-            {/* Period Tabs */}
-            <Paper elevation={0} sx={{ mb: 3, border: 1, borderColor: 'divider', borderRadius: 2 }}>
-                <Tabs value={periodTab} onChange={(e, v) => setPeriodTab(v)}>
-                    <Tab label="Cette semaine" />
-                    <Tab label="Ce mois" />
-                    <Tab label="Cette année" />
-                    <Tab label="Tout" />
-                </Tabs>
-            </Paper>
+        <div className="space-y-8 animate-in fade-in duration-700">
+            {/* Elegant Period Switcher */}
+            <div className="bg-white p-2 rounded-2xl shadow-sm border border-slate-100 w-fit flex gap-1">
+                {['Cette semaine', 'Ce mois', 'Cette année', 'Tout'].map((label, idx) => (
+                    <button
+                        key={idx}
+                        onClick={() => setPeriodTab(idx)}
+                        className={`px-6 py-2 rounded-xl text-sm font-bold transition-all ${periodTab === idx ? 'bg-[#0f172a] text-white shadow-lg shadow-slate-900/10' : 'text-slate-500 hover:bg-slate-50'}`}
+                    >
+                        {label}
+                    </button>
+                ))}
+            </div>
 
-            <Grid container spacing={3}>
-                {/* Conversion Rate */}
-                <Grid item xs={12} md={4}>
-                    <Card elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 3, height: '100%' }}>
-                        <CardContent sx={{ p: 3 }}>
-                            <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                                Taux de complétion
-                            </Typography>
-                            <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1 }}>
-                                <Typography variant="h2" fontWeight={700} color="success.main">
-                                    {stats ? Math.round((stats.completed / stats.total) * 100) : 0}%
-                                </Typography>
-                                <Box sx={{ display: 'flex', alignItems: 'center', color: 'success.main' }}>
-                                    <TrendingUpIcon fontSize="small" />
-                                    <Typography variant="caption" fontWeight={600}>+5%</Typography>
-                                </Box>
-                            </Box>
-                            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                                {stats?.completed || 0} terminées sur {stats?.total || 0} sessions
-                            </Typography>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Metric Card: Completion */}
+                <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
+                        <TrendingUpIcon sx={{ fontSize: 80 }} className="text-emerald-500" />
+                    </div>
+                    <p className="text-slate-500 font-medium text-sm mb-4 uppercase tracking-widest text-[10px] font-black">Taux de complétion</p>
+                    <div className="flex items-baseline gap-3 mb-2">
+                        <h2 className="text-5xl font-black text-slate-900 tracking-tighter">
+                            {stats ? Math.round((stats.completed / stats.total) * 100) : 0}%
+                        </h2>
+                        <span className="flex items-center gap-1 text-emerald-600 font-black text-xs bg-emerald-50 px-2 py-1 rounded-lg">
+                            <TrendingUpIcon fontSize="inherit" /> +5%
+                        </span>
+                    </div>
+                    <p className="text-slate-400 text-xs font-medium mb-6">
+                        {stats?.completed || 0} terminées sur {stats?.total || 0}
+                    </p>
+                    <div className="h-3 bg-slate-50 rounded-full overflow-hidden border border-slate-100">
+                        <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: stats ? `${(stats.completed / stats.total) * 100}%` : 0 }}
+                            className="h-full bg-emerald-500 rounded-full"
+                        />
+                    </div>
+                </div>
 
-                            <Box sx={{ mt: 3 }}>
-                                <LinearProgress
-                                    variant="determinate"
-                                    value={stats ? (stats.completed / stats.total) * 100 : 0}
-                                    sx={{
-                                        height: 12,
-                                        borderRadius: 6,
-                                        bgcolor: 'grey.100',
-                                        '& .MuiLinearProgress-bar': {
-                                            bgcolor: 'success.main',
-                                            borderRadius: 6,
-                                        },
-                                    }}
-                                />
-                            </Box>
-                        </CardContent>
-                    </Card>
-                </Grid>
+                {/* Metric Card: Abandonment */}
+                <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
+                        <TrendingDownIcon sx={{ fontSize: 80 }} className="text-red-500" />
+                    </div>
+                    <p className="text-slate-500 font-medium text-sm mb-4 uppercase tracking-widest text-[10px] font-black">Taux d'abandon</p>
+                    <div className="flex items-baseline gap-3 mb-2">
+                        <h2 className="text-5xl font-black text-slate-900 tracking-tighter">
+                            {stats ? Math.round((stats.abandoned / stats.total) * 100) : 0}%
+                        </h2>
+                        <span className="flex items-center gap-1 text-red-600 font-black text-xs bg-red-50 px-2 py-1 rounded-lg">
+                            <TrendingDownIcon fontSize="inherit" /> -2%
+                        </span>
+                    </div>
+                    <p className="text-slate-400 text-xs font-medium mb-6">
+                        {stats?.abandoned || 0} sessions perdues
+                    </p>
+                    <div className="h-3 bg-slate-50 rounded-full overflow-hidden border border-slate-100">
+                        <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: stats ? `${(stats.abandoned / stats.total) * 100}%` : 0 }}
+                            className="h-full bg-red-500 rounded-full"
+                        />
+                    </div>
+                </div>
 
-                {/* Abandonment Rate */}
-                <Grid item xs={12} md={4}>
-                    <Card elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 3, height: '100%' }}>
-                        <CardContent sx={{ p: 3 }}>
-                            <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                                Taux d'abandon
-                            </Typography>
-                            <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1 }}>
-                                <Typography variant="h2" fontWeight={700} color="error.main">
-                                    {stats ? Math.round((stats.abandoned / stats.total) * 100) : 0}%
-                                </Typography>
-                                <Box sx={{ display: 'flex', alignItems: 'center', color: 'error.main' }}>
-                                    <TrendingDownIcon fontSize="small" />
-                                    <Typography variant="caption" fontWeight={600}>-2%</Typography>
-                                </Box>
-                            </Box>
-                            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                                {stats?.abandoned || 0} sessions abandonnées
-                            </Typography>
+                {/* Metric Card: Active */}
+                <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm relative overflow-hidden group bg-gradient-to-br from-[#0f172a] to-slate-800 text-white border-none shadow-xl shadow-slate-900/20">
+                    <p className="text-slate-400 font-medium text-sm mb-4 uppercase tracking-widest text-[10px] font-black">Sessions actives</p>
+                    <div className="flex items-baseline gap-3 mb-2">
+                        <h2 className="text-5xl font-black text-white tracking-tighter">
+                            {stats?.inProgress || 0}
+                        </h2>
+                        <span className="text-blue-400 font-black text-xs">
+                            EN COURS
+                        </span>
+                    </div>
+                    <p className="text-slate-400 text-xs font-medium mb-6">
+                        {stats ? Math.round((stats.inProgress / stats.total) * 100) : 0}% du trafic total
+                    </p>
+                    <div className="h-3 bg-white/5 rounded-full overflow-hidden border border-white/5">
+                        <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: stats ? `${(stats.inProgress / stats.total) * 100}%` : 0 }}
+                            className="h-full bg-blue-500 rounded-full shadow-[0_0_15px_rgba(59,130,246,0.5)]"
+                        />
+                    </div>
+                </div>
+            </div>
 
-                            <Box sx={{ mt: 3 }}>
-                                <LinearProgress
-                                    variant="determinate"
-                                    value={stats ? (stats.abandoned / stats.total) * 100 : 0}
-                                    sx={{
-                                        height: 12,
-                                        borderRadius: 6,
-                                        bgcolor: 'grey.100',
-                                        '& .MuiLinearProgress-bar': {
-                                            bgcolor: 'error.main',
-                                            borderRadius: 6,
-                                        },
-                                    }}
-                                />
-                            </Box>
-                        </CardContent>
-                    </Card>
-                </Grid>
-
-                {/* In Progress */}
-                <Grid item xs={12} md={4}>
-                    <Card elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 3, height: '100%' }}>
-                        <CardContent sx={{ p: 3 }}>
-                            <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                                Sessions en cours
-                            </Typography>
-                            <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1 }}>
-                                <Typography variant="h2" fontWeight={700} color="warning.main">
-                                    {stats?.inProgress || 0}
-                                </Typography>
-                            </Box>
-                            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                                {stats ? Math.round((stats.inProgress / stats.total) * 100) : 0}% du total
-                            </Typography>
-
-                            <Box sx={{ mt: 3 }}>
-                                <LinearProgress
-                                    variant="determinate"
-                                    value={stats ? (stats.inProgress / stats.total) * 100 : 0}
-                                    sx={{
-                                        height: 12,
-                                        borderRadius: 6,
-                                        bgcolor: 'grey.100',
-                                        '& .MuiLinearProgress-bar': {
-                                            bgcolor: 'warning.main',
-                                            borderRadius: 6,
-                                        },
-                                    }}
-                                />
-                            </Box>
-                        </CardContent>
-                    </Card>
-                </Grid>
-
-                {/* Weekly Chart (simplified bar chart) */}
-                <Grid item xs={12} md={6}>
-                    <Paper elevation={0} sx={{ p: 3, border: 1, borderColor: 'divider', borderRadius: 3 }}>
-                        <Typography variant="h6" fontWeight={700} gutterBottom>
-                            Activité hebdomadaire
-                        </Typography>
-                        <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 2, height: 200, mt: 3 }}>
-                            {stats?.weekly?.map((day, index) => (
-                                <Box key={day.day} sx={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
-                                    <Typography variant="caption" fontWeight={600} color="primary.main">
-                                        {day.count}
-                                    </Typography>
-                                    <Box
-                                        sx={{
-                                            width: '100%',
-                                            height: `${(day.count / 25) * 150}px`,
-                                            minHeight: 8,
-                                            bgcolor: index === 3 ? 'primary.main' : 'primary.light',
-                                            borderRadius: 1,
-                                            transition: 'all 0.3s ease',
-                                            '&:hover': {
-                                                bgcolor: 'primary.main',
-                                                transform: 'scaleY(1.05)',
-                                            },
-                                        }}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Activity Bar Chart */}
+                <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
+                    <h3 className="text-xl font-black text-slate-900 mb-8">Flux Hebdomadaire</h3>
+                    <div className="flex items-end justify-between gap-3 h-[240px] px-2">
+                        {stats?.weekly?.map((day, index) => (
+                            <div key={day.day} className="flex-grow flex flex-col items-center gap-4 group">
+                                <div className="relative w-full flex flex-col items-center">
+                                    <div className="absolute -top-8 px-2 py-1 bg-slate-900 text-white text-[10px] font-black rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                                        {day.count} sessions
+                                    </div>
+                                    <motion.div
+                                        initial={{ height: 0 }}
+                                        animate={{ height: `${(day.count / 30) * 180}px` }}
+                                        className={`w-full max-w-[40px] rounded-t-xl transition-all duration-300 ${index === 3 ? 'bg-blue-600 shadow-lg shadow-blue-500/20' : 'bg-slate-100 group-hover:bg-blue-200'}`}
                                     />
-                                    <Typography variant="caption" color="text.secondary">
-                                        {day.day}
-                                    </Typography>
-                                </Box>
-                            ))}
-                        </Box>
-                    </Paper>
-                </Grid>
+                                </div>
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{day.day}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
 
-                {/* Nature des travaux */}
-                <Grid item xs={12} md={6}>
-                    <Paper elevation={0} sx={{ p: 3, border: 1, borderColor: 'divider', borderRadius: 3 }}>
-                        <Typography variant="h6" fontWeight={700} gutterBottom>
-                            Nature des travaux
-                        </Typography>
-                        <TableContainer sx={{ mt: 2 }}>
-                            <Table size="small">
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell>Type</TableCell>
-                                        <TableCell>Nombre</TableCell>
-                                        <TableCell>Répartition</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {stats?.byNature && Object.entries(stats.byNature)
-                                        .sort((a, b) => b[1] - a[1])
-                                        .map(([key, value]) => (
-                                            <TableRow key={key}>
-                                                <TableCell>
-                                                    <Typography variant="body2" fontWeight={500}>
-                                                        {travauxLabels[key] || key}
-                                                    </Typography>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Chip label={value} size="small" />
-                                                </TableCell>
-                                                <TableCell sx={{ width: '50%' }}>
-                                                    <LinearProgress
-                                                        variant="determinate"
-                                                        value={(value / maxNature) * 100}
-                                                        sx={{
-                                                            height: 8,
-                                                            borderRadius: 4,
-                                                            bgcolor: 'grey.100',
-                                                        }}
-                                                    />
-                                                </TableCell>
-                                            </TableRow>
-                                        ))
-                                    }
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
-                    </Paper>
-                </Grid>
+                {/* Nature distribution list */}
+                <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
+                    <h3 className="text-xl font-black text-slate-900 mb-6">Nature des Travaux</h3>
+                    <div className="space-y-4">
+                        {stats?.byNature && Object.entries(stats.byNature)
+                            .sort((a, b) => b[1] - a[1])
+                            .map(([key, value]) => (
+                                <div key={key} className="space-y-2">
+                                    <div className="flex justify-between items-center text-sm">
+                                        <span className="font-bold text-slate-700">{travauxLabels[key] || key}</span>
+                                        <span className="font-black text-slate-900">{value}</span>
+                                    </div>
+                                    <div className="h-2 bg-slate-50 rounded-full overflow-hidden border border-slate-100">
+                                        <motion.div
+                                            initial={{ width: 0 }}
+                                            animate={{ width: `${(value / maxNature) * 100}%` }}
+                                            className="h-full bg-indigo-500 rounded-full"
+                                        />
+                                    </div>
+                                </div>
+                            ))
+                        }
+                    </div>
+                </div>
+            </div>
 
-                {/* Type distribution */}
-                <Grid item xs={12}>
-                    <Paper elevation={0} sx={{ p: 3, border: 1, borderColor: 'divider', borderRadius: 3 }}>
-                        <Typography variant="h6" fontWeight={700} gutterBottom>
-                            Répartition par type de déclarant
-                        </Typography>
-                        <Grid container spacing={4} sx={{ mt: 1 }}>
-                            <Grid item xs={12} md={6}>
-                                <Box sx={{ textAlign: 'center' }}>
-                                    <Typography variant="h1" fontWeight={700} color="primary.main">
-                                        {stats?.byType?.particulier || 0}
-                                    </Typography>
-                                    <Typography variant="body1" fontWeight={500}>
-                                        Particuliers
-                                    </Typography>
-                                    <Typography variant="body2" color="text.secondary">
-                                        {stats ? Math.round((stats.byType.particulier / stats.total) * 100) : 0}% du total
-                                    </Typography>
-                                    <LinearProgress
-                                        variant="determinate"
-                                        value={stats ? (stats.byType.particulier / stats.total) * 100 : 0}
-                                        sx={{ mt: 2, height: 10, borderRadius: 5 }}
-                                    />
-                                </Box>
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <Box sx={{ textAlign: 'center' }}>
-                                    <Typography variant="h1" fontWeight={700} color="secondary.main">
-                                        {stats?.byType?.personne_morale || 0}
-                                    </Typography>
-                                    <Typography variant="body1" fontWeight={500}>
-                                        Personnes morales
-                                    </Typography>
-                                    <Typography variant="body2" color="text.secondary">
-                                        {stats ? Math.round((stats.byType.personne_morale / stats.total) * 100) : 0}% du total
-                                    </Typography>
-                                    <LinearProgress
-                                        variant="determinate"
-                                        value={stats ? (stats.byType.personne_morale / stats.total) * 100 : 0}
-                                        color="secondary"
-                                        sx={{ mt: 2, height: 10, borderRadius: 5 }}
-                                    />
-                                </Box>
-                            </Grid>
-                        </Grid>
-                    </Paper>
-                </Grid>
-            </Grid>
-        </Box>
+            {/* Bottom Comparison */}
+            <div className="bg-white p-10 rounded-[40px] border border-slate-100 shadow-sm relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-slate-50 rounded-full blur-3xl -mr-20 -mt-20"></div>
+
+                <h3 className="text-xl font-black text-slate-900 mb-10 text-center uppercase tracking-widest">Profil des Utilisateurs</h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-12 relative z-10">
+                    <div className="text-center space-y-6">
+                        <div className="relative inline-block">
+                            <h4 className="text-7xl font-black text-blue-600 tracking-tighter">
+                                {stats?.byType?.particulier || 0}
+                            </h4>
+                            <div className="absolute -inset-4 bg-blue-50 rounded-full -z-10 blur-xl opacity-50"></div>
+                        </div>
+                        <div>
+                            <p className="text-lg font-black text-slate-900 uppercase tracking-wider">Particuliers</p>
+                            <p className="text-slate-500 font-medium">{stats ? Math.round((stats.byType.particulier / stats.total) * 100) : 0}% du total</p>
+                        </div>
+                        <div className="h-4 bg-slate-100 rounded-full overflow-hidden max-w-xs mx-auto">
+                            <motion.div
+                                initial={{ width: 0 }}
+                                animate={{ width: stats ? `${(stats.byType.particulier / stats.total) * 100}%` : 0 }}
+                                className="h-full bg-blue-600"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="text-center space-y-6">
+                        <div className="relative inline-block">
+                            <h4 className="text-7xl font-black text-emerald-600 tracking-tighter">
+                                {stats?.byType?.personne_morale || 0}
+                            </h4>
+                            <div className="absolute -inset-4 bg-emerald-50 rounded-full -z-10 blur-xl opacity-50"></div>
+                        </div>
+                        <div>
+                            <p className="text-lg font-black text-slate-900 uppercase tracking-wider">Personnes Morales</p>
+                            <p className="text-slate-500 font-medium">{stats ? Math.round((stats.byType.personne_morale / stats.total) * 100) : 0}% du total</p>
+                        </div>
+                        <div className="h-4 bg-slate-100 rounded-full overflow-hidden max-w-xs mx-auto">
+                            <motion.div
+                                initial={{ width: 0 }}
+                                animate={{ width: stats ? `${(stats.byType.personne_morale / stats.total) * 100}%` : 0 }}
+                                className="h-full bg-emerald-600"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     );
 }
 

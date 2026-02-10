@@ -1,8 +1,9 @@
 import React from 'react';
-import { Box, Typography, Grid, FormControl, InputLabel, Select, MenuItem, FormHelperText, Divider } from '@mui/material';
+import { Box, Typography, Grid, Divider } from '@mui/material';
 import { useForm } from '../../context/FormContext';
 import FormField from '../Common/FormField';
-import { Info, User as UserIcon, Building } from 'lucide-react';
+import FormSelect from '../Common/FormSelect';
+import { Info } from 'lucide-react';
 
 function Step2IdentiteDeclarant() {
     const { data, setField, errors } = useForm();
@@ -14,7 +15,7 @@ function Step2IdentiteDeclarant() {
 
     return (
         <Box>
-            <Typography variant="body1" color="text.secondary" sx={{ mb: 6, lineHeight: 1.7, fontSize: '1.1rem' }}>
+            <Typography variant="body1" color="text.secondary" sx={{ mb: 4, lineHeight: 1.7, fontSize: '1.05rem' }}>
                 {isParticulier
                     ? "Renseignez vos informations personnelles telles qu'elles apparaissent sur votre pièce d'identité."
                     : "Renseignez les informations officielles de votre société ou organisme telles qu'elles figurent sur votre extrait Kbis."
@@ -22,9 +23,9 @@ function Step2IdentiteDeclarant() {
             </Typography>
 
             <Box sx={{
-                mb: 6,
-                p: 3,
-                borderRadius: '20px',
+                mb: 4,
+                p: 2.5,
+                borderRadius: '16px',
                 bgcolor: 'rgba(0, 35, 149, 0.03)',
                 border: '1px solid rgba(0, 35, 149, 0.08)',
                 display: 'flex',
@@ -40,20 +41,18 @@ function Step2IdentiteDeclarant() {
             {isParticulier ? (
                 <Grid container spacing={3}>
                     <Grid item xs={12} sm={2}>
-                        <FormControl fullWidth error={!!errors.civilite}>
-                            <InputLabel id="civilite-label">Civilité *</InputLabel>
-                            <Select
-                                labelId="civilite-label"
-                                value={data.civilite || ''}
-                                label="Civilité *"
-                                onChange={(e) => handleChange('civilite', e.target.value)}
-                                sx={{ borderRadius: '16px' }}
-                            >
-                                <MenuItem value="M.">M.</MenuItem>
-                                <MenuItem value="Mme">Mme</MenuItem>
-                            </Select>
-                            {errors.civilite && <FormHelperText error>{errors.civilite}</FormHelperText>}
-                        </FormControl>
+                        <FormSelect
+                            label="Civilité"
+                            name="civilite"
+                            value={data.civilite}
+                            onChange={handleChange}
+                            error={errors.civilite}
+                            required
+                            options={[
+                                { value: 'M.', label: 'M.' },
+                                { value: 'Mme', label: 'Mme' }
+                            ]}
+                        />
                     </Grid>
 
                     <Grid item xs={12} sm={5}>
@@ -139,24 +138,23 @@ function Step2IdentiteDeclarant() {
                     </Grid>
 
                     <Grid item xs={12}>
-                        <FormControl fullWidth error={!!errors.typeSociete}>
-                            <InputLabel id="type-societe-label">Type de société</InputLabel>
-                            <Select
-                                labelId="type-societe-label"
-                                value={data.typeSociete || ''}
-                                label="Type de société"
-                                onChange={(e) => handleChange('typeSociete', e.target.value)}
-                                sx={{ borderRadius: '16px' }}
-                            >
-                                <MenuItem value="SCI">SCI - Société Civile Immobilière</MenuItem>
-                                <MenuItem value="SARL">SARL - Société à Responsabilité Limitée</MenuItem>
-                                <MenuItem value="SAS">SAS - Société par Actions Simplifiée</MenuItem>
-                                <MenuItem value="SA">SA - Société Anonyme</MenuItem>
-                                <MenuItem value="Association">Association (loi 1901)</MenuItem>
-                                <MenuItem value="Copropriete">Syndicat de copropriété</MenuItem>
-                                <MenuItem value="Autre">Autre</MenuItem>
-                            </Select>
-                        </FormControl>
+                        <FormSelect
+                            label="Type de société"
+                            name="typeSociete"
+                            value={data.typeSociete}
+                            onChange={handleChange}
+                            error={errors.typeSociete}
+                            required
+                            options={[
+                                { value: 'SCI', label: 'SCI - Société Civile Immobilière' },
+                                { value: 'SARL', label: 'SARL - Société à Responsabilité Limitée' },
+                                { value: 'SAS', label: 'SAS - Société par Actions Simplifiée' },
+                                { value: 'SA', label: 'SA - Société Anonyme' },
+                                { value: 'Association', label: 'Association (loi 1901)' },
+                                { value: 'Copropriete', label: 'Syndicat de copropriété' },
+                                { value: 'Autre', label: 'Autre' }
+                            ]}
+                        />
                     </Grid>
 
                     <Grid item xs={12}>

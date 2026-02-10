@@ -34,6 +34,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import PersonIcon from '@mui/icons-material/Person';
 import { useAuth } from '../../context/AuthContext';
 import { useI18n } from '../../context/I18nContext';
+import logoUrbania from '../../assets/logo-urbania-rb.png';
 
 const drawerWidth = 280;
 
@@ -97,11 +98,11 @@ function Layout({ children }) {
             <Box sx={{ p: 4, pb: 2, textAlign: 'center' }}>
                 <Box
                     component="img"
-                    src="/logo.png"
+                    src={logoUrbania}
                     alt="Urbania Logo"
                     sx={{
                         width: '100%',
-                        maxWidth: 140,
+                        maxWidth: 180,
                         height: 'auto',
                         cursor: 'pointer',
                         mb: 1

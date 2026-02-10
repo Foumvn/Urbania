@@ -9,35 +9,38 @@ import { DOCUMENTS_INFO } from '../../config/projectConfigs';
 // ============================================
 
 // Champ de saisie avec label et ligne de soulignement
-const Field = ({ label, value, width = '100%', inline = false }) => (
+const Field = ({ label, value, width = '100%', inline = false, mb = 1.5 }) => (
     <Box sx={{
         display: inline ? 'inline-flex' : 'flex',
         alignItems: 'baseline',
-        mb: 0.75,
+        mb: mb,
         width: inline ? 'auto' : width,
-        mr: inline ? 2 : 0
+        mr: inline ? 2 : 0,
+        minWidth: 0
     }}>
         {label && (
             <Typography sx={{
-                fontWeight: 500,
-                mr: 0.5,
-                whiteSpace: 'nowrap',
-                fontSize: '0.7rem',
-                color: '#000'
+                fontWeight: 600,
+                mr: 1,
+                fontSize: '0.8rem',
+                color: '#000',
+                lineHeight: 1.2
             }}>
                 {label} :
             </Typography>
         )}
         <Box sx={{
             flex: 1,
-            borderBottom: '1px solid #000',
-            minHeight: '1rem',
-            minWidth: inline ? '80px' : '50px',
-            fontSize: '0.75rem',
-            fontWeight: 600,
-            color: '#003366',
+            borderBottom: '1.5px solid #000',
+            minHeight: '1.25rem',
+            minWidth: inline ? '80px' : '60px',
+            fontSize: '0.85rem',
+            fontWeight: 700,
+            color: '#002395',
             px: 0.5,
-            fontFamily: '"Times New Roman", Times, serif'
+            fontFamily: '"Times New Roman", Times, serif',
+            whiteSpace: 'pre-wrap',
+            wordBreak: 'break-word'
         }}>
             {value || ''}
         </Box>
@@ -49,38 +52,40 @@ const Checkbox = ({ label, checked = false, inline = true }) => (
     <Box sx={{
         display: inline ? 'inline-flex' : 'flex',
         alignItems: 'center',
-        mb: 0.5,
-        mr: 1.5
+        mb: 0.75,
+        mr: 2
     }}>
         <Box sx={{
-            width: 10,
-            height: 10,
-            border: '1px solid #000',
-            mr: 0.5,
+            width: 14,
+            height: 14,
+            border: '1.5px solid #000',
+            mr: 0.75,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '8px',
+            fontSize: '10px',
             fontWeight: 'bold',
-            bgcolor: checked ? 'rgba(0,0,0,0.03)' : 'transparent'
+            bgcolor: checked ? 'rgba(0,0,0,0.05)' : 'transparent'
         }}>
             {checked ? '×' : ''}
         </Box>
-        <Typography sx={{ fontSize: '0.65rem', color: '#000' }}>{label}</Typography>
+        <Typography sx={{ fontSize: '0.75rem', fontWeight: 500, color: '#000' }}>{label}</Typography>
     </Box>
 );
 
 // Titre de section (fond bleu foncé)
-const SectionTitle = ({ title, mt = 1.5 }) => (
+const SectionTitle = ({ title, mt = 2 }) => (
     <Box sx={{
-        bgcolor: '#003366',
+        bgcolor: '#002395',
         color: 'white',
-        px: 1,
-        py: 0.3,
+        px: 1.5,
+        py: 0.5,
         mt,
-        mb: 1,
+        mb: 1.5,
         fontWeight: 'bold',
-        fontSize: '0.75rem'
+        fontSize: '0.85rem',
+        textTransform: 'uppercase',
+        letterSpacing: '0.02em'
     }}>
         {title}
     </Box>
@@ -89,12 +94,14 @@ const SectionTitle = ({ title, mt = 1.5 }) => (
 // Encadré informatif (fond gris clair)
 const InfoBox = ({ children }) => (
     <Box sx={{
-        bgcolor: '#f0f0f0',
-        p: 1,
-        mb: 1,
-        fontSize: '0.6rem',
-        lineHeight: 1.4,
-        color: '#000'
+        bgcolor: '#f8f9fa',
+        border: '1px solid #e9ecef',
+        p: 1.5,
+        mb: 1.5,
+        fontSize: '0.7rem',
+        lineHeight: 1.5,
+        color: '#333',
+        fontStyle: 'italic'
     }}>
         {children}
     </Box>
@@ -106,24 +113,27 @@ const PageWrapper = ({ children, pageNumber, totalPages, id }) => (
         elevation={3}
         id={id}
         sx={{
-            p: 3,
+            px: 3.5,
+            py: 5,
             bgcolor: 'white',
             color: 'black',
-            width: '210mm',
-            minHeight: '297mm',
+            width: '230mm', // Premium wider look
+            minHeight: '310mm',
             mx: 'auto',
-            mb: 3,
+            mb: 4,
             fontFamily: 'Arial, Helvetica, sans-serif',
             position: 'relative',
             display: 'flex',
             flexDirection: 'column',
-            fontSize: '0.7rem',
-            lineHeight: 1.3,
-            scrollMarginTop: '20px',
+            fontSize: '0.8rem',
+            lineHeight: 1.4,
+            scrollMarginTop: '25px',
             '@media print': {
                 boxShadow: 'none',
                 pageBreakAfter: 'always',
-                margin: 0
+                margin: 0,
+                width: '100%',
+                height: 'auto'
             }
         }}
     >
@@ -132,9 +142,9 @@ const PageWrapper = ({ children, pageNumber, totalPages, id }) => (
             <>
                 <Box sx={{
                     position: 'absolute',
-                    top: 15,
-                    left: 20,
-                    width: 80,
+                    top: 10,
+                    left: 25,
+                    width: 75,
                     zIndex: 5
                 }}>
                     <img
@@ -145,9 +155,9 @@ const PageWrapper = ({ children, pageNumber, totalPages, id }) => (
                 </Box>
                 <Box sx={{
                     position: 'absolute',
-                    top: 15,
-                    right: 20,
-                    width: 70,
+                    top: 10,
+                    right: 25,
+                    width: 90,
                     zIndex: 5,
                     textAlign: 'right'
                 }}>
@@ -160,7 +170,7 @@ const PageWrapper = ({ children, pageNumber, totalPages, id }) => (
             </>
         )}
 
-        <Box sx={{ flex: 1, mt: 4 }}>{children}</Box>
+        <Box sx={{ flex: 1, mt: (pageNumber === 1 || pageNumber === 2) ? 12 : 4 }}>{children}</Box>
         <Box sx={{ textAlign: 'center', mt: 2, pt: 1, borderTop: '1px solid #eee' }}>
             <Typography sx={{ fontSize: '0.6rem', color: '#999' }}>
                 {pageNumber} / {totalPages}
@@ -209,16 +219,16 @@ const CerfaSkeleton = () => (
     <Paper
         elevation={0}
         sx={{
-            p: 3,
+            p: 5,
             bgcolor: 'white',
-            width: '210mm',
-            minHeight: '297mm',
+            width: '240mm',
+            minHeight: '340mm',
             mx: 'auto',
-            mb: 3,
+            mb: 4,
             borderRadius: 0,
             display: 'flex',
             flexDirection: 'column',
-            gap: 2
+            gap: 3
         }}
     >
         {/* Header Skeleton */}
@@ -271,7 +281,7 @@ const CerfaOfficialPreview = ({ data = {}, currentStep = 0 }) => {
     const isParticulier = data.typeDeclarant === 'particulier';
     const piecesJointes = data.piecesJointes || {};
     const attachedDocs = Object.entries(piecesJointes).filter(([key, value]) => value && value.length > 50); // Filtrer les strings Base64 valides
-    const totalPages = 10 + attachedDocs.length;
+    const totalPages = 11 + attachedDocs.length;
 
     // Mapping steps to PDF pages
     const stepToPageMap = {
@@ -281,11 +291,12 @@ const CerfaOfficialPreview = ({ data = {}, currentStep = 0 }) => {
         3: 'page-4', // Terrain
         4: 'page-5', // Type de travaux
         5: 'page-5', // Description
-        6: 'page-6', // Surfaces
-        7: 'page-8', // Pièces jointes
-        8: 'page-9', // Engagements
-        9: 'page-4', // Plan Cadastral (associé au terrain)
-        10: 'page-1' // Récapitulatif -> Récépissé
+        6: 'page-notice', // Notice Descriptive
+        7: 'page-6', // Surfaces
+        8: 'page-8', // Pièces jointes
+        9: 'page-9', // Engagements
+        10: 'page-4', // Plan Cadastral (associé au terrain)
+        11: 'page-1' // Récapitulatif -> Récépissé
     };
 
     const [isLoading, setIsLoading] = useState(false);
@@ -313,12 +324,12 @@ const CerfaOfficialPreview = ({ data = {}, currentStep = 0 }) => {
         }
     }, [currentStep, isLoading]);
 
-    // Zoom state (30% to 150%)
-    const [zoom, setZoom] = useState(110);
+    // Zoom state (30% to 200%)
+    const [zoom, setZoom] = useState(130);
 
-    const handleZoomIn = () => setZoom(prev => Math.min(prev + 10, 150));
+    const handleZoomIn = () => setZoom(prev => Math.min(prev + 10, 200));
     const handleZoomOut = () => setZoom(prev => Math.max(prev - 10, 30));
-    const handleFitScreen = () => setZoom(110);
+    const handleFitScreen = () => setZoom(130);
     const handleZoomChange = (event, newValue) => setZoom(newValue);
 
     return (
@@ -353,10 +364,10 @@ const CerfaOfficialPreview = ({ data = {}, currentStep = 0 }) => {
                     value={zoom}
                     onChange={handleZoomChange}
                     min={30}
-                    max={150}
+                    max={200}
                     step={5}
                     sx={{
-                        width: { xs: 60, sm: 100, md: 120 },
+                        width: { xs: 80, sm: 140, md: 180 },
                         color: 'primary.light',
                         '& .MuiSlider-thumb': { bgcolor: 'white' },
                         '& .MuiSlider-track': { border: 'none' },
@@ -366,7 +377,7 @@ const CerfaOfficialPreview = ({ data = {}, currentStep = 0 }) => {
                 />
 
                 <Tooltip title="Zoom avant">
-                    <IconButton size="small" onClick={handleZoomIn} disabled={zoom >= 150} sx={{ color: 'white', opacity: zoom >= 150 ? 0.3 : 0.8 }}>
+                    <IconButton size="small" onClick={handleZoomIn} disabled={zoom >= 200} sx={{ color: 'white', opacity: zoom >= 200 ? 0.3 : 0.8 }}>
                         <ZoomIn fontSize="small" />
                     </IconButton>
                 </Tooltip>
@@ -412,7 +423,12 @@ const CerfaOfficialPreview = ({ data = {}, currentStep = 0 }) => {
                     transform: `scale(${zoom / 100})`,
                     transformOrigin: 'top center',
                     transition: 'transform 0.2s ease-out',
-                    width: '100%'
+                    width: '100%',
+                    '@media print': {
+                        transform: 'none !important',
+                        p: 0,
+                        m: 0
+                    }
                 }}>
                     {isLoading ? (
                         <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -432,60 +448,65 @@ const CerfaOfficialPreview = ({ data = {}, currentStep = 0 }) => {
                                     * Dans le cadre d'une saisine par voie électronique, le récépissé est constitué par un accusé de réception électronique.
                                 </Typography>
 
-                                <Grid container spacing={2}>
-                                    <Grid item xs={6}>
-                                        <Typography sx={{ fontSize: '0.65rem', mb: 1 }}>
-                                            Vous avez déposé une déclaration préalable pour des travaux ou des constructions non soumis à permis.
-                                            Le délai d'instruction de votre dossier est d'<strong>UN MOIS</strong> et, si vous ne recevez pas de réponse
-                                            de l'administration dans ce délai, vous bénéficierez d'une décision de non-opposition à ces travaux ou aménagements.
+                                <Box sx={{ mt: 3, px: 2 }}>
+                                    <Typography sx={{ fontSize: '0.75rem', mb: 2, lineHeight: 1.8 }}>
+                                        Vous avez déposé une déclaration préalable pour des travaux ou des constructions non soumis à permis.
+                                        Le délai d'instruction de votre dossier est d'<strong>UN MOIS</strong>. Si vous ne recevez pas de réponse de
+                                        l'administration dans ce délai, vous bénéficierez d'une décision de non-opposition à ces travaux ou aménagements.
+                                    </Typography>
+
+                                    <Typography sx={{ fontSize: '0.75rem', fontWeight: 'bold', mb: 1 }}>
+                                        → Toutefois, l'administration peut vous contacter durant ce premier mois :
+                                    </Typography>
+                                    <Box sx={{ ml: 3, mb: 3 }}>
+                                        <Typography sx={{ fontSize: '0.75rem', mb: 1, lineHeight: 1.6 }}>
+                                            • soit pour vous avertir qu'un <strong>autre délai</strong> est applicable ;
                                         </Typography>
-                                        <Typography sx={{ fontSize: '0.65rem', mb: 1 }}>
-                                            → Toutefois, dans le mois qui suit le dépôt de votre dossier, l'administration peut vous contacter :
+                                        <Typography sx={{ fontSize: '0.75rem', lineHeight: 1.6 }}>
+                                            • soit pour vous indiquer qu'il <strong>manque une ou plusieurs pièces</strong> à votre dossier.
                                         </Typography>
-                                        <Typography sx={{ fontSize: '0.6rem', ml: 1, mb: 0.5 }}>
-                                            – soit pour vous avertir qu'un autre délai est applicable ;
+                                    </Box>
+
+                                    <Typography sx={{ fontSize: '0.75rem', fontWeight: 'bold', mb: 1 }}>
+                                        → Si vous n'avez rien reçu à la fin du mois suivant le dépôt :
+                                    </Typography>
+                                    <Box sx={{ ml: 3, mb: 3 }}>
+                                        <Typography sx={{ fontSize: '0.75rem', mb: 1, lineHeight: 1.6 }}>
+                                            • vous devrez afficher ce récépissé sur le terrain pour attester la date de dépôt ;
                                         </Typography>
-                                        <Typography sx={{ fontSize: '0.6rem', ml: 1, mb: 1 }}>
-                                            – soit pour vous indiquer qu'il manque une ou plusieurs pièces à votre dossier.
+                                        <Typography sx={{ fontSize: '0.75rem', lineHeight: 1.6 }}>
+                                            • vous devrez installer un panneau visible de la voie publique pendant toute la durée du chantier.
                                         </Typography>
-                                        <Typography sx={{ fontSize: '0.65rem', mb: 1 }}>
-                                            → Si vous n'avez rien reçu à la fin du mois suivant le dépôt de votre déclaration, vous pourrez commencer les travaux après avoir :
+                                    </Box>
+
+                                    <Typography sx={{ fontSize: '0.75rem', fontWeight: 'bold', mb: 1, mt: 2 }}>
+                                        Informations sur la validité de la décision :
+                                    </Typography>
+                                    <Box sx={{ ml: 3 }}>
+                                        <Typography sx={{ fontSize: '0.75rem', mb: 2, lineHeight: 1.8 }}>
+                                            • La décision n'est définitive qu'en l'absence de recours ou de retrait. Dans le délai de <strong>deux mois</strong> à compter de son affichage sur le terrain, sa légalité peut être contestée par un tiers devant le tribunal administratif.
                                         </Typography>
-                                        <Typography sx={{ fontSize: '0.6rem', ml: 1, mb: 0.5 }}>
-                                            – affiché sur le terrain ce récépissé pour attester la date de dépôt ;
+                                        <Typography sx={{ fontSize: '0.75rem', lineHeight: 1.8 }}>
+                                            • Dans le délai de <strong>trois mois</strong> après la date de la décision de non-opposition, l'autorité compétente peut la retirer si elle l'estime illégale. Elle est alors tenue de vous en informer préalablement.
                                         </Typography>
-                                        <Typography sx={{ fontSize: '0.6rem', ml: 1 }}>
-                                            – installé sur le terrain, pendant toute la durée du chantier, un panneau visible de la voie publique.
-                                        </Typography>
-                                    </Grid>
-                                    <Grid item xs={6}>
-                                        <Typography sx={{ fontSize: '0.65rem', mb: 1 }}>
-                                            La décision de non-opposition n'est définitive qu'en l'absence de recours ou de retrait :
-                                        </Typography>
-                                        <Typography sx={{ fontSize: '0.6rem', ml: 1, mb: 1 }}>
-                                            – dans le délai de deux mois à compter de son affichage sur le terrain, sa légalité peut être contestée par un tiers devant le tribunal administratif.
-                                        </Typography>
-                                        <Typography sx={{ fontSize: '0.6rem', ml: 1 }}>
-                                            – dans le délai de trois mois après la date de la déclaration préalable, l'autorité compétente peut la retirer.
-                                        </Typography>
-                                    </Grid>
-                                </Grid>
+                                    </Box>
+                                </Box>
 
                                 {/* Cadre Mairie */}
                                 <Box sx={{ mt: 3, p: 2, bgcolor: '#f0f0f0' }}>
                                     <Typography sx={{ fontSize: '0.75rem', fontWeight: 'bold', textAlign: 'center', mb: 2 }}>
                                         Cadre réservé à la mairie
                                     </Typography>
-                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                                        <Field label="Le projet ayant fait l'objet d'une déclaration n°" value={data.numeroDossier} inline />
+                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 1 }}>
+                                        <Field label="Le projet ayant fait l'objet d'une déclaration n°" value={data.numeroDossier} inline mb={0.5} />
                                     </Box>
-                                    <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
-                                        <Typography sx={{ fontSize: '0.65rem' }}>déposé à la mairie le :</Typography>
-                                        <Field label="" value="" width="30px" inline />
-                                        <Typography sx={{ fontSize: '0.65rem' }}>/</Typography>
-                                        <Field label="" value="" width="30px" inline />
-                                        <Typography sx={{ fontSize: '0.65rem' }}>/</Typography>
-                                        <Field label="" value="" width="50px" inline />
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
+                                        <Typography sx={{ fontSize: '0.65rem', fontWeight: 600 }}>déposé à la mairie le :</Typography>
+                                        <Field label="" value="" width="35px" inline mb={0} />
+                                        <Typography sx={{ fontSize: '0.8rem', fontWeight: 'bold' }}>/</Typography>
+                                        <Field label="" value="" width="35px" inline mb={0} />
+                                        <Typography sx={{ fontSize: '0.8rem', fontWeight: 'bold' }}>/</Typography>
+                                        <Field label="" value="" width="55px" inline mb={0} />
                                     </Box>
                                     <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
                                         <Box sx={{
@@ -856,8 +877,41 @@ const CerfaOfficialPreview = ({ data = {}, currentStep = 0 }) => {
                                 </Grid>
                             </PageWrapper>
 
-                            {/* ========== PAGE 7 : LÉGISLATION CONNEXE ========== */}
-                            <PageWrapper pageNumber={7} totalPages={totalPages} id="page-7">
+                            {/* ========== PAGE 7 : NOTICE DESCRIPTIVE (DP11) ========== */}
+                            <PageWrapper pageNumber={7} totalPages={totalPages} id="page-notice">
+                                <Box sx={{ textAlign: 'center', mb: 4 }}>
+                                    <Typography sx={{ fontSize: '1.4rem', fontWeight: 'bold', color: '#002395' }}>
+                                        DP 11 : Notice Descriptive
+                                    </Typography>
+                                    <Typography sx={{ fontSize: '0.8rem', color: '#666' }}>
+                                        Note de présentation du projet et de son insertion dans l'environnement
+                                    </Typography>
+                                </Box>
+
+                                <Divider sx={{ mb: 4, bgcolor: '#002395', height: 2 }} />
+
+                                <Box sx={{ px: 0 }}>
+                                    <Typography sx={{
+                                        fontSize: '1.2rem', // Larger for the notice
+                                        lineHeight: 1.9,
+                                        whiteSpace: 'pre-wrap',
+                                        textAlign: 'justify',
+                                        color: '#333',
+                                        fontFamily: '"Times New Roman", Times, serif'
+                                    }}>
+                                        {data.noticeDescriptive || "Aucune notice descriptive n'a été rédigée."}
+                                    </Typography>
+                                </Box>
+
+                                <Box sx={{ mt: 'auto', pt: 10, textAlign: 'right' }}>
+                                    <Typography sx={{ fontSize: '0.8rem', fontStyle: 'italic' }}>
+                                        Document généré par Urbania AI le {new Date().toLocaleDateString('fr-FR')}
+                                    </Typography>
+                                </Box>
+                            </PageWrapper>
+
+                            {/* ========== PAGE 8 : LÉGISLATION CONNEXE ========== */}
+                            <PageWrapper pageNumber={8} totalPages={totalPages} id="page-7">
                                 <SectionTitle title="5 Informations pour l'application d'une législation connexe" mt={0} />
 
                                 <Typography sx={{ fontSize: '0.7rem', fontWeight: 'bold', mb: 1 }}>
@@ -913,8 +967,8 @@ const CerfaOfficialPreview = ({ data = {}, currentStep = 0 }) => {
                                 </InfoBox>
                             </PageWrapper>
 
-                            {/* ========== PAGE 8 : BORDEREAU DES PIÈCES ========== */}
-                            <PageWrapper pageNumber={8} totalPages={totalPages} id="page-8">
+                            {/* ========== PAGE 9 : BORDEREAU DES PIÈCES ========== */}
+                            <PageWrapper pageNumber={9} totalPages={totalPages} id="page-8">
                                 <Box sx={{ textAlign: 'center', mb: 2 }}>
                                     <Typography sx={{ fontSize: '0.85rem', fontWeight: 'bold' }}>
                                         Bordereau de dépôt des pièces jointes à une déclaration préalable
@@ -997,8 +1051,8 @@ const CerfaOfficialPreview = ({ data = {}, currentStep = 0 }) => {
                                 </Box>
                             </PageWrapper>
 
-                            {/* ========== PAGE 9 : ENGAGEMENT ET SIGNATURE ========== */}
-                            <PageWrapper pageNumber={9} totalPages={totalPages} id="page-9">
+                            {/* ========== PAGE 10 : ENGAGEMENT ET SIGNATURE ========== */}
+                            <PageWrapper pageNumber={10} totalPages={totalPages} id="page-9">
                                 <SectionTitle title="6 Engagement du (des) déclarant(s)" mt={0} />
 
                                 <Typography sx={{ fontSize: '0.65rem', mb: 1.5, lineHeight: 1.5 }}>
@@ -1054,8 +1108,8 @@ const CerfaOfficialPreview = ({ data = {}, currentStep = 0 }) => {
                                 </Grid>
                             </PageWrapper>
 
-                            {/* ========== PAGE 10 : TRAITEMENT DES DONNÉES ========== */}
-                            <PageWrapper pageNumber={10} totalPages={totalPages} id="page-10">
+                            {/* ========== PAGE 11 : TRAITEMENT DES DONNÉES ========== */}
+                            <PageWrapper pageNumber={11} totalPages={totalPages} id="page-10">
                                 <Box sx={{ textAlign: 'center', mb: 2 }}>
                                     <Typography sx={{ fontSize: '0.85rem', fontWeight: 'bold' }}>
                                         Traitements des données à caractère personnel
@@ -1136,9 +1190,9 @@ const CerfaOfficialPreview = ({ data = {}, currentStep = 0 }) => {
                                 return (
                                     <PageWrapper
                                         key={key}
-                                        pageNumber={11 + index}
+                                        pageNumber={12 + index}
                                         totalPages={totalPages}
-                                        id={`page-${11 + index}`}
+                                        id={`page-${12 + index}`}
                                     >
                                         <Box sx={{ textAlign: 'center', mb: 4, borderBottom: '2px solid #003366', pb: 2 }}>
                                             <Typography sx={{ fontSize: '1.4rem', fontWeight: 'bold', color: '#003366' }}>

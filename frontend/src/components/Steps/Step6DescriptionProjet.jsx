@@ -1,40 +1,69 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
     Box,
     Typography,
     Grid,
-    FormControl,
-    InputLabel,
-    Select,
-    MenuItem,
     Button,
     CircularProgress,
     Snackbar,
     Alert,
     Chip,
     Collapse,
-    Checkbox,
-    FormControlLabel,
-    Paper,
-    Divider
+    Paper
 } from '@mui/material';
 import {
     Sparkles,
-    Wand2,
     Info,
-    CheckCircle2,
     Paintbrush,
-    Hammer,
     Layout,
     Check
 } from 'lucide-react';
 import { useForm } from '../../context/FormContext';
 import FormField from '../Common/FormField';
+import FormSelect from '../Common/FormSelect';
 import { PROJECT_TYPES } from '../../config/projectConfigs';
 
-const couleurOptions = ['Blanc', 'Blanc cassé', 'Beige', 'Gris clair', 'Gris foncé', 'Noir', 'Bleu', 'Vert', 'Marron', 'Rouge', 'Terracotta', 'Autre'];
-const materiauFacadeOptions = ['Enduit', 'Crépi', 'Bardage bois', 'Bardage composite', 'Pierre', 'Brique', 'Parpaing', 'Béton', 'Verre', 'Métal', 'Autre'];
-const materiauToitureOptions = ['Tuiles', 'Ardoises', 'Zinc', 'Bac acier', 'Toit terrasse', 'Membrane PVC', 'Chaume', 'Bois', 'Shingle', 'Autre'];
+const couleurOptions = [
+    { value: 'Blanc', label: 'Blanc' },
+    { value: 'Blanc cassé', label: 'Blanc cassé' },
+    { value: 'Beige', label: 'Beige' },
+    { value: 'Gris clair', label: 'Gris clair' },
+    { value: 'Gris foncé', label: 'Gris foncé' },
+    { value: 'Noir', label: 'Noir' },
+    { value: 'Bleu', label: 'Bleu' },
+    { value: 'Vert', label: 'Vert' },
+    { value: 'Marron', label: 'Marron' },
+    { value: 'Rouge', label: 'Rouge' },
+    { value: 'Terracotta', label: 'Terracotta' },
+    { value: 'Autre', label: 'Autre' }
+];
+
+const materiauFacadeOptions = [
+    { value: 'Enduit', label: 'Enduit' },
+    { value: 'Crépi', label: 'Crépi' },
+    { value: 'Bardage bois', label: 'Bardage bois' },
+    { value: 'Bardage composite', label: 'Bardage composite' },
+    { value: 'Pierre', label: 'Pierre' },
+    { value: 'Brique', label: 'Brique' },
+    { value: 'Parpaing', label: 'Parpaing' },
+    { value: 'Béton', label: 'Béton' },
+    { value: 'Verre', label: 'Verre' },
+    { value: 'Métal', label: 'Métal' },
+    { value: 'Autre', label: 'Autre' }
+];
+
+const materiauToitureOptions = [
+    { value: 'Tuiles', label: 'Tuiles' },
+    { value: 'Ardoises', label: 'Ardoises' },
+    { value: 'Zinc', label: 'Zinc' },
+    { value: 'Bac acier', label: 'Bac acier' },
+    { value: 'Toit terrasse', label: 'Toit terrasse' },
+    { value: 'Membrane PVC', label: 'Membrane PVC' },
+    { value: 'Chaume', label: 'Chaume' },
+    { value: 'Bois', label: 'Bois' },
+    { value: 'Shingle', label: 'Shingle' },
+    { value: 'Autre', label: 'Autre' }
+];
 
 function Step6DescriptionProjet() {
     const {
@@ -46,7 +75,6 @@ function Step6DescriptionProjet() {
         configureCustomProjectWithAI,
         generateDescriptionWithAI,
         projectConfig,
-        isFieldRequired,
         dispatch
     } = useForm();
 
@@ -64,30 +92,21 @@ function Step6DescriptionProjet() {
     const handleDescriptionBlur = async () => {
         if (!data.descriptionProjet || data.descriptionProjet.length < 10) return;
         handleAIAnalysis();
-        if (data.natureTravaux?.includes('autre')) {
-            setIsConfiguring(true);
-            try {
-                const config = await configureCustomProjectWithAI(data.descriptionProjet);
-                if (config) setField('aiProjectConfig', config);
-            } finally {
-                setIsConfiguring(false);
-            }
+        setIsConfiguring(true);
+        try {
+            const config = await configureCustomProjectWithAI(data.descriptionProjet);
+            if (config) setField('aiProjectConfig', config);
+        } finally {
+            setIsConfiguring(false);
         }
     };
 
     const handleGenerateDescription = async () => {
-        // If we have a pre-generated description, use it instantly!
         if (data.preGeneratedDescription) {
             setField('descriptionProjet', data.preGeneratedDescription);
             setSnackbar({ open: true, message: 'Description générée instantanément !', severity: 'success' });
-
-            // Trigger config after generation if it's 'autre'
-            if (data.natureTravaux?.includes('autre')) {
-                const config = await configureCustomProjectWithAI(data.preGeneratedDescription);
-                if (config) setField('aiProjectConfig', config);
-            }
-
-            // Clear cache after use
+            const config = await configureCustomProjectWithAI(data.preGeneratedDescription);
+            if (config) setField('aiProjectConfig', config);
             dispatch({ type: 'SET_PRE_GENERATED_DESCRIPTION', value: '' });
             return;
         }
@@ -101,10 +120,8 @@ function Step6DescriptionProjet() {
             );
             if (description) {
                 setField('descriptionProjet', description);
-                if (data.natureTravaux?.includes('autre')) {
-                    const config = await configureCustomProjectWithAI(description);
-                    if (config) setField('aiProjectConfig', config);
-                }
+                const config = await configureCustomProjectWithAI(description);
+                if (config) setField('aiProjectConfig', config);
             }
         } finally {
             setIsGenerating(false);
@@ -202,7 +219,7 @@ function Step6DescriptionProjet() {
                 </Grid>
 
                 <Collapse in={showMateriauxSection} sx={{ width: '100%' }}>
-                    <Grid item xs={12} sx={{ mt: 2, px: 4 }}>
+                    <Box sx={{ mt: 2, px: 4 }}>
                         <Paper elevation={0} sx={{ p: 4, borderRadius: '24px', border: '1px solid #f1f5f9', bgcolor: '#f8fafc' }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
                                 <Paintbrush size={22} color="#002395" />
@@ -212,42 +229,46 @@ function Step6DescriptionProjet() {
                             <Grid container spacing={3}>
                                 {showCouleurFacade && (
                                     <Grid item xs={12} sm={6}>
-                                        <FormControl fullWidth>
-                                            <InputLabel>Couleur des façades</InputLabel>
-                                            <Select value={data.couleurFacade || ''} label="Couleur des façades" onChange={(e) => handleChange('couleurFacade', e.target.value)} sx={{ borderRadius: '16px', bgcolor: 'white' }}>
-                                                {couleurOptions.map(c => <MenuItem key={c} value={c}>{c}</MenuItem>)}
-                                            </Select>
-                                        </FormControl>
+                                        <FormSelect
+                                            label="Couleur des façades"
+                                            name="couleurFacade"
+                                            value={data.couleurFacade}
+                                            onChange={handleChange}
+                                            options={couleurOptions}
+                                        />
                                     </Grid>
                                 )}
                                 {showMateriauFacade && (
                                     <Grid item xs={12} sm={6}>
-                                        <FormControl fullWidth>
-                                            <InputLabel>Matériau des façades</InputLabel>
-                                            <Select value={data.materiauFacade || ''} label="Matériau des façades" onChange={(e) => handleChange('materiauFacade', e.target.value)} sx={{ borderRadius: '16px', bgcolor: 'white' }}>
-                                                {materiauFacadeOptions.map(m => <MenuItem key={m} value={m}>{m}</MenuItem>)}
-                                            </Select>
-                                        </FormControl>
+                                        <FormSelect
+                                            label="Matériau des façades"
+                                            name="materiauFacade"
+                                            value={data.materiauFacade}
+                                            onChange={handleChange}
+                                            options={materiauFacadeOptions}
+                                        />
                                     </Grid>
                                 )}
                                 {showCouleurToiture && (
                                     <Grid item xs={12} sm={6}>
-                                        <FormControl fullWidth>
-                                            <InputLabel>Couleur de la toiture</InputLabel>
-                                            <Select value={data.couleurToiture || ''} label="Couleur de la toiture" onChange={(e) => handleChange('couleurToiture', e.target.value)} sx={{ borderRadius: '16px', bgcolor: 'white' }}>
-                                                {couleurOptions.map(c => <MenuItem key={c} value={c}>{c}</MenuItem>)}
-                                            </Select>
-                                        </FormControl>
+                                        <FormSelect
+                                            label="Couleur de la toiture"
+                                            name="couleurToiture"
+                                            value={data.couleurToiture}
+                                            onChange={handleChange}
+                                            options={couleurOptions}
+                                        />
                                     </Grid>
                                 )}
                                 {showMateriauToiture && (
                                     <Grid item xs={12} sm={6}>
-                                        <FormControl fullWidth>
-                                            <InputLabel>Matériau de la toiture</InputLabel>
-                                            <Select value={data.materiauToiture || ''} label="Matériau de la toiture" onChange={(e) => handleChange('materiauToiture', e.target.value)} sx={{ borderRadius: '16px', bgcolor: 'white' }}>
-                                                {materiauToitureOptions.map(m => <MenuItem key={m} value={m}>{m}</MenuItem>)}
-                                            </Select>
-                                        </FormControl>
+                                        <FormSelect
+                                            label="Matériau de la toiture"
+                                            name="materiauToiture"
+                                            value={data.materiauToiture}
+                                            onChange={handleChange}
+                                            options={materiauToitureOptions}
+                                        />
                                     </Grid>
                                 )}
                                 {showHauteur && (
@@ -257,32 +278,46 @@ function Step6DescriptionProjet() {
                                 )}
                             </Grid>
                         </Paper>
-                    </Grid>
+                    </Box>
                 </Collapse>
 
                 {specificQuestions.length > 0 && (
-                    <Grid item xs={12} sx={{ mt: 2, px: 4 }}>
+                    <Box sx={{ mt: 4, px: 4, width: '100%' }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
                             <Layout size={22} color="#002395" />
-                            <Typography variant="h6" fontWeight={700} color="#1e293b">Questions IA</Typography>
+                            <Typography variant="h6" fontWeight={700} color="#1e293b">Détails complémentaires</Typography>
                         </Box>
                         <Grid container spacing={3}>
                             {specificQuestions.map((q) => (
                                 <Grid item xs={12} sm={6} key={q.field}>
                                     {q.type === 'select' ? (
-                                        <FormControl fullWidth><InputLabel>{q.label}</InputLabel><Select value={data[q.field] || ''} label={q.label} onChange={(e) => handleChange(q.field, e.target.value)} sx={{ borderRadius: '16px' }}>{(q.options || []).map(o => <MenuItem key={o} value={o}>{o}</MenuItem>)}</Select></FormControl>
+                                        <FormSelect
+                                            label={q.label}
+                                            name={q.field}
+                                            value={data[q.field]}
+                                            onChange={handleChange}
+                                            options={(q.options || []).map(o => ({ value: o, label: o }))}
+                                        />
                                     ) : q.type === 'boolean' ? (
-                                        <FormControl fullWidth><InputLabel>{q.label}</InputLabel><Select value={data[q.field] === true ? 'oui' : data[q.field] === false ? 'non' : ''} label={q.label} onChange={(e) => handleChange(q.field, e.target.value === 'oui')} sx={{ borderRadius: '16px' }}><MenuItem value="oui">Oui</MenuItem><MenuItem value="non">Non</MenuItem></Select></FormControl>
+                                        <FormSelect
+                                            label={q.label}
+                                            name={q.field}
+                                            value={data[q.field] === true ? 'oui' : data[q.field] === false ? 'non' : ''}
+                                            onChange={(name, val) => handleChange(name, val === 'oui')}
+                                            options={[
+                                                { value: 'oui', label: 'Oui' },
+                                                { value: 'non', label: 'Non' }
+                                            ]}
+                                        />
                                     ) : (
                                         <FormField label={q.label} name={q.field} value={data[q.field]} onChange={handleChange} type={q.type} />
                                     )}
                                 </Grid>
                             ))}
                         </Grid>
-                    </Grid>
+                    </Box>
                 )}
             </Grid>
-
             <Snackbar open={snackbar.open} autoHideDuration={4000} onClose={handleCloseSnackbar}>
                 <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%', borderRadius: '12px' }}>
                     {snackbar.message}

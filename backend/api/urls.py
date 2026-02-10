@@ -1,19 +1,21 @@
 from django.urls import path
 from .views import (
-    RegisterView, LoginView, CerfaSessionView, CerfaSessionListView,
+    RegisterView, LoginView, GoogleAuthView, CerfaSessionView, CerfaSessionListView,
     DossierListCreateView, DossierDetailView, AdminStatsView, ActivityLogView,
     CadastreParcellesView, CadastreBatimentsView, CadastreParcelleDetailView,
     CadastreGeocodeView, CadastreSectionsView, CadastreSearchView, CadastreParcelleByCoordinatesView,
     AdminNotificationListView, AdminNotificationMarkReadView, AdminUserListView,
-    AIAnalyzeProjectView, AISuggestDocumentsView, AIConfigureProjectView, AIGenerateDescriptionView,
-    AIGenerateDocumentView
+    AIAnalyzeProjectView, AISuggestDocumentsView, AIConfigureProjectView, 
+    AIGenerateDescriptionView, AIGenerateNoticeView, generate_cadastre_headless
 )
+from .views_dp import GeneratePlanView
 
 from rest_framework_simplejwt.views import TokenRefreshView
 
 urlpatterns = [
     path('auth/register/', RegisterView.as_view(), name='register'),
     path('auth/login/', LoginView.as_view(), name='login'),
+    path('auth/google/', GoogleAuthView.as_view(), name='google_login'),
     path('auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     
     path('sessions/', CerfaSessionView.as_view(), name='sessions'),
@@ -41,9 +43,11 @@ urlpatterns = [
     path('ai/suggest-documents/', AISuggestDocumentsView.as_view(), name='ai_suggest_docs'),
     path('ai/configure-project/', AIConfigureProjectView.as_view(), name='ai_configure_project'),
     path('ai/generate-description/', AIGenerateDescriptionView.as_view(), name='ai_generate_description'),
-    path('ai/generate-document/', AIGenerateDocumentView.as_view(), name='ai_generate_document'),
+    path('ai/generate-notice/', AIGenerateNoticeView.as_view(), name='ai_generate_notice'),
+    path('ai/generate-plan/', GeneratePlanView.as_view(), name='ai_generate_plan'),
     
     path('cadastre/parcelle/coords/', CadastreParcelleByCoordinatesView.as_view(), name='cadastre_parcelle_coords'),
+    path('cadastre/generate/', generate_cadastre_headless, name='cadastre_generate'),
 ]
 
 

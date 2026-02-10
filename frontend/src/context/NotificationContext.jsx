@@ -34,7 +34,17 @@ export function NotificationProvider({ children }) {
                     onClose={handleClose}
                     severity={severity}
                     variant="filled"
-                    sx={{ width: '100%', borderRadius: 2, fontWeight: 500 }}
+                    sx={{
+                        width: '100%',
+                        borderRadius: '16px',
+                        fontWeight: 600,
+                        backgroundColor: severity === 'success' ? '#10b981 !important' : undefined,
+                        color: '#fff !important',
+                        '& .MuiAlert-icon': {
+                            color: '#fff !important'
+                        },
+                        boxShadow: '0 10px 30px -5px rgba(0,0,0,0.1)'
+                    }}
                 >
                     {message}
                 </Alert>

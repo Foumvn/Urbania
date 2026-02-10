@@ -2,7 +2,21 @@
 
 export function saveToStorage(key, data) {
     try {
-        const serialized = JSON.stringify(data);
+        // Create a lightweight copy to avoid QuotaExceededError
+        let cleanData = data;
+        if (data && typeof data === 'object') {
+            cleanData = { ...data };
+            // Remove heavy fields if present at root or inside 'data'
+            if (cleanData.data) {
+                const innerData = { ...cleanData.data };
+                delete innerData.cadastralPlanImage; // Huge base64 image
+                delete innerData.piecesJointes;      // Potential file data
+                delete innerData.signature;          // Signature image
+                cleanData.data = innerData;
+            }
+        }
+
+        const serialized = JSON.stringify(cleanData);
         localStorage.setItem(key, serialized);
         return true;
     } catch (error) {

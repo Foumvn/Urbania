@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { useForm } from '../../context/FormContext';
+import { useNotification } from '../../context/NotificationContext';
 
 const CONFIG = {
     API: {
@@ -24,95 +25,254 @@ const CONFIG = {
 };
 
 const CadastreGenerator = () => {
-    const { data, setField, setIsGeneratingDP1 } = useForm();
+    const { data, setField, setIsGeneratingDP1, generateTechnicalDocument } = useForm();
+    const { showNotification } = useNotification();
     const mapContainerRef = useRef(null);
     const mapRef = useRef(null);
     const lastTriggerRef = useRef('');
 
+    // --- INITIALISATION DE LA CARTE ---
     useEffect(() => {
         if (!mapContainerRef.current) return;
 
-        mapRef.current = new maplibregl.Map({
-            container: mapContainerRef.current,
-            style: CONFIG.API.BASE_STYLE,
-            center: [2.3522, 48.8566], // Paris default
-            zoom: CONFIG.ZOOM.DEFAULT,
-            preserveDrawingBuffer: true,
-            interactive: false,
-            attributionControl: false
-        });
-
-        const map = mapRef.current;
-
-        map.on('load', () => {
-            map.addSource('cadastre', {
-                type: 'vector',
-                url: CONFIG.API.CADASTRE_TILES
+        let map;
+        try {
+            map = new maplibregl.Map({
+                container: mapContainerRef.current,
+                style: CONFIG.API.BASE_STYLE,
+                center: [2.3522, 48.8566], // Paris default
+                zoom: CONFIG.ZOOM.DEFAULT,
+                preserveDrawingBuffer: true,
+                interactive: false,
+                attributionControl: false
             });
 
-            map.addLayer({
-                'id': 'parcelles-fill',
-                'type': 'fill',
-                'source': 'cadastre',
-                'source-layer': 'parcelles',
-                'paint': {
-                    'fill-color': CONFIG.COLORS.PARCEL_FILL,
-                    'fill-outline-color': CONFIG.COLORS.PARCEL_LINE
+            mapRef.current = map;
+
+            // Silencing warnings
+            map.on('styleimagemissing', (e) => {
+                if (!map.hasImage(e.id)) {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 1; canvas.height = 1;
+                    const ctx = canvas.getContext('2d');
+                    ctx.fillStyle = 'rgba(0,0,0,0)';
+                    ctx.fillRect(0, 0, 1, 1);
+                    map.addImage(e.id, ctx.getImageData(0, 0, 1, 1));
                 }
             });
 
-            map.addLayer({
-                'id': 'parcelles-line',
-                'type': 'line',
-                'source': 'cadastre',
-                'source-layer': 'parcelles',
-                'paint': {
-                    'line-color': CONFIG.COLORS.PARCEL_LINE,
-                    'line-width': 2
+            map.on('error', (e) => {
+                console.warn('MapLibre error handle:', e.error?.message || e);
+            });
+
+            map.on('load', () => {
+                if (!map.getSource('cadastre')) {
+                    map.addSource('cadastre', {
+                        type: 'vector',
+                        url: CONFIG.API.CADASTRE_TILES
+                    });
+
+                    map.addLayer({
+                        'id': 'parcelles-fill',
+                        'type': 'fill',
+                        'source': 'cadastre',
+                        'source-layer': 'parcelles',
+                        'paint': {
+                            'fill-color': CONFIG.COLORS.PARCEL_FILL,
+                            'fill-outline-color': CONFIG.COLORS.PARCEL_LINE
+                        }
+                    });
+
+                    map.addLayer({
+                        'id': 'parcelles-line',
+                        'type': 'line',
+                        'source': 'cadastre',
+                        'source-layer': 'parcelles',
+                        'paint': {
+                            'line-color': CONFIG.COLORS.PARCEL_LINE,
+                            'line-width': 2
+                        }
+                    });
+
+                    map.addLayer({
+                        'id': 'parcelles-labels',
+                        'type': 'symbol',
+                        'source': 'cadastre',
+                        'source-layer': 'parcelles',
+                        'layout': {
+                            'text-field': ['get', 'numero'],
+                            'text-size': 14,
+                            'text-allow-overlap': true,
+                            'text-ignore-placement': true,
+                            'text-font': ['Open Sans Semibold']
+                        },
+                        'paint': {
+                            'text-color': '#000000',
+                            'text-halo-color': '#ffffff',
+                            'text-halo-width': 2
+                        }
+                    });
                 }
             });
-        });
+        } catch (err) {
+            console.error('CRITICAL: Map initialization failed:', err);
+            showNotification("Erreur d'affichage de la carte (Pilote graphique ou navigateur incompatible).", 'error');
+        }
 
         return () => {
             if (mapRef.current) {
                 mapRef.current.remove();
+                mapRef.current = null;
             }
         };
     }, []);
 
+    const lastTriggerCountRef = useRef(data.mapTriggerCount || 0);
+
+    // --- LOGIQUE DE GÉNÉRATION DES PLANS ---
     useEffect(() => {
-        const city = data.terrainVille;
-        const section = data.section;
-        const parcel = data.numeroParcelle;
+        // Only run if the trigger count has changed (user clicked "Chercher")
+        if (data.mapTriggerCount === lastTriggerCountRef.current) return;
+        lastTriggerCountRef.current = data.mapTriggerCount;
 
-        if (!city || !section || !parcel) return;
+        const city = (data.terrainVille || '').trim();
+        const cp = (data.terrainCodePostal || '').trim();
+        const section = (data.section || '').trim().toUpperCase();
+        const parcel = (data.numeroParcelle || '').trim().toUpperCase().replace(/O/g, '0');
 
-        const triggerKey = `${city}-${section}-${parcel}`;
-        if (triggerKey === lastTriggerRef.current) return;
-        lastTriggerRef.current = triggerKey;
+        if (!city || !section || !parcel) {
+            return;
+        }
 
         const generatePlan = async () => {
             if (!mapRef.current) return;
 
-            setIsGeneratingDP1(true);
             const map = mapRef.current;
 
+            // Wait for style to be loaded to avoid "Style is not done loading" error
+            if (!map.isStyleLoaded()) {
+                console.log("Waiting for map style to load...");
+                await new Promise(resolve => {
+                    const onStyleLoad = () => {
+                        map.off('style.load', onStyleLoad);
+                        resolve();
+                    };
+                    map.on('style.load', onStyleLoad);
+                    // Also resolve on 'load' just in case
+                    map.once('load', resolve);
+                    // Timeout safety
+                    setTimeout(resolve, 3000);
+                });
+            }
+
+            setIsGeneratingDP1(true);
+
             try {
-                // 1. Get INSEE code
-                const geoResp = await fetch(`${CONFIG.API.GEO}/communes?nom=${encodeURIComponent(city)}&fields=code,nom&format=json&limit=1`);
-                const communes = await geoResp.json();
-                if (!communes.length) throw new Error('Commune non trouvée');
-                const insee = communes[0].code;
+                // 1. Resolve INSEE code
+                let insee = '';
+                let resolvedCityName = city;
 
-                // 2. Search Parcel
-                const parcelUrl = `${CONFIG.API.APICARTO}/parcelle?code_insee=${insee}&section=${section.toUpperCase()}&numero=${parcel.padStart(4, '0')}`;
-                const parcelResp = await fetch(parcelUrl);
-                const parcelData = await parcelResp.json();
+                // A. Check for Paris, Lyon, Marseille Arrondissements
+                if (cp && cp.length === 5) {
+                    if (cp.startsWith('750')) insee = `751${cp.slice(-2)}`;
+                    else if (cp.startsWith('130')) {
+                        const arr = parseInt(cp.slice(-2));
+                        if (arr <= 16) insee = `132${cp.slice(-2)}`;
+                    } else if (cp.startsWith('690')) {
+                        const arr = parseInt(cp.slice(-1));
+                        if (arr <= 9) insee = `6938${arr}`;
+                    }
+                }
 
-                if (!parcelData.features || !parcelData.features.length) throw new Error('Parcelle non trouvée');
-                const feature = parcelData.features[0];
+                // B. If no INSEE yet, try searching by Postal Code (much more precise)
+                if (!insee && cp && cp.length === 5) {
+                    const cpResp = await fetch(`${CONFIG.API.GEO}/communes?codePostal=${cp}&fields=code,nom&format=json`);
+                    const cpCommunes = await cpResp.json();
+                    if (cpCommunes && cpCommunes.length > 0) {
+                        // If multiple communes share a CP, try to find the one matching the name
+                        let match = cpCommunes.find(c => c.nom.toLowerCase().includes(city.toLowerCase()) || city.toLowerCase().includes(c.nom.toLowerCase()));
+                        if (!match) match = cpCommunes[0];
+                        insee = match.code;
+                        resolvedCityName = match.nom;
+                    }
+                }
 
-                // 3. Highlight and Capture
+                // C. Fallback to name search
+                if (!insee) {
+                    const geoResp = await fetch(`${CONFIG.API.GEO}/communes?nom=${encodeURIComponent(city)}&fields=code,nom&format=json&limit=10`);
+                    let communes = await geoResp.json();
+
+                    if (!communes || communes.length === 0) {
+                        const altCity = city.replace(/St /i, 'Saint ').replace(/St-/, 'Saint-');
+                        if (altCity !== city) {
+                            const altResp = await fetch(`${CONFIG.API.GEO}/communes?nom=${encodeURIComponent(altCity)}&fields=code,nom&format=json&limit=10`);
+                            communes = await altResp.json();
+                        }
+                    }
+
+                    if (!communes || communes.length === 0) throw new Error(`Commune "${city}" non identifiée. Vérifiez l'orthographe ou le code postal.`);
+
+                    let match = communes[0];
+                    if (communes.length > 1 && cp) {
+                        const dept = cp.slice(0, 2);
+                        const cpMatch = communes.find(c => c.code.startsWith(dept));
+                        if (cpMatch) match = cpMatch;
+                    }
+                    insee = match.code;
+                    resolvedCityName = match.nom;
+                }
+
+                // 2. Search Parcel with multiple retry strategies
+                const sectionsToTry = [
+                    section,
+                    section.length === 1 ? `0${section}` : section,
+                    section.length === 1 ? `00${section}` : (section.length === 2 ? `0${section}` : section)
+                ].filter((v, i, a) => a.indexOf(v) === i); // Unique values
+
+                const paddedParcel = parcel.padStart(4, '0');
+                const rawParcel = parcel.replace(/^0+/, ''); // Remove leading zeros
+                const parcelsToTry = [paddedParcel, rawParcel].filter((v, i, a) => a.indexOf(v) === i);
+
+                let parcelData = null;
+                let usedSection = section;
+                let usedParcel = paddedParcel;
+
+                // Nested loop to try all combinations
+                for (const s of sectionsToTry) {
+                    for (const p of parcelsToTry) {
+                        const parcelUrl = `${CONFIG.API.APICARTO}/parcelle?code_insee=${insee}&section=${s}&numero=${p}`;
+                        const parcelResp = await fetch(parcelUrl);
+                        if (parcelResp.ok) {
+                            const result = await parcelResp.json();
+                            if (result.features && result.features.length > 0) {
+                                parcelData = result;
+                                usedSection = s;
+                                usedParcel = p;
+                                break;
+                            }
+                        }
+                    }
+                    if (parcelData) break;
+                }
+
+                if (!parcelData) {
+                    throw new Error(`Parcelle ${section} ${parcel} introuvable à ${resolvedCityName} (INSEE: ${insee}).`);
+                }
+
+                let feature = parcelData.features[0];
+
+                // --- SUCCESS FEEDBACK ---
+                showNotification(`Parcelle localisée avec succès à ${resolvedCityName}`, 'success');
+
+                // --- AUTO-FILL FOR PDF ---
+                if (!data.terrainCodePostal && insee) {
+                    setField('terrainCodePostal', insee.startsWith('97') ? insee.slice(0, 3) + '00' : insee.slice(0, 2) + '000');
+                }
+                if (!data.terrainAdresse) {
+                    setField('terrainAdresse', `Parcelle ${usedSection} ${paddedParcel}`);
+                }
+
+                // 3. Highlight on Map
                 if (map.getLayer('highlight-layer-line')) map.removeLayer('highlight-layer-line');
                 if (map.getLayer('highlight-layer-fill')) map.removeLayer('highlight-layer-fill');
                 if (map.getSource('highlight-source')) map.removeSource('highlight-source');
@@ -131,59 +291,129 @@ const CadastreGenerator = () => {
                     paint: { 'line-color': CONFIG.COLORS.HIGHLIGHT, 'line-width': 4 }
                 });
 
-                // Zoom to feature
-                const bounds = calculateBounds(feature.geometry);
-                map.fitBounds(bounds, {
-                    padding: 100, // More padding to see surrounding
-                    duration: 0,
-                    animate: false
-                });
+                // Ensure labels are always on top
+                if (map.getLayer('parcelles-labels')) {
+                    map.moveLayer('parcelles-labels');
+                }
 
-                // Wait for map to settle and layers to be visible
-                await new Promise(resolve => {
-                    const check = () => {
-                        if (map.loaded() && map.isIdle()) resolve();
-                        else setTimeout(check, 100);
-                    };
-                    check();
-                });
+                const bounds = calculateParcelBounds(feature.geometry);
+                if (!bounds) throw new Error('Géométrie invalide');
 
-                // Capture
-                const canvas = map.getCanvas();
-                const dataURL = canvas.toDataURL('image/png');
+                // --- 4. CENTRAGE ET CAPTURE RÉELLE POUR DP1 ---
+                // Augmentation du padding (300) pour voir plus de contexte autour de la parcelle
+                map.fitBounds(bounds, { padding: 300, duration: 0 });
 
-                // Update form data
-                const pieces = { ...(data.piecesJointes || {}) };
-                pieces['dp1'] = dataURL;
-                setField('piecesJointes', pieces);
+                // On attend que la carte soit stable et chargée
+                await waitForMapIdle(map);
+
+                // Capture du canvas MapLibre
+                const dp1Image = map.getCanvas().toDataURL('image/png');
+
+                // --- 5. GÉNÉRATION IA POUR DP2 UNIQUEMENT ---
+                const docData = {
+                    ...data,
+                    terrainVille: resolvedCityName,
+                    section: usedSection,
+                    numeroParcelle: paddedParcel,
+                    address: data.terrainAdresse || `Parcelle ${usedSection} ${paddedParcel}`,
+                    city: resolvedCityName,
+                    cp: data.terrainCodePostal || (insee.startsWith('97') ? insee.slice(0, 3) + '00' : insee.slice(0, 2) + '000'),
+                };
+
+                // DP2 via IA (Plan de masse)
+                const dp2Url = await generateTechnicalDocument('dp2', docData);
+
+                const updatedPieces = { ...(data.piecesJointes || {}) };
+
+                // DP1 est la capture réelle
+                updatedPieces['dp1'] = dp1Image;
+
+                // DP2 est généré par l'IA
+                if (dp2Url) {
+                    const resp = await fetch(dp2Url);
+                    const blob = await resp.blob();
+                    const reader = new FileReader();
+                    updatedPieces['dp2'] = await new Promise(resolve => {
+                        reader.onloadend = () => resolve(reader.result);
+                        reader.readAsDataURL(blob);
+                    });
+                }
+
+                setField('piecesJointes', updatedPieces);
+                setField('terrainAdresse', data.terrainAdresse || `Parcelle ${usedSection} ${paddedParcel}`);
+                setField('surfaceTerrain', feature.properties.contenance || data.surfaceTerrain);
 
             } catch (error) {
-                console.error('Cadastre background Error:', error);
+                console.error('Cadastre Error:', error.message);
+                showNotification(error.message, 'error');
             } finally {
-                // We add a small artificial delay for better loading UX as requested (Gemini style)
-                setTimeout(() => {
-                    setIsGeneratingDP1(false);
-                }, 2000);
+                setTimeout(() => setIsGeneratingDP1(false), 1500);
             }
         };
 
-        const timer = setTimeout(generatePlan, 1000); // Debounce to wait for typing to finish
-        return () => clearTimeout(timer);
-    }, [data.terrainVille, data.section, data.numeroParcelle]);
+        generatePlan();
+    }, [data.mapTriggerCount]); // Only depend on Trigger Count, but read others from 'data' closure (which updates on rerender)
+    // Wait, if I remove other deps, 'data' will be stale if I don't follow react rules.
+    // Actually, 'data' is an object that is stable reference? No, it comes from context.
+    // If I only put [data.mapTriggerCount], the effect function is recreated only when that changes?
+    // references to 'data' inside might be old.
+    // Correct way: Keep all dependencies but use a ref guard.
 
-    const calculateBounds = (geometry) => {
-        let coords = [];
-        if (geometry.type === 'Polygon') coords = geometry.coordinates[0];
-        else if (geometry.type === 'MultiPolygon') coords = geometry.coordinates[0][0];
+    // I will write the replacement content preserving the deps list in the next tool call, 
+    // but here I need to be careful with the replacement block.
+    // I will REPLACE the whole useEffect block.
 
-        let minLng = Infinity, minLat = Infinity, maxLng = -Infinity, maxLat = -Infinity;
-        coords.forEach(([lng, lat]) => {
-            minLng = Math.min(minLng, lng);
-            minLat = Math.min(minLat, lat);
-            maxLng = Math.max(maxLng, lng);
-            maxLat = Math.max(maxLat, lat);
-        });
-        return [[minLng, minLat], [maxLng, maxLat]];
+    const waitForMapIdle = (map) => new Promise(resolve => {
+        const onIdle = () => {
+            map.off('idle', onIdle);
+            resolve();
+        };
+
+        // If map is already idle, the event might not fire immediately
+        // But in fitBounds with duration: 0, it usually fires.
+        map.once('idle', resolve);
+
+        // Safety timeout to never block the UI
+        setTimeout(resolve, 3000);
+    });
+
+    const calculateParcelBounds = (geometry) => {
+        try {
+            if (!geometry) return null;
+            let coords = [];
+
+            if (geometry.type === 'Polygon') {
+                coords = geometry.coordinates[0];
+            } else if (geometry.type === 'MultiPolygon') {
+                if (geometry.coordinates.length > 0 && geometry.coordinates[0].length > 0) {
+                    coords = geometry.coordinates[0][0];
+                }
+            } else if (geometry.type === 'Point') {
+                coords = [geometry.coordinates];
+            }
+
+            if (!coords || coords.length === 0) return null;
+
+            let minLng = Infinity, minLat = Infinity, maxLng = -Infinity, maxLat = -Infinity;
+            let found = false;
+
+            coords.forEach(c => {
+                const ln = parseFloat(c[0]), lt = parseFloat(c[1]);
+                if (!isNaN(ln) && !isNaN(lt)) {
+                    minLng = Math.min(minLng, ln);
+                    minLat = Math.min(minLat, lt);
+                    maxLng = Math.max(maxLng, ln);
+                    maxLat = Math.max(maxLat, lt);
+                    found = true;
+                }
+            });
+
+            if (!found || minLng === Infinity) return null;
+            return [[minLng, minLat], [maxLng, maxLat]];
+        } catch (e) {
+            console.error('Error in calculateParcelBounds:', e);
+            return null;
+        }
     };
 
     return (

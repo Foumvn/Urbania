@@ -15,6 +15,12 @@ from django.utils import timezone
 from datetime import datetime, timedelta
 from django.http import HttpResponse
 from .services.ai_service import AIService
+import firebase_admin
+from firebase_admin import auth, credentials
+from django.conf import settings
+import os
+import random
+import string
 
 
 class IsAdminRole(permissions.BasePermission):
@@ -37,7 +43,7 @@ class RegisterView(generics.CreateAPIView):
             ActivityLog.objects.create(
                 user=user,
                 activity_type="session_created",
-                details=f"Nouvel utilisateur inscrit: {user.email}",
+                details={"message": f"Nouvel utilisateur inscrit: {user.email}"},
                 ip_address=request.META.get('REMOTE_ADDR')
             )
             
@@ -62,6 +68,116 @@ class RegisterView(generics.CreateAPIView):
                 "access": str(refresh.access_token),
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class GoogleAuthView(APIView):
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request):
+        id_token = request.data.get('id_token')
+        mode = request.data.get('mode', 'register')  # default to register
+
+        if not id_token:
+            return Response({'error': 'No ID token provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # Initialize Firebase Admin SDK if not already initialized
+            if not firebase_admin._apps:
+                cred_path = os.getenv('FIREBASE_CREDENTIALS_PATH')
+                if not cred_path:
+                     # Fallback to default path if env var not set correctly or accessible
+                     cred_path = os.path.join(settings.BASE_DIR, 'firebase-credentials.json')
+
+                if os.path.exists(cred_path):
+                    cred = credentials.Certificate(cred_path)
+                    firebase_admin.initialize_app(cred)
+                else:
+                    return Response({'error': 'Firebase credentials configuration missing'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+            # Verify the ID token
+            decoded_token = auth.verify_id_token(id_token)
+            email = decoded_token.get('email')
+            name = decoded_token.get('name', '')
+
+            if not email:
+                return Response({'error': 'Invalid token: No email found'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Handle Login Mode
+            if mode == 'login':
+                try:
+                    user = User.objects.get(email=email)
+                except User.DoesNotExist:
+                    return Response(
+                        {'detail': "Aucun compte associé à cet email. Veuillez vous inscrire d'abord."}, 
+                        status=status.HTTP_404_NOT_FOUND
+                    )
+            
+            # Handle Register Mode (or creation if not explicit login check failed)
+            else:
+                try:
+                    user = User.objects.get(email=email)
+                    # If user exists on register, we just log them in (standard social auth flow)
+                except User.DoesNotExist:
+                    # Create a new user
+                    username = email  # Use email as username
+                    # Generate a random password
+                    password = ''.join(random.choices(string.ascii_letters + string.digits, k=16))
+                    
+                    # Split name into first and last name
+                    if name:
+                        parts = name.split(' ', 1)
+                        first_name = parts[0]
+                        last_name = parts[1] if len(parts) > 1 else ''
+                    else:
+                        first_name = ''
+                        last_name = ''
+
+                    user = User.objects.create_user(
+                        username=username,
+                        email=email,
+                        password=password,
+                        first_name=first_name,
+                        last_name=last_name
+                    )
+                    
+                    # Create Profile
+                    if not Profile.objects.filter(user=user).exists():
+                        Profile.objects.create(user=user, role='client')
+
+                    # Log creation
+                    ActivityLog.objects.create(
+                        user=user,
+                        activity_type="session_created",
+                        details={"message": f"Nouvel utilisateur Google inscrit: {email}"},
+                        ip_address=request.META.get('REMOTE_ADDR')
+                    )
+                    
+                    # Admin notification
+                    AdminNotification.objects.create(
+                        title="Nouveau Client (Google)",
+                        message=f"L'utilisateur {email} s'est inscrit via Google.",
+                        notification_type="new_user"
+                    )
+
+            # Generate tokens
+            refresh = RefreshToken.for_user(user)
+
+            # Log login
+            ActivityLog.objects.create(
+                user=user,
+                activity_type="google_login",
+                details=f"Connexion Google réussie: {email}",
+                ip_address=request.META.get('REMOTE_ADDR')
+            )
+
+            return Response({
+                "user": UserSerializer(user).data,
+                "refresh": str(refresh),
+                "access": str(refresh.access_token),
+            })
+
+        except Exception as e:
+            print(f"Google Auth Error: {str(e)}")
+            return Response({'error': 'Invalid token or authentication failed'}, status=status.HTTP_401_UNAUTHORIZED)
 
 class LoginView(APIView):
     permission_classes = (permissions.AllowAny,)
@@ -521,26 +637,60 @@ class AIGenerateDescriptionView(APIView):
         description = AIService.generate_description(project_type, nature_travaux, other_nature)
         return Response({"description": description})
 
-class AIGenerateDocumentView(APIView):
+
+class AIGenerateNoticeView(APIView):
     """
-    Génère un document technique (DP1, DP2) en format SVG.
-    POST /api/ai/generate-document/
+    Génère la notice descriptive (DP11).
+    POST /api/ai/generate-notice/
     """
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
-        doc_type = request.data.get('doc_type') # 'dp1' ou 'dp2'
         data = request.data.get('data', {})
+        notice = AIService.generate_notice_descriptive(data)
+        return Response({"notice": notice})
 
-        if doc_type == 'dp1':
-            svg = AIService.generate_dp1_svg(
-                data.get('adresse', ''),
-                data.get('ville', ''),
-                data.get('codePostal', '')
+
+from rest_framework.decorators import api_view
+from .services.cadastre_puppeteer_service import CadastrePuppeteerService
+import base64
+import asyncio
+
+@api_view(['POST'])
+def generate_cadastre_headless(request):
+    """
+    Génère la carte cadastrale en arrière-plan
+    avec Puppeteer + votre code existant
+    """
+    try:
+        commune = request.data.get('commune')
+        section = request.data.get('section')
+        parcelle = request.data.get('parcelle')
+        
+        if not all([commune, section, parcelle]):
+            return Response({'error': 'Champs manquants'}, status=400)
+        
+        # Générer l'image avec Puppeteer
+        try:
+            loop = asyncio.get_event_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            
+        image_base64 = loop.run_until_complete(
+            CadastrePuppeteerService.generate_cadastre_image(
+                commune, section, parcelle
             )
-        elif doc_type == 'dp2':
-            svg = AIService.generate_dp2_svg(data)
-        else:
-            return Response({"error": "Type de document invalide"}, status=status.HTTP_400_BAD_REQUEST)
-
-        return HttpResponse(svg, content_type="image/svg+xml")
+        )
+        
+        # Retourner l'image
+        image_data = base64.b64decode(image_base64)
+        
+        response = HttpResponse(image_data, content_type='image/png')
+        response['Content-Disposition'] = f'inline; filename="cadastre-{commune}-{section}-{parcelle}.png"'
+        
+        return response
+        
+    except Exception as e:
+        logger.error(f"Erreur génération Puppeteer: {str(e)}")
+        return Response({'error': str(e)}, status=500)

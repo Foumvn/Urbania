@@ -12,7 +12,7 @@ function Step3Coordonnees() {
 
     return (
         <Box>
-            <Typography variant="body1" color="text.secondary" sx={{ mb: 6, lineHeight: 1.7, fontSize: '1.1rem' }}>
+            <Typography variant="body1" color="text.secondary" sx={{ mb: 4, lineHeight: 1.7, fontSize: '1.05rem' }}>
                 Indiquez l'adresse de correspondance pour le suivi de votre dossier.
             </Typography>
 

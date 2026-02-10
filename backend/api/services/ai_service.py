@@ -211,80 +211,31 @@ class AIService:
                     pass
             return cleaned
         return "Aménagement d'une pièce indépendante conforme aux règles d'urbanisme."
-
     @classmethod
-    def generate_dp1_svg(cls, address, city, cp):
-        """Génère un SVG pour le DP1 (Plan de situation).
-        En attendant une intégration Mapbox réelle, on génère un plan schématique pro.
-        """
-        # Simulation d'un plan de situation technique
-        svg = f"""
-        <svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
-            <rect width="100%" height="100%" fill="#f8fafc"/>
-            <text x="50%" y="40" font-family="Arial" font-size="24" font-weight="bold" text-anchor="middle" fill="#002395">DP1 - PLAN DE SITUATION</text>
-            <text x="50%" y="70" font-family="Arial" font-size="14" text-anchor="middle" fill="#64748b">{address}, {cp} {city}</text>
-            
-            <!-- Cadre du plan -->
-            <rect x="50" y="100" width="700" height="450" fill="white" stroke="#002395" stroke-width="2"/>
-            
-            <!-- Trame de rues simulée -->
-            <path d="M 100 150 L 700 150 M 100 350 L 700 350 M 250 100 L 250 550 M 550 100 L 550 550" stroke="#e2e8f0" stroke-width="20"/>
-            
-            <!-- Indication de la parcelle -->
-            <circle cx="250" cy="350" r="10" fill="red" stroke="white" stroke-width="2"/>
-            <text x="270" y="340" font-family="Arial" font-size="12" font-weight="bold" fill="red">PROJET</text>
-            
-            <!-- Rose des vents -->
-            <g transform="translate(700, 150)">
-                <line x1="0" y1="-30" x2="0" y2="30" stroke="#002395" stroke-width="2"/>
-                <line x1="-30" y1="0" x2="30" y2="0" stroke="#002395" stroke-width="2"/>
-                <text x="0" y="-35" font-family="Arial" font-size="12" font-weight="bold" text-anchor="middle">N</text>
-            </g>
-            
-            <text x="60" y="530" font-family="Arial" font-size="10" fill="#94a3b8">Source: Urbania Intelligent Mapping</text>
-            <text x="650" y="530" font-family="Arial" font-size="10" fill="#94a3b8">Échelle: 1/2000</text>
-        </svg>
-        """
-        return svg
-
-    @classmethod
-    def generate_dp2_svg(cls, data):
-        """Génère un SVG pour le DP2 (Plan de masse) basé sur les dimensions réelles."""
-        surf_terrain = data.get('surfaceTerrain', 100)
-        surf_creee = data.get('empriseSolCreee', 20)
+    def generate_notice_descriptive(cls, project_data):
+        """Génère la notice descriptive complète (DP11)."""
+        prompt = f"""
+        Rédige une notice descriptive (DP11) pour un dossier de déclaration préalable d'urbanisme.
+        Utilise les données suivantes :
+        - Projet : {project_data.get('descriptionProjet', 'Construction')}
+        - Nature : {project_data.get('natureTravaux', [])}
+        - Matériaux Façade : {project_data.get('materiauFacade', 'Enduit')} ({project_data.get('couleurFacade', 'Ton pierre')})
+        - Matériaux Toiture : {project_data.get('materiauToiture', 'Tuiles')} ({project_data.get('couleurToiture', 'Rouge')})
+        - Hauteur : {project_data.get('hauteurConstruction', 'Inconnue')} m
+        - Commune : {project_data.get('terrainVille', 'Inconnue')}
         
-        # Calculs simplifiés pour le dessin
-        box_size = 400
-        padding = 50
+        La notice doit comporter 3 parties distinctes :
+        1. Présentation de l'état initial du terrain et des constructions existantes.
+        2. Description précise du projet (volume, implantation, matériaux).
+        3. Analyse de l'insertion dans l'environnement proche et lointain.
         
-        # On dessine une parcelle
-        svg = f"""
-        <svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
-            <rect width="100%" height="100%" fill="#f8fafc"/>
-            <text x="50%" y="40" font-family="Arial" font-size="24" font-weight="bold" text-anchor="middle" fill="#002395">DP2 - PLAN DE MASSE</text>
-            
-            <g transform="translate(200, 100)">
-                <!-- Parcelle -->
-                <rect x="0" y="0" width="{box_size}" height="{box_size}" fill="white" stroke="#1e293b" stroke-width="2"/>
-                <text x="10" y="20" font-family="Arial" font-size="10" fill="#64748b">Parcelle {data.get('section', '')}{data.get('numeroParcelle', '')}</text>
-                
-                <!-- Projet -->
-                <rect x="150" y="150" width="100" height="100" fill="#002395" fill-opacity="0.2" stroke="#002395" stroke-width="2" stroke-dasharray="5,5"/>
-                <text x="160" y="205" font-family="Arial" font-size="12" font-weight="bold" fill="#002395">PROJET</text>
-                <text x="160" y="220" font-family="Arial" font-size="10" fill="#002395">{surf_creee}m²</text>
-                
-                <!-- Cotes -->
-                <line x1="150" y1="130" x2="250" y2="130" stroke="#64748b" stroke-width="1"/>
-                <text x="200" y="125" font-family="Arial" font-size="10" text-anchor="middle">L=10m</text>
-            </g>
-            
-            <!-- Légende -->
-            <rect x="620" y="100" width="150" height="100" fill="white" stroke="#e2e8f0" rx="8"/>
-            <text x="630" y="120" font-family="Arial" font-size="12" font-weight="bold">Légende</text>
-            <rect x="630" y="135" width="15" height="15" fill="#002395" fill-opacity="0.2" stroke="#002395"/>
-            <text x="655" y="147" font-family="Arial" font-size="10">Construction projetée</text>
-            
-            <text x="50%" y="580" font-family="Arial" font-size="10" text-anchor="middle" fill="#94a3b8">Note: Plan généré automatiquement pour l'instruction du dossier.</text>
-        </svg>
+        RÈGLES :
+        - Langage professionnel (architectural).
+        - Pas de gras (**), texte brut structuré.
+        - Ton factuel et précis.
+        - Environ 200 à 300 mots.
         """
-        return svg
+        response_text = cls.call_mistral(prompt, is_json=False)
+        if response_text:
+            return response_text.replace('*', '').strip()
+        return "Notice descriptive à rédiger..."

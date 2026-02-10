@@ -2,7 +2,7 @@ import { Box, Typography, Grid, Checkbox, FormControlLabel, Paper, Alert, Button
 import { CloudUpload as CloudUploadIcon, Delete as DeleteIcon, Draw as DrawIcon } from '@mui/icons-material';
 import { useForm } from '../../context/FormContext';
 import FormField from '../Common/FormField';
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 
 function Step9Engagements() {
     const { data, setField, errors } = useForm();
@@ -38,11 +38,13 @@ function Step9Engagements() {
     };
 
     // Set current date if not set
-    if (!data.dateDeclaration) {
-        const today = new Date();
-        const formattedDate = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
-        setField('dateDeclaration', formattedDate);
-    }
+    useEffect(() => {
+        if (!data.dateDeclaration) {
+            const today = new Date();
+            const formattedDate = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
+            setField('dateDeclaration', formattedDate);
+        }
+    }, [data.dateDeclaration, setField]);
 
     return (
         <Box>

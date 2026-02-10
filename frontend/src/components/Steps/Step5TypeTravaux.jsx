@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Grid, FormControl, InputLabel, Select, MenuItem, FormHelperText, Chip, Paper, CircularProgress } from '@mui/material';
+import { Box, Typography, Grid, Chip, Paper, CircularProgress } from '@mui/material';
 import {
     Waves,
     Warehouse,
@@ -9,13 +9,14 @@ import {
     Layout,
     Hammer,
     Layers,
-    MoreHorizontal,
-    Sparkles
+    MoreHorizontal
 } from 'lucide-react';
 import { useForm } from '../../context/FormContext';
 import FormField from '../Common/FormField';
+import FormSelect from '../Common/FormSelect';
 
 const travauxTypes = [
+    // ... (rest remains same)
     { value: 'piscine', label: 'Piscine', icon: Waves },
     { value: 'garage', label: 'Garage / Carport', icon: Warehouse },
     { value: 'hangar', label: 'Hangar', icon: Warehouse },
@@ -78,37 +79,26 @@ function Step5TypeTravaux() {
 
     return (
         <Box>
-            <Typography variant="body1" color="text.secondary" sx={{ mb: 6, lineHeight: 1.7, fontSize: '1.1rem' }}>
+            <Typography variant="body1" color="text.secondary" sx={{ mb: 4, lineHeight: 1.7, fontSize: '1.05rem' }}>
                 Décrivez le type de travaux que vous souhaitez réaliser. Cette étape nous permet d'identifier les pièces justificatives nécessaires.
             </Typography>
 
             <Grid container spacing={4}>
                 <Grid item xs={12}>
-                    <FormControl fullWidth error={!!errors.typeTravaux}>
-                        <InputLabel id="type-travaux-label">Type de travaux *</InputLabel>
-                        <Select
-                            labelId="type-travaux-label"
-                            value={data.typeTravaux || ''}
-                            label="Type de travaux *"
-                            onChange={(e) => handleChange('typeTravaux', e.target.value)}
-                            sx={{
-                                borderRadius: '16px',
-                                backgroundColor: 'white',
-                                '& .MuiOutlinedInput-notchedOutline': {
-                                    borderColor: '#f1f5f9',
-                                },
-                                '&:hover .MuiOutlinedInput-notchedOutline': {
-                                    borderColor: '#002395',
-                                },
-                            }}
-                        >
-                            <MenuItem value="construction">Construction nouvelle</MenuItem>
-                            <MenuItem value="modification">Modification de l'aspect extérieur</MenuItem>
-                            <MenuItem value="amenagement">Aménagement extérieur</MenuItem>
-                            <MenuItem value="changement_destination">Changement de destination</MenuItem>
-                        </Select>
-                        {errors.typeTravaux && <FormHelperText>{errors.typeTravaux}</FormHelperText>}
-                    </FormControl>
+                    <FormSelect
+                        label="Type de travaux"
+                        name="typeTravaux"
+                        value={data.typeTravaux}
+                        onChange={handleChange}
+                        error={errors.typeTravaux}
+                        required
+                        options={[
+                            { value: 'construction', label: 'Construction nouvelle' },
+                            { value: 'modification', label: "Modification de l'aspect extérieur" },
+                            { value: 'amenagement', label: 'Aménagement extérieur' },
+                            { value: 'changement_destination', label: 'Changement de destination' }
+                        ]}
+                    />
                 </Grid>
 
                 <Grid item xs={12}>
@@ -139,7 +129,7 @@ function Step5TypeTravaux() {
                                         elevation={0}
                                         onClick={() => handleNatureToggle(type.value)}
                                         sx={{
-                                            p: 3,
+                                            p: 2.5,
                                             textAlign: 'center',
                                             cursor: 'pointer',
                                             border: '2px solid',

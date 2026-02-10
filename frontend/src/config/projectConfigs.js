@@ -16,7 +16,8 @@ export const PROJECT_TYPES = {
             { field: 'piscineCouverture', label: 'Piscine couverte ?', type: 'boolean' },
             { field: 'piscineSecurite', label: 'Système de sécurité', type: 'select', options: ['Alarme', 'Barrière', 'Couverture', 'Abri'] },
             { field: 'piscineDimensions', label: 'Dimensions du bassin (L x l)', type: 'text' }
-        ]
+        ],
+        useAI: true
     },
     extension: {
         label: 'Extension',
@@ -29,7 +30,8 @@ export const PROJECT_TYPES = {
         specificQuestions: [
             { field: 'extensionUsage', label: 'Destination de l\'extension', type: 'select', options: ['Habitation', 'Garage', 'Bureau', 'Autre'] },
             { field: 'extensionEtages', label: 'Nombre de niveaux', type: 'number' }
-        ]
+        ],
+        useAI: true
     },
     cloture: {
         label: 'Clôture / Portail',
@@ -43,7 +45,8 @@ export const PROJECT_TYPES = {
             { field: 'clotureType', label: 'Type de clôture', type: 'select', options: ['Mur', 'Grillage', 'Bois', 'PVC', 'Mixte'] },
             { field: 'cloturePortail', label: 'Inclut un portail ?', type: 'boolean' },
             { field: 'clotureLineaire', label: 'Linéaire total (m)', type: 'number' }
-        ]
+        ],
+        useAI: true
     },
     garage: {
         label: 'Garage / Carport',
@@ -56,7 +59,8 @@ export const PROJECT_TYPES = {
         specificQuestions: [
             { field: 'garageType', label: 'Type', type: 'select', options: ['Garage fermé', 'Carport ouvert', 'Abri voiture'] },
             { field: 'garageVehicules', label: 'Nombre de véhicules', type: 'number' }
-        ]
+        ],
+        useAI: true
     },
     hangar: {
         label: 'Hangar',
@@ -69,7 +73,8 @@ export const PROJECT_TYPES = {
         specificQuestions: [
             { field: 'hangarUsage', label: 'Usage du hangar', type: 'select', options: ['Agricole', 'Stockage', 'Atelier', 'Autre'] },
             { field: 'hangarOuvert', label: 'Hangar ouvert sur les côtés ?', type: 'boolean' }
-        ]
+        ],
+        useAI: true
     },
     abri_jardin: {
         label: 'Abri de jardin',
@@ -81,7 +86,8 @@ export const PROJECT_TYPES = {
         pdfSections: ['terrain', 'surfaces', 'description'],
         specificQuestions: [
             { field: 'abriUsage', label: 'Usage prévu', type: 'select', options: ['Rangement', 'Atelier', 'Local technique', 'Autre'] }
-        ]
+        ],
+        useAI: true
     },
     veranda: {
         label: 'Véranda',
@@ -94,7 +100,8 @@ export const PROJECT_TYPES = {
         specificQuestions: [
             { field: 'verandaVitrages', label: 'Type de vitrage', type: 'select', options: ['Simple', 'Double', 'Triple'] },
             { field: 'verandaChauffee', label: 'Véranda chauffée ?', type: 'boolean' }
-        ]
+        ],
+        useAI: true
     },
     terrasse: {
         label: 'Terrasse',
@@ -107,7 +114,8 @@ export const PROJECT_TYPES = {
         specificQuestions: [
             { field: 'terrasseMateriau', label: 'Matériau du revêtement', type: 'select', options: ['Bois', 'Composite', 'Carrelage', 'Pierre', 'Béton'] },
             { field: 'terrasseSurelevee', label: 'Terrasse surélevée ?', type: 'boolean' }
-        ]
+        ],
+        useAI: true
     },
     toiture: {
         label: 'Toiture / Ravalement',
@@ -120,7 +128,8 @@ export const PROJECT_TYPES = {
         specificQuestions: [
             { field: 'toitureType', label: 'Type de travaux', type: 'select', options: ['Réfection complète', 'Changement matériau', 'Modification pente', 'Ravalement façade'] },
             { field: 'toitureIsolation', label: 'Isolation thermique ?', type: 'boolean' }
-        ]
+        ],
+        useAI: true
     },
     autre: {
         label: 'Autre',
@@ -139,8 +148,8 @@ export const PROJECT_TYPES = {
  * Documents DP avec leurs métadonnées
  */
 export const DOCUMENTS_INFO = {
-    dp1: { label: 'DP1 - Plan de situation', description: 'Plan permettant de situer le terrain dans la commune' },
-    dp2: { label: 'DP2 - Plan de masse', description: 'Plan montrant le projet par rapport aux limites du terrain' },
+    dp1: { label: 'DP1 - Plan de situation (Projet)', description: 'Plan cadastral avec hachures vertes montrant l\'emplacement précis du projet' },
+    dp2: { label: 'DP2 - Plan de masse', description: 'Plan montrant l\'emprise au sol et les limites du terrain' },
     dp3: { label: 'DP3 - Plan de coupe', description: 'Coupe du terrain et de la construction projetée' },
     dp4: { label: 'DP4 - Façades et toitures', description: 'Plans des façades et toitures, état initial et futur' },
     dp5: { label: 'DP5 - Représentation extérieure', description: 'Document graphique montrant l\'aspect extérieur' },
