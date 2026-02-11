@@ -150,7 +150,7 @@ function Step4Terrain() {
                         </Box>
 
                         <Grid container spacing={3} alignItems="flex-end">
-                            <Grid item xs={12} sm={3}>
+                            <Grid item xs={12} sm={4}>
                                 <FormField
                                     label="Commune"
                                     name="terrainVille"
@@ -162,7 +162,7 @@ function Step4Terrain() {
                                     endAdornment={data.piecesJointes?.dp1 ? <CheckCircle2 size={18} className="text-emerald-500" /> : null}
                                 />
                             </Grid>
-                            <Grid item xs={6} sm={2}>
+                            <Grid item xs={6} sm={4}>
                                 <FormField
                                     label="Section"
                                     name="section"
@@ -174,7 +174,7 @@ function Step4Terrain() {
                                     endAdornment={data.piecesJointes?.dp1 ? <CheckCircle2 size={18} className="text-emerald-500" /> : null}
                                 />
                             </Grid>
-                            <Grid item xs={6} sm={2}>
+                            <Grid item xs={6} sm={4}>
                                 <FormField
                                     label="N° Parcelle"
                                     name="numeroParcelle"
@@ -186,7 +186,19 @@ function Step4Terrain() {
                                     endAdornment={data.piecesJointes?.dp1 ? <CheckCircle2 size={18} className="text-emerald-500" /> : null}
                                 />
                             </Grid>
-                            <Grid item xs={12} sm={5}>
+                            <Grid item xs={12} sm={6}>
+                                <FormField
+                                    label="Surface du terrain (m²)"
+                                    name="surfaceTerrain"
+                                    value={data.surfaceTerrain}
+                                    onChange={handleChange}
+                                    error={errors.surfaceTerrain}
+                                    type="number"
+                                    placeholder="Ex: 500"
+                                    endAdornment={data.piecesJointes?.dp1 ? <CheckCircle2 size={18} className="text-emerald-500" /> : null}
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
                                 <button
                                     onClick={() => {
                                         setIsGeneratingDP1(true);
@@ -213,83 +225,6 @@ function Step4Terrain() {
                                 </button>
                             </Grid>
                         </Grid>
-                    </Paper>
-                </Grid>
-
-                {/* Section Cadastre */}
-                <Grid item xs={12} lg={6}>
-                    <Paper
-                        elevation={0}
-                        sx={{
-                            p: 4,
-                            borderRadius: '32px',
-                            border: '1px solid #f1f5f9',
-                            bgcolor: '#f8fafc',
-                            height: '100%',
-                            position: 'relative',
-                            overflow: 'hidden'
-                        }}
-                    >
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
-                            <div className="size-10 bg-white rounded-xl flex items-center justify-center text-[#002395] shadow-sm border border-slate-100">
-                                <Building2 size={22} />
-                            </div>
-                            <Typography variant="h6" fontWeight={800} color="#1e293b">
-                                Info Cadastrale
-                            </Typography>
-                        </Box>
-
-                        <Grid container spacing={2}>
-                            <Grid item xs={12} sm={6}>
-                                <FormField
-                                    label="Section"
-                                    name="section"
-                                    value={data.section}
-                                    onChange={handleChange}
-                                    error={errors.section || errors.referenceCadastrale}
-                                    required
-                                    placeholder="Section"
-                                />
-                            </Grid>
-                            <Grid item xs={12} sm={6}>
-                                <FormField
-                                    label="Parcelle"
-                                    name="numeroParcelle"
-                                    value={data.numeroParcelle}
-                                    onChange={handleChange}
-                                    error={errors.numeroParcelle || errors.referenceCadastrale}
-                                    required
-                                    placeholder="N°"
-                                />
-                            </Grid>
-                            <Grid item xs={12}>
-                                <FormField
-                                    label="Surface du terrain (m²)"
-                                    name="surfaceTerrain"
-                                    value={data.surfaceTerrain}
-                                    onChange={handleChange}
-                                    error={errors.surfaceTerrain}
-                                    type="number"
-                                    placeholder="Ex: 500"
-                                />
-                            </Grid>
-                        </Grid>
-
-                        <Box sx={{
-                            mt: 4,
-                            p: 3,
-                            borderRadius: '20px',
-                            bgcolor: 'white',
-                            border: '1px solid #e2e8f0',
-                            display: 'flex',
-                            gap: 2,
-                            alignItems: 'start'
-                        }}>
-                            <Info size={20} className="text-slate-400 mt-0.5" />
-                            <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic', fontWeight: 500, lineHeight: 1.5 }}>
-                                Ces données sont extraites automatiquement de la base de données gouvernementale <strong>Etalab</strong>.
-                            </Typography>
-                        </Box>
                     </Paper>
                 </Grid>
             </Grid>
