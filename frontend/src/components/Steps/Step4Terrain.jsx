@@ -18,13 +18,13 @@ import { useForm } from '../../context/FormContext';
 import FormField from '../Common/FormField';
 
 function Step4Terrain() {
-    const { data, setField, setMultipleFields, errors, setIsGeneratingDP1 } = useForm();
+    const { data, setField, setMultipleFields, errors, setIsGeneratingDP1, isGeneratingDP1 } = useForm();
     const [sameAddress, setSameAddress] = useState(false);
     const [searchPhase, setSearchPhase] = useState(0); // 0: Init, 1: Commune, 2: Section, 3: Parcelle
 
     useEffect(() => {
         let interval;
-        if (data.isGeneratingDP1) {
+        if (isGeneratingDP1) {
             setSearchPhase(1);
             interval = setInterval(() => {
                 setSearchPhase(prev => (prev % 3) + 1);
@@ -33,7 +33,7 @@ function Step4Terrain() {
             setSearchPhase(0);
         }
         return () => clearInterval(interval);
-    }, [data.isGeneratingDP1]);
+    }, [isGeneratingDP1]);
 
     const getSearchText = () => {
         switch (searchPhase) {
@@ -51,7 +51,7 @@ function Step4Terrain() {
     return (
         <Box sx={{ position: 'relative' }}>
             <AnimatePresence>
-                {data.isGeneratingDP1 && (
+                {isGeneratingDP1 && (
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -204,14 +204,14 @@ function Step4Terrain() {
                                         setIsGeneratingDP1(true);
                                         setField('mapTriggerCount', (data.mapTriggerCount || 0) + 1);
                                     }}
-                                    disabled={data.isGeneratingDP1}
+                                    disabled={isGeneratingDP1}
                                     className={`
                                         w-full py-4 px-6 rounded-2xl font-black uppercase tracking-widest text-[11px]
                                         flex items-center justify-center gap-3 transition-all
-                                        ${data.isGeneratingDP1 ? 'bg-slate-100 text-slate-400' : 'bg-[#002395] text-white hover:bg-[#001a6e] shadow-lg shadow-blue-900/20 active:scale-95'}
+                                        ${isGeneratingDP1 ? 'bg-slate-100 text-slate-400' : 'bg-[#002395] text-white hover:bg-[#001a6e] shadow-lg shadow-blue-900/20 active:scale-95'}
                                     `}
                                 >
-                                    {data.isGeneratingDP1 ? (
+                                    {isGeneratingDP1 ? (
                                         <>
                                             <Loader2 size={18} className="animate-spin" />
                                             Analyse en cours
