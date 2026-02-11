@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { ArrowLeft, Mail, Lock, Eye, EyeOff, User, Phone, Building2, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Mail, Lock, Eye, EyeOff, User, Phone, CheckCircle2 } from "lucide-react";
 import { useGoogleAuth } from "../../hooks/useGoogleAuth";
 
 const carouselSlides = [
@@ -48,7 +48,6 @@ function Register() {
         firstName: "",
         lastName: "",
         phone: "",
-        company: "",
     });
 
     // Carousel auto-rotation
@@ -101,7 +100,6 @@ function Register() {
                 first_name: formData.firstName,
                 last_name: formData.lastName,
                 phone: formData.phone,
-                company: formData.company,
             });
 
             startLoading("/dashboard");
@@ -338,52 +336,27 @@ function Register() {
                                 </div>
                             </div>
 
-                            {/* Phone & Company */}
-                            <div className="grid grid-cols-2 gap-3">
-                                <div className="space-y-1">
-                                    <label
-                                        htmlFor="phone"
-                                        className="text-sm font-semibold text-slate-700 uppercase tracking-wider text-[11px]"
-                                    >
-                                        Téléphone
-                                    </label>
-                                    <div className="relative">
-                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <Phone className="h-5 w-5 text-slate-400" />
-                                        </div>
-                                        <input
-                                            type="tel"
-                                            id="phone"
-                                            name="phone"
-                                            value={formData.phone}
-                                            onChange={handleChange}
-                                            placeholder="06 12 34 56 78"
-                                            className="block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-lg bg-white text-slate-900 text-sm transition-all focus:ring-0 focus:border-[#0056b2] placeholder:text-slate-400 focus:shadow-[0_0_0_4px_rgba(0,86,178,0.1)]"
-                                        />
+                            {/* Phone */}
+                            <div className="space-y-1">
+                                <label
+                                    htmlFor="phone"
+                                    className="text-sm font-semibold text-slate-700 uppercase tracking-wider text-[11px]"
+                                >
+                                    Téléphone
+                                </label>
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <Phone className="h-5 w-5 text-slate-400" />
                                     </div>
-                                </div>
-
-                                <div className="space-y-1">
-                                    <label
-                                        htmlFor="company"
-                                        className="text-sm font-semibold text-slate-700 uppercase tracking-wider text-[11px]"
-                                    >
-                                        Société
-                                    </label>
-                                    <div className="relative">
-                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <Building2 className="h-5 w-5 text-slate-400" />
-                                        </div>
-                                        <input
-                                            type="text"
-                                            id="company"
-                                            name="company"
-                                            value={formData.company}
-                                            onChange={handleChange}
-                                            placeholder="Optionnel"
-                                            className="block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-lg bg-white text-slate-900 text-sm transition-all focus:ring-0 focus:border-[#0056b2] placeholder:text-slate-400 focus:shadow-[0_0_0_4px_rgba(0,86,178,0.1)]"
-                                        />
-                                    </div>
+                                    <input
+                                        type="tel"
+                                        id="phone"
+                                        name="phone"
+                                        value={formData.phone}
+                                        onChange={handleChange}
+                                        placeholder="06 12 34 56 78"
+                                        className="block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-lg bg-white text-slate-900 text-sm transition-all focus:ring-0 focus:border-[#0056b2] placeholder:text-slate-400 focus:shadow-[0_0_0_4px_rgba(0,86,178,0.1)]"
+                                    />
                                 </div>
                             </div>
 

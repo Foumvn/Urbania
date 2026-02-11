@@ -101,62 +101,57 @@ class GoogleAuthView(APIView):
             if not email:
                 return Response({'error': 'Invalid token: No email found'}, status=status.HTTP_400_BAD_REQUEST)
 
-            # Handle Login Mode
-            if mode == 'login':
-                try:
-                    user = User.objects.get(email=email)
-                except User.DoesNotExist:
+            # Handle Login vs Register
+            try:
+                user = User.objects.get(email=email)
+                # User exists - simple login flow
+            except User.DoesNotExist:
+                if mode == 'login':
                     return Response(
-                        {'detail': "Aucun compte associé à cet email. Veuillez vous inscrire d'abord."}, 
+                        {'error': 'Compte non existant'}, 
                         status=status.HTTP_404_NOT_FOUND
                     )
-            
-            # Handle Register Mode (or creation if not explicit login check failed)
-            else:
-                try:
-                    user = User.objects.get(email=email)
-                    # If user exists on register, we just log them in (standard social auth flow)
-                except User.DoesNotExist:
-                    # Create a new user
-                    username = email  # Use email as username
-                    # Generate a random password
-                    password = ''.join(random.choices(string.ascii_letters + string.digits, k=16))
-                    
-                    # Split name into first and last name
-                    if name:
-                        parts = name.split(' ', 1)
-                        first_name = parts[0]
-                        last_name = parts[1] if len(parts) > 1 else ''
-                    else:
-                        first_name = ''
-                        last_name = ''
+                
+                # Register mode - Create a new user
+                username = email  # Use email as username
+                # Generate a random password
+                password = ''.join(random.choices(string.ascii_letters + string.digits, k=16))
+                
+                # Split name into first and last name
+                if name:
+                    parts = name.split(' ', 1)
+                    first_name = parts[0]
+                    last_name = parts[1] if len(parts) > 1 else ''
+                else:
+                    first_name = ''
+                    last_name = ''
 
-                    user = User.objects.create_user(
-                        username=username,
-                        email=email,
-                        password=password,
-                        first_name=first_name,
-                        last_name=last_name
-                    )
-                    
-                    # Create Profile
-                    if not Profile.objects.filter(user=user).exists():
-                        Profile.objects.create(user=user, role='client')
+                user = User.objects.create_user(
+                    username=username,
+                    email=email,
+                    password=password,
+                    first_name=first_name,
+                    last_name=last_name
+                )
+                
+                # Create Profile
+                if not Profile.objects.filter(user=user).exists():
+                    Profile.objects.create(user=user, role='client')
 
-                    # Log creation
-                    ActivityLog.objects.create(
-                        user=user,
-                        activity_type="session_created",
-                        details={"message": f"Nouvel utilisateur Google inscrit: {email}"},
-                        ip_address=request.META.get('REMOTE_ADDR')
-                    )
-                    
-                    # Admin notification
-                    AdminNotification.objects.create(
-                        title="Nouveau Client (Google)",
-                        message=f"L'utilisateur {email} s'est inscrit via Google.",
-                        notification_type="new_user"
-                    )
+                # Log creation
+                ActivityLog.objects.create(
+                    user=user,
+                    activity_type="session_created",
+                    details=f"Nouvel utilisateur Google inscrit: {email}",
+                    ip_address=request.META.get('REMOTE_ADDR')
+                )
+                
+                # Admin notification
+                AdminNotification.objects.create(
+                    title="Nouveau Client (Google)",
+                    message=f"L'utilisateur {email} s'est inscrit via Google.",
+                    notification_type="new_user"
+                )
 
             # Generate tokens
             refresh = RefreshToken.for_user(user)

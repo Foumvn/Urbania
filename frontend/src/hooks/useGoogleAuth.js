@@ -46,7 +46,8 @@ export const useGoogleAuth = () => {
             });
 
             if (!response.ok) {
-                throw new Error('Erreur lors de la connexion avec Google');
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || errorData.detail || 'Erreur lors de la connexion avec Google');
             }
 
             const data = await response.json();
