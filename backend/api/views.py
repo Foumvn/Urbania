@@ -26,11 +26,18 @@ import string
 class IsAdminRole(permissions.BasePermission):
     def has_permission(self, request, view):
         return bool(request.user and request.user.is_authenticated and 
-                    getattr(request.user, 'profile', None) and request.user.profile.role == 'admin')
+                    getattr(request.user, 'profile', None) and 
+                    request.user.profile.role == 'admin' and 
+                    request.user.profile.is_approved)
+
+class IsSuperAdmin(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return bool(request.user and request.user.is_authenticated and request.user.is_superuser)
 
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = (permissions.AllowAny,)
+    authentication_classes = [] # Bypass CSRF for public registration
     serializer_class = RegisterSerializer
 
     def post(self, request, *args, **kwargs):
@@ -47,21 +54,23 @@ class RegisterView(generics.CreateAPIView):
                 ip_address=request.META.get('REMOTE_ADDR')
             )
             
-            # Create Admin Notification
-            role = user.profile.role
-            if role == 'client':
-                AdminNotification.objects.create(
-                    title="Nouveau Client",
-                    message=f"L'utilisateur {user.email} vient de s'inscrire.",
-                    notification_type="new_user"
-                )
-            elif role == 'admin':
+            # Force refresh to get updated profile (role) from DB
+            from core.models import Profile
+            profile, _ = Profile.objects.get_or_create(user=user)
+            role = profile.role
+            
+            if role == 'admin':
                 AdminNotification.objects.create(
                     title="Nouvel Administrateur",
                     message=f"L'administrateur {user.email} a été ajouté au système.",
                     notification_type="new_admin"
                 )
-            
+            else:
+                AdminNotification.objects.create(
+                    title="Nouveau Client",
+                    message=f"L'utilisateur {user.email} vient de s'inscrire.",
+                    notification_type="new_user"
+                )
             return Response({
                 "user": UserSerializer(user).data,
                 "refresh": str(refresh),
@@ -71,6 +80,7 @@ class RegisterView(generics.CreateAPIView):
 
 class GoogleAuthView(APIView):
     permission_classes = (permissions.AllowAny,)
+    authentication_classes = [] # Bypass CSRF for Google authentication
 
     def post(self, request):
         id_token = request.data.get('id_token')
@@ -176,21 +186,57 @@ class GoogleAuthView(APIView):
 
 class LoginView(APIView):
     permission_classes = (permissions.AllowAny,)
+    authentication_classes = [] # Bypass CSRF/SessionAUTH for login
 
     def post(self, request):
-        username = request.data.get('username')
+        import sys
+        print(f"DEBUG: Login attempt with data: {request.data}", file=sys.stderr)
+        username = request.data.get('username') or request.data.get('email')
         password = request.data.get('password')
+        
+        # Try primary authentication
         user = authenticate(username=username, password=password)
         
+        # If it fails, try to find user by email and then authenticate with their username
+        if not user and username and '@' in username:
+            try:
+                user_obj = User.objects.get(email=username)
+                user = authenticate(username=user_obj.username, password=password)
+            except User.DoesNotExist:
+                pass
+        
         if user:
+            # Safely get or create profile
+            profile, _ = Profile.objects.get_or_create(user=user)
+            print(f"DEBUG: User {user.email} authenticated. Role: {profile.role}, Approved: {profile.is_approved}, SuperUser: {user.is_superuser}", file=sys.stderr)
+            
+            # Check if admin is approved (Superusers are always approved)
+            if profile.role == 'admin' and not profile.is_approved and not user.is_superuser:
+                print(f"DEBUG: Login BLOCKED for {user.email}", file=sys.stderr)
+                return Response({
+                    "error": "Votre compte administrateur est en attente de validation par un super-administrateur."
+                }, status=status.HTTP_403_FORBIDDEN)
+
             refresh = RefreshToken.for_user(user)
+            print(f"DEBUG: Login SUCCESS for {user.email}", file=sys.stderr)
             
             # Log activity
             ActivityLog.objects.create(
                 user=user,
-                activity_type="admin_login",
+                activity_type="admin_login" if profile.role == 'admin' else "user_login",
                 details=f"Connexion réussie: {user.username}",
                 ip_address=request.META.get('REMOTE_ADDR')
+            )
+
+            # --- USER REQUESTED NOTIFICATION UPON LOGIN ---
+            # Use the "profile" object directly to avoid cached "user.profile" issues
+            notif_type = "new_admin" if profile.role == "admin" else "new_user"
+            notif_title = "Connexion Admin" if profile.role == "admin" else "Connexion Client"
+            
+            AdminNotification.objects.create(
+                title=notif_title,
+                message=f"{user.email} s'est connecté.",
+                notification_type=notif_type
             )
             
             return Response({
@@ -560,6 +606,35 @@ class AdminUserListView(generics.ListAPIView):
             profile_user_ids = Profile.objects.filter(role=role).values_list('user_id', flat=True)
             return User.objects.filter(id__in=list(profile_user_ids)).order_by('-date_joined')
         return User.objects.all().order_by('-date_joined')
+
+class AdminUserActionView(APIView):
+    """
+    Action pour approuver ou désactiver un utilisateur.
+    Réservé au super-administrateur.
+    POST /api/admin/users/action/
+    """
+    permission_classes = [IsSuperAdmin]
+
+    def post(self, request):
+        user_id = request.data.get('user_id')
+        action = request.data.get('action') # 'approve', 'deactivate'
+        
+        try:
+            user = User.objects.get(id=user_id)
+            profile = user.profile
+            
+            if action == 'approve':
+                profile.is_approved = True
+                profile.save()
+                return Response({"message": f"L'utilisateur {user.email} a été approuvé."})
+            elif action == 'deactivate':
+                profile.is_approved = False
+                profile.save()
+                return Response({"message": f"L'accès de l'utilisateur {user.email} a été révoqué."})
+            
+            return Response({"error": "Action non reconnue."}, status=status.HTTP_400_BAD_REQUEST)
+        except User.DoesNotExist:
+            return Response({"error": "Utilisateur introuvable."}, status=status.HTTP_404_NOT_FOUND)
 
 # ============================================
 # AI API VIEWS - Assistance intelligente

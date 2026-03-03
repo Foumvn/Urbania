@@ -451,21 +451,15 @@ function AdminDashboard() {
     return (
         <div className="min-h-screen bg-[#f8fafc] flex flex-col font-sans antialiased">
             {/* Elegant Top Header */}
-            <header className="bg-[#0f172a] text-white pt-10 pb-20 px-6 md:px-12 relative overflow-hidden">
+            <header className="bg-[#0f172a] text-white pt-6 pb-16 px-6 md:px-12 relative overflow-hidden">
                 {/* Decoration */}
                 <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
                 <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl -ml-10 -mb-10"></div>
 
                 <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                     <div className="space-y-1">
-                        <div className="flex items-center gap-3 mb-2">
-                            <div className="bg-blue-600 p-2 rounded-xl shadow-lg shadow-blue-900/40">
-                                <ShieldCheck className="text-white h-6 w-6" />
-                            </div>
-                            <span className="text-xs font-black uppercase tracking-[0.3em] text-blue-400">Panel Expert</span>
-                        </div>
-                        <h1 className="text-4xl font-black tracking-tight">Administration <span className="text-blue-400">Urbania</span></h1>
-                        <p className="text-slate-400 font-medium">Gestion intelligente et supervision des dossiers CERFA</p>
+                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-400">Administration Système</span>
+                        <p className="text-slate-400 font-medium text-sm">Supervision en temps réel des dossiers</p>
                     </div>
 
                     <div className="flex items-center gap-3">

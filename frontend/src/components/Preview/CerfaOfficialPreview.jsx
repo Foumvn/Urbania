@@ -4,11 +4,8 @@ import { ZoomIn, ZoomOut, FitScreen, Download } from '@mui/icons-material';
 import { useI18n } from '../../context/I18nContext';
 import { DOCUMENTS_INFO } from '../../config/projectConfigs';
 
-// ============================================
-// COMPOSANTS RÉUTILISABLES
-// ============================================
 
-// Champ de saisie avec label et ligne de soulignement
+
 const Field = ({ label, value, width = '100%', inline = false, mb = 1.5 }) => (
     <Box sx={{
         display: inline ? 'inline-flex' : 'flex',

@@ -106,7 +106,16 @@ function AdminRegister() {
                 startLoading("/admin/login");
             } else {
                 const data = await response.json();
-                setError(data.detail || "Erreur lors de la création du compte admin.");
+                if (data.non_field_errors) {
+                    setError(data.non_field_errors[0]);
+                } else if (typeof data === 'object') {
+                    // Prendre la première erreur trouvée dans les champs
+                    const firstField = Object.keys(data)[0];
+                    const firstError = data[firstField];
+                    setError(`${firstField}: ${Array.isArray(firstError) ? firstError[0] : firstError}`);
+                } else {
+                    setError(data.detail || "Erreur lors de la création du compte admin.");
+                }
             }
         } catch (err) {
             setError("Une erreur réseau est survenue.");

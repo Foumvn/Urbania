@@ -4,7 +4,7 @@ from .views import (
     DossierListCreateView, DossierDetailView, AdminStatsView, ActivityLogView,
     CadastreParcellesView, CadastreBatimentsView, CadastreParcelleDetailView,
     CadastreGeocodeView, CadastreSectionsView, CadastreSearchView, CadastreParcelleByCoordinatesView,
-    AdminNotificationListView, AdminNotificationMarkReadView, AdminUserListView,
+    AdminNotificationListView, AdminNotificationMarkReadView, AdminUserListView, AdminUserActionView,
     AIAnalyzeProjectView, AISuggestDocumentsView, AIConfigureProjectView, 
     AIGenerateDescriptionView, AIGenerateNoticeView, generate_cadastre_headless
 )
@@ -37,6 +37,7 @@ urlpatterns = [
     path('admin/notifications/', AdminNotificationListView.as_view(), name='admin_notifications'),
     path('admin/notifications/mark-read/', AdminNotificationMarkReadView.as_view(), name='admin_notifications_mark_read'),
     path('admin/users/', AdminUserListView.as_view(), name='admin_users'),
+    path('admin/users/action/', AdminUserActionView.as_view(), name='admin_user_action'),
     
     # AI API
     path('ai/analyze-project/', AIAnalyzeProjectView.as_view(), name='ai_analyze'),

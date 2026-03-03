@@ -95,8 +95,10 @@ function Register() {
 
         try {
             await register({
+                username: formData.email,
                 email: formData.email,
                 password: formData.password,
+                confirm_password: formData.confirmPassword,
                 first_name: formData.firstName,
                 last_name: formData.lastName,
                 phone: formData.phone,
@@ -104,7 +106,18 @@ function Register() {
 
             startLoading("/dashboard");
         } catch (err) {
-            setError(err.response?.data?.detail || "Une erreur est survenue. Veuillez réessayer.");
+            const data = err.response?.data;
+            if (data && typeof data === 'object') {
+                if (data.non_field_errors) {
+                    setError(data.non_field_errors[0]);
+                } else {
+                    const firstField = Object.keys(data)[0];
+                    const firstError = data[firstField];
+                    setError(`${firstField}: ${Array.isArray(firstError) ? firstError[0] : firstError}`);
+                }
+            } else {
+                setError(err.response?.data?.detail || "Une erreur est survenue. Veuillez réessayer.");
+            }
         } finally {
             setIsSubmitting(false);
         }

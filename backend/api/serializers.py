@@ -4,11 +4,13 @@ from core.models import CerfaSession, Dossier, ActivityLog, AdminNotification
 
 class UserSerializer(serializers.ModelSerializer):
     role = serializers.CharField(source='profile.role', read_only=True)
+    is_approved = serializers.BooleanField(source='profile.is_approved', read_only=True)
+    is_superuser = serializers.BooleanField(read_only=True)
     lang = serializers.CharField(source='profile.lang', read_only=True)
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'role', 'lang')
+        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'role', 'is_approved', 'is_superuser', 'lang')
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -47,11 +49,16 @@ class RegisterSerializer(serializers.ModelSerializer):
         validated_data.pop('confirm_password')
         role = validated_data.pop('role', 'client')
         validated_data.pop('invite_code', None)
-        
-        # Ensure username exists
+
         if 'username' not in validated_data or not validated_data['username']:
             validated_data['username'] = validated_data['email']
 
+        # Determine initial approval status: Clients approved, Admins need validation
+        is_approved = True if role == 'client' else False
+        
+        # If it's a superuser being created (e.g. via management command), they should be approved
+        # But create_user is used here. 
+        
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
@@ -60,13 +67,13 @@ class RegisterSerializer(serializers.ModelSerializer):
             last_name=validated_data.get('last_name', '')
         )
         
-        # Update profile role using update() to avoid djongo ObjectId/int conversion issues
+        # Update profile role and approval status
         from core.models import Profile
-        Profile.objects.filter(user=user).update(role=role)
+        Profile.objects.filter(user=user).update(role=role, is_approved=is_approved)
         
         # If no profile exists yet (emergency fallback), create it
         if not Profile.objects.filter(user=user).exists():
-            Profile.objects.create(user=user, role=role)
+            Profile.objects.create(user=user, role=role, is_approved=is_approved)
             
         return user
 

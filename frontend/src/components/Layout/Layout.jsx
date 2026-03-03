@@ -102,14 +102,14 @@ function Layout({ children }) {
                     alt="Urbania Logo"
                     sx={{
                         width: '100%',
-                        maxWidth: 180,
+                        maxWidth: 140,
                         height: 'auto',
                         cursor: 'pointer',
-                        mb: 1
+                        mb: 0.5
                     }}
                     onClick={() => navigate('/dashboard')}
                 />
-                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', opacity: 0.8, fontWeight: 500, letterSpacing: '0.05em' }}>
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', opacity: 0.7, fontWeight: 600, fontSize: '0.7rem', letterSpacing: '0.05em' }}>
                     CERFA Builder
                 </Typography>
             </Box>
