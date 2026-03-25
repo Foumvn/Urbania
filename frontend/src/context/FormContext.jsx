@@ -2,9 +2,9 @@ import { createContext, useContext, useReducer, useEffect, useCallback, useMemo 
 import { saveToStorage, loadFromStorage } from '../utils/storage';
 import { getProjectConfig, isFieldRequired, isDocumentRequired } from '../config/projectConfigs';
 import api from '../services/api';
+import { normalizePLUAnalysis } from '../utils/pluFormatter';
 
 const FormContext = createContext(null);
-
 
 const initialState = {
     currentStep: 0,
@@ -57,11 +57,14 @@ const initialState = {
         surfaceTotale: '',
         certificatUrbanisme: 'non', // 'oui', 'non', 'nsp'
         lotissement: 'non', // 'oui', 'non', 'nsp'
+        pluAnalysis: null,
+        pluAnalysisUpdatedAt: null,
 
         // Step 5: Type de travaux
         typeTravaux: 'construction', // 'construction', 'modification', 'amenagement', 'changement_destination'
         natureTravaux: [], // 'piscine', 'garage', etc.
         autreNatureTravaux: '',
+        descriptionLibreProjet: '', // Description libre pour analyse IA
         descriptionProjet: '',
 
         // Step 6: Description détaillée (Colors/Materials are extra)
@@ -75,8 +78,8 @@ const initialState = {
         nombreLogements: '',
         logementsIndividuels: '',
         logementsCollectifs: '',
-        modeUtilisation: 'personnel', // 'personnel', 'vente', 'location'
-        typeResidence: 'principale', // 'principale', 'secondaire'
+        modeUtilisation: 'Occupation personnelle', // 'Occupation personnelle', 'Vente', 'Location'
+        typeResidence: 'Résidence principale', // 'Résidence principale', 'Résidence secondaire'
 
         // Step 7: Surfaces
         surfaceLogementExistante: '',
@@ -99,6 +102,41 @@ const initialState = {
         // Step 7.2: Stationnement
         placesAvant: '',
         placesApres: '',
+        placesParkingDecouvertes: '',
+        placesParkingCouvertes: '',
+
+        // Champs dynamiques par BLOC (Step 6)
+        hauteurCloture: '',
+        materiauCloture: '',
+        lineaireCloture: '',
+        typePortail: '',
+        hauteurPortail: '',
+        surfacePiscine: '',
+        profondeurPiscine: '',
+        piscineSecurite: '',
+        piscineCouverte: '',
+        typePiscine: '',
+        surfaceTransforme: '',
+        destinationActuelle: '',
+        destinationFuture: '',
+        nombreNiveaux: '',
+        nombreVehicules: '',
+        usageHangar: '',
+        usageabri: '',
+        isolationExterieure: '',
+        isolationToiture: '',
+        materiauTerrasse: '',
+        terrasseSurelevee: '',
+        typeVitrage: '',
+        verandaChauffee: '',
+
+        // Champs fiscaux (Step 7)
+        puitsForage: '',
+        surfaceTaxable: '',
+        creusement: '',
+
+        // Configuration IA du projet
+        aiProjectConfig: null,
 
         // Step 12: Législation connexe (Nouveau)
         iotaOui: false,
@@ -142,7 +180,6 @@ const initialState = {
             orientation: 0,
             scale: '1:500',
         },
-        aiProjectConfig: null,
         signature: null,    // Image de la signature numérique
         preGeneratedDescription: '', // Cache for background generation
         noticeDescriptive: '', // DP11 Notice descriptive (générée par IA)
@@ -151,6 +188,8 @@ const initialState = {
     touched: {},
     isGeneratingDP1: false,
     mapTriggerCount: 0,
+    isAnalyzingPLU: false,
+    pluAnalysisError: null,
 };
 
 function formReducer(state, action) {
@@ -251,6 +290,29 @@ function formReducer(state, action) {
             return {
                 ...state,
                 mapTriggerCount: state.mapTriggerCount + 1
+            };
+
+        case 'SET_ANALYZING_PLU':
+            return {
+                ...state,
+                isAnalyzingPLU: action.value
+            };
+
+        case 'SET_PLU_ANALYSIS':
+            return {
+                ...state,
+                data: {
+                    ...state.data,
+                    pluAnalysis: normalizePLUAnalysis(action.payload),
+                    pluAnalysisUpdatedAt: action.updatedAt
+                },
+                pluAnalysisError: null
+            };
+
+        case 'SET_PLU_ANALYSIS_ERROR':
+            return {
+                ...state,
+                pluAnalysisError: action.error
             };
 
         case 'UPDATE_CADASTRE_MAP':
@@ -428,6 +490,18 @@ export function FormProvider({ children }) {
         return null;
     }, []);
 
+    // Suggest CERFA fields via Mistral AI for "Autre" project types
+    const suggestCerfaFieldsWithAI = useCallback(async (description) => {
+        if (!description) return null;
+        try {
+            const response = await api.post('/ai/suggest-cerfa-fields/', { description });
+            return response.data;
+        } catch (error) {
+            console.error('Failed to suggest CERFA fields with AI:', error);
+        }
+        return null;
+    }, []);
+
     const generateDescriptionWithAI = useCallback(async (projectType, natureTravaux, otherNature) => {
         try {
             const response = await api.post('/ai/generate-description/', {
@@ -461,19 +535,23 @@ export function FormProvider({ children }) {
 
     const generateTechnicalDocument = useCallback(async (docType, data) => {
         try {
-            // New endpoint for DP1, DP2, DP3, DP4 using Flux (Advanced AI)
-            if (['dp1', 'dp2', 'dp3', 'dp4'].includes(docType)) {
+            // DP1 = Plan cadastral → utilise les API officielles cadastre.gouv (pas l'IA)
+            // DP1 est géré par le composant CadastreGenerator, pas ici.
+            if (docType === 'dp1') {
+                throw new Error("DP1 utilise les API cadastre.gouv via le composant CadastreGenerator. Pas de génération IA.");
+            }
+
+            // DP2, DP3, DP4 → génération par IA
+            if (['dp2', 'dp3', 'dp4'].includes(docType)) {
                 const response = await api.post('/ai/generate-plan/', {
                     type: docType,
                     data: data
                 });
 
                 if (response.data && response.data.image) {
-                    // Check if it's already a data URL or raw base64
                     let base64 = response.data.image;
                     const format = response.data.format || 'image/png';
 
-                    // Helper to convert base64 to Blob
                     const byteCharacters = atob(base64);
                     const byteNumbers = new Array(byteCharacters.length);
                     for (let i = 0; i < byteCharacters.length; i++) {
@@ -486,13 +564,42 @@ export function FormProvider({ children }) {
                 throw new Error("Réponse invalide de l'IA (Image manquante)");
             }
 
-            // If not in DP1-DP4, we don't have other AI generators yet
             throw new Error(`Génération non supportée pour le type: ${docType}`);
 
         } catch (error) {
             console.error(`Failed to generate ${docType}:`, error);
-            // Return null so UI can handle error
             return null;
+        }
+    }, []);
+
+    const analyzePLU = useCallback(async ({ commune, section, parcelle, description }) => {
+        const cleanCommune = (commune || '').trim();
+        if (!cleanCommune) {
+            dispatch({ type: 'SET_PLU_ANALYSIS_ERROR', error: "Veuillez renseigner la commune pour lancer l'analyse PLU." });
+            return;
+        }
+
+        dispatch({ type: 'SET_ANALYZING_PLU', value: true });
+        dispatch({ type: 'SET_PLU_ANALYSIS_ERROR', error: null });
+
+        try {
+            const response = await api.post('/ai/analyze-plu/', {
+                commune: cleanCommune,
+                section: (section || '').trim(),
+                parcelle: (parcelle || '').trim(),
+                description: (description || '').trim()
+            });
+
+            dispatch({
+                type: 'SET_PLU_ANALYSIS',
+                payload: response.data,
+                updatedAt: new Date().toISOString()
+            });
+        } catch (error) {
+            const message = error.response?.data?.error || "Impossible de récupérer automatiquement le PLU de cette commune.";
+            dispatch({ type: 'SET_PLU_ANALYSIS_ERROR', error: message });
+        } finally {
+            dispatch({ type: 'SET_ANALYZING_PLU', value: false });
         }
     }, []);
 
@@ -529,6 +636,36 @@ export function FormProvider({ children }) {
         }
     }, []);
 
+    const generateCerfaPDF = useCallback(async () => {
+        try {
+            // Envoyer les pièces jointes (images DP) pour fusion dans le PDF final
+            const payload = {};
+            if (state.data.piecesJointes) {
+                payload.piecesJointes = state.data.piecesJointes;
+            }
+
+            const response = await api.post('/ai/generate-cerfa/', payload, {
+                responseType: 'blob',
+                timeout: 120000, // 2 minutes max pour la génération
+            });
+
+            // Créer un lien temporaire pour le téléchargement
+            const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'cerfa_declaration_prealable.pdf');
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+
+            return true;
+        } catch (error) {
+            console.error('Erreur lors de la génération du Cerfa:', error);
+            return false;
+        }
+    }, [state.data.piecesJointes]);
+
     // Compute project configuration based on selected natureTravaux
     const projectConfig = useMemo(() => {
         const config = getProjectConfig(state.data.natureTravaux || []);
@@ -543,14 +680,19 @@ export function FormProvider({ children }) {
             if (aiConf.requiredDocuments) {
                 config.requiredDocuments = Array.from(new Set([...config.requiredDocuments, ...aiConf.requiredDocuments]));
             }
-            if (aiConf.specificQuestions) {
-                // Merge questions, avoiding duplicates by field
-                const existingFields = new Set(config.specificQuestions.map(q => q.field));
-                aiConf.specificQuestions.forEach(q => {
-                    if (!existingFields.has(q.field)) {
-                        config.specificQuestions.push(q);
-                    }
-                });
+            if (aiConf.activatedBlocs) {
+                config.blocs = Array.from(new Set([...config.blocs, ...aiConf.activatedBlocs]));
+            }
+            if (aiConf.suggestedTypes && aiConf.suggestedTypes.length > 0) {
+                // Also get config from suggested types and merge
+                const suggestedConfig = getProjectConfig(aiConf.suggestedTypes);
+                config.blocs = Array.from(new Set([...config.blocs, ...suggestedConfig.blocs]));
+                config.requiredFields = Array.from(new Set([...config.requiredFields, ...suggestedConfig.requiredFields]));
+                config.fiscalite = {
+                    taxeAmenagement: config.fiscalite.taxeAmenagement || suggestedConfig.fiscalite.taxeAmenagement,
+                    stationnement: config.fiscalite.stationnement || suggestedConfig.fiscalite.stationnement,
+                    archeologie: config.fiscalite.archeologie || suggestedConfig.fiscalite.archeologie,
+                };
             }
             if (aiConf.pdfSections) {
                 config.pdfSections = Array.from(new Set([...config.pdfSections, ...aiConf.pdfSections]));
@@ -578,6 +720,7 @@ export function FormProvider({ children }) {
         analyzeProjectWithAI,
         suggestDocumentsWithAI,
         configureCustomProjectWithAI,
+        suggestCerfaFieldsWithAI,
         generateDescriptionWithAI,
         generateNoticeDescriptiveWithAI,
         generateTechnicalDocument,
@@ -587,6 +730,10 @@ export function FormProvider({ children }) {
         isDocumentRequired: (docId) => projectConfig.requiredDocuments.includes(docId),
         setIsGeneratingDP1: (val) => dispatch({ type: 'SET_GENERATING_DP1', value: val }),
         generateCadastreInBackground,
+        generateCerfaPDF,
+        analyzePLU,
+        isAnalyzingPLU: state.isAnalyzingPLU,
+        pluAnalysisError: state.pluAnalysisError,
     };
 
 

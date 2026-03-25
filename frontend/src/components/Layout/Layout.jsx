@@ -32,6 +32,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import { useForm } from '../../context/FormContext';
 import SettingsIcon from '@mui/icons-material/Settings';
 import PersonIcon from '@mui/icons-material/Person';
+import MapIcon from '@mui/icons-material/Map';
 import { useAuth } from '../../context/AuthContext';
 import { useI18n } from '../../context/I18nContext';
 import logoUrbania from '../../assets/logo-urbania-rb.png';
@@ -199,6 +200,18 @@ function Layout({ children }) {
                             <SettingsIcon />
                         </ListItemIcon>
                         <ListItemText primary={t('nav.settings')} primaryTypographyProps={{ fontWeight: 500 }} />
+                    </ListItemButton>
+                </ListItem>
+                <ListItem disablePadding sx={{ mb: 0.5 }}>
+                    <ListItemButton
+                        onClick={() => navigate('/plu')}
+                        selected={location.pathname === '/plu'}
+                        sx={{ borderRadius: 2, py: 1.5 }}
+                    >
+                        <ListItemIcon sx={{ minWidth: 40 }}>
+                            <MapIcon />
+                        </ListItemIcon>
+                        <ListItemText primary={t('nav.plu')} primaryTypographyProps={{ fontWeight: 500 }} />
                     </ListItemButton>
                 </ListItem>
             </List>

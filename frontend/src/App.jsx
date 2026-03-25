@@ -16,6 +16,7 @@ import UserDashboard from './components/Dashboard/UserDashboard';
 import AdminDashboard from './components/Admin/AdminDashboard';
 import Profile from './components/User/Profile';
 import Settings from './components/User/Settings';
+import PLUAnalysisPage from './components/PLU/PLUAnalysisPage';
 
 // Admin Pages
 import AdminLandingPage from './components/Admin/AdminLandingPage';
@@ -110,6 +111,20 @@ function AppRoutes() {
                 <ProtectedRoute>
                     <Layout>
                         <Settings />
+                    </Layout>
+                </ProtectedRoute>
+            } />
+
+            <Route path="/analyse" element={
+                <ProtectedRoute>
+                    <Navigate to="/plu" replace />
+                </ProtectedRoute>
+            } />
+
+            <Route path="/plu" element={
+                <ProtectedRoute>
+                    <Layout>
+                        <PLUAnalysisPage />
                     </Layout>
                 </ProtectedRoute>
             } />

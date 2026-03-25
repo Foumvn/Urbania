@@ -75,10 +75,14 @@ function Login() {
         setIsLoading(true);
 
         try {
-            await login(formData.email, formData.password);
-            startLoading("/dashboard");
+            const result = await login({ email: formData.email, password: formData.password });
+            if (result && result.success !== false) {
+                startLoading("/dashboard");
+            } else {
+                setError(result?.error || "Email ou mot de passe incorrect");
+            }
         } catch (err) {
-            setError(err.response?.data?.detail || "Email ou mot de passe incorrect");
+            setError(err.response?.data?.detail || err.message || "Email ou mot de passe incorrect");
         } finally {
             setIsLoading(false);
         }

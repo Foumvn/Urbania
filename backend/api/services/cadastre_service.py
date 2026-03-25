@@ -269,6 +269,78 @@ class CadastreService:
             logger.error(f"Error fetching parcelle by coordinates: {e}")
             return None
     
+    def get_parcelle_from_address(self, numero: str, voie: str, commune: str, code_postal: Optional[str] = None) -> Optional[Dict[str, Any]]:
+        """
+        Obtient les références cadastrales (section, numéro) à partir d'une adresse complète.
+        
+        Args:
+            numero: Numéro dans la voie
+            voie: Nom de la voie
+            commune: Nom de la commune
+            code_postal: Code postal (optionnel)
+            
+        Returns:
+            Dict avec section, numero, code_insee ou None si non trouvé
+        """
+        try:
+            # Géocodage de l'adresse complète
+            address_parts = [numero, voie, commune]
+            if code_postal:
+                address_parts.append(code_postal)
+            
+            full_address = ", ".join(address_parts)
+            logger.info(f"Geocoding address: {full_address}")
+            
+            geocode_results = self.geocode_address(full_address, limit=1)
+            
+            if not geocode_results:
+                logger.warning(f"No geocoding results for address: {full_address}")
+                return None
+            
+            result = geocode_results[0]
+            lat = result.get('latitude')
+            lon = result.get('longitude')
+            code_insee = result.get('citycode')
+            
+            if not lat or not lon or not code_insee:
+                logger.warning(f"Incomplete geocoding result: {result}")
+                return None
+            
+            # Recherche de la parcelle aux coordonnées obtenues
+            parcelle = self.get_parcelle_by_coordinates(lat, lon)
+            
+            if not parcelle:
+                logger.warning(f"No parcelle found at coordinates: {lat}, {lon}")
+                return None
+            
+            # Extraction des propriétés de la parcelle
+            properties = parcelle.get('properties', {})
+            section = properties.get('section')
+            numero_parcelle = properties.get('numero')
+            contenance = properties.get('contenance')
+            
+            if not section or not numero_parcelle:
+                logger.warning(f"Parcelle missing section or numero: {properties}")
+                return None
+            
+            # Valider que la section est au format correct (1-2 lettres majuscules)
+            import re
+            if not re.match(r'^[A-Z]{1,2}$', str(section)):
+                logger.warning(f"Invalid section format: {section}. Using raw value.")
+            
+            return {
+                'section': str(section),
+                'numero': str(numero_parcelle),
+                'code_insee': code_insee,
+                'commune': commune,
+                'surface': contenance,
+                'confidence': result.get('score', 0)
+            }
+            
+        except Exception as e:
+            logger.error(f"Error getting parcelle from address: {e}")
+            return None
+
     def get_sections_commune(self, code_insee: str) -> List[str]:
         """
         Récupère la liste des sections cadastrales d'une commune.

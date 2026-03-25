@@ -765,14 +765,14 @@ const CerfaOfficialPreview = ({ data = {}, currentStep = 0 }) => {
 
                                 <Typography sx={{ fontSize: '0.65rem', mt: 2, mb: 0.5 }}>• Mode d'utilisation principale des logements :</Typography>
                                 <Box sx={{ display: 'flex', flexWrap: 'wrap', mb: 1 }}>
-                                    <Checkbox label="Occupation personnelle" checked={data.modeUtilisation === 'personnel'} />
-                                    <Checkbox label="Vente" checked={data.modeUtilisation === 'vente'} />
-                                    <Checkbox label="Location" checked={data.modeUtilisation === 'location'} />
+                                    <Checkbox label="Occupation personnelle" checked={data.modeUtilisation === 'Occupation personnelle'} />
+                                    <Checkbox label="Vente" checked={data.modeUtilisation === 'Vente'} />
+                                    <Checkbox label="Location" checked={data.modeUtilisation === 'Location'} />
                                 </Box>
 
                                 <Typography sx={{ fontSize: '0.65rem', mb: 0.5 }}>S'il s'agit d'une occupation personnelle :</Typography>
-                                <Checkbox label="Résidence principale" checked={data.typeResidence === 'principale'} />
-                                <Checkbox label="Résidence secondaire" checked={data.typeResidence === 'secondaire'} />
+                                <Checkbox label="Résidence principale" checked={data.typeResidence === 'Résidence principale'} />
+                                <Checkbox label="Résidence secondaire" checked={data.typeResidence === 'Résidence secondaire'} />
                             </PageWrapper>
 
                             {/* ========== PAGE 6 : SURFACES ========== */}

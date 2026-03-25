@@ -4,9 +4,11 @@ from .views import (
     DossierListCreateView, DossierDetailView, AdminStatsView, ActivityLogView,
     CadastreParcellesView, CadastreBatimentsView, CadastreParcelleDetailView,
     CadastreGeocodeView, CadastreSectionsView, CadastreSearchView, CadastreParcelleByCoordinatesView,
+    CadastreFromAddressView,
     AdminNotificationListView, AdminNotificationMarkReadView, AdminUserListView, AdminUserActionView,
-    AIAnalyzeProjectView, AISuggestDocumentsView, AIConfigureProjectView, 
-    AIGenerateDescriptionView, AIGenerateNoticeView, generate_cadastre_headless
+    AIAnalyzeProjectView, AISuggestDocumentsView, AIConfigureProjectView,
+    AIGenerateDescriptionView, AIGenerateNoticeView, AIAnalyzePLUView, PLUAnalysisRecordView, 
+    GenerateCerfaView, AISuggestCerfaFieldsView, generate_cadastre_headless
 )
 from .views_dp import GeneratePlanView
 
@@ -33,6 +35,7 @@ urlpatterns = [
     path('cadastre/geocode/', CadastreGeocodeView.as_view(), name='cadastre_geocode'),
     path('cadastre/sections/<str:code_insee>/', CadastreSectionsView.as_view(), name='cadastre_sections'),
     path('cadastre/search/', CadastreSearchView.as_view(), name='cadastre_search'),
+    path('cadastre/from-address/', CadastreFromAddressView.as_view(), name='cadastre_from_address'),
     
     path('admin/notifications/', AdminNotificationListView.as_view(), name='admin_notifications'),
     path('admin/notifications/mark-read/', AdminNotificationMarkReadView.as_view(), name='admin_notifications_mark_read'),
@@ -45,8 +48,11 @@ urlpatterns = [
     path('ai/configure-project/', AIConfigureProjectView.as_view(), name='ai_configure_project'),
     path('ai/generate-description/', AIGenerateDescriptionView.as_view(), name='ai_generate_description'),
     path('ai/generate-notice/', AIGenerateNoticeView.as_view(), name='ai_generate_notice'),
+    path('ai/analyze-plu/', AIAnalyzePLUView.as_view(), name='ai_analyze_plu'),
+    path('ai/plu-history/', PLUAnalysisRecordView.as_view(), name='ai_plu_history'),
     path('ai/generate-plan/', GeneratePlanView.as_view(), name='ai_generate_plan'),
-    
+    path('ai/generate-cerfa/', GenerateCerfaView.as_view(), name='ai_generate_cerfa'),
+    path('ai/suggest-cerfa-fields/', AISuggestCerfaFieldsView.as_view(), name='ai_suggest_cerfa_fields'),
     path('cadastre/parcelle/coords/', CadastreParcelleByCoordinatesView.as_view(), name='cadastre_parcelle_coords'),
     path('cadastre/generate/', generate_cadastre_headless, name='cadastre_generate'),
 ]

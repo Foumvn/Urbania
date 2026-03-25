@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
     Box,
     Typography,
@@ -7,14 +7,22 @@ import {
     Snackbar,
     Alert,
     Paper,
-    Divider
+    Divider,
+    IconButton,
+    Tooltip
 } from '@mui/material';
 import {
     Sparkles,
     Info,
     FileText,
     Check,
-    RotateCcw
+    RotateCcw,
+    Bold,
+    Italic,
+    Underline,
+    List,
+    ListOrdered,
+    Quote
 } from 'lucide-react';
 import { useForm } from '../../context/FormContext';
 import FormField from '../Common/FormField';
@@ -30,6 +38,7 @@ function Step7NoticeDescriptive() {
     const [isGenerating, setIsGenerating] = useState(false);
     const [saveStatus, setSaveStatus] = useState('saved'); // 'saved', 'saving', 'error'
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' });
+    const textareaRef = useRef(null);
 
     const handleCloseSnackbar = () => setSnackbar({ ...snackbar, open: false });
 
@@ -39,6 +48,75 @@ function Step7NoticeDescriptive() {
         // Simulate auto-save delay
         setTimeout(() => setSaveStatus('saved'), 1000);
     };
+
+    const formatSelection = (formatter) => {
+        const textarea = textareaRef.current;
+        if (!textarea) return;
+
+        const { selectionStart = 0, selectionEnd = 0, value = '' } = textarea;
+        const selected = value.slice(selectionStart, selectionEnd) || '';
+
+        let wrappedText = selected;
+        let cursorOffsetStart = 0;
+        let cursorOffsetEnd = 0;
+
+        switch (formatter) {
+            case 'bold':
+                wrappedText = `**${selected || 'Texte en gras'}**`;
+                cursorOffsetStart = 2;
+                cursorOffsetEnd = wrappedText.length - 2;
+                break;
+            case 'italic':
+                wrappedText = `_${selected || 'Texte en italique'}_`;
+                cursorOffsetStart = 1;
+                cursorOffsetEnd = wrappedText.length - 1;
+                break;
+            case 'underline':
+                wrappedText = `<u>${selected || 'Texte souligné'}</u>`;
+                cursorOffsetStart = 3;
+                cursorOffsetEnd = wrappedText.length - 4;
+                break;
+            case 'bullet':
+                wrappedText = selected ? selected.split('\n').map(line => (line.startsWith('- ') ? line : `- ${line || 'Élément'}`)).join('\n') : '- Élément';
+                cursorOffsetStart = wrappedText.length;
+                cursorOffsetEnd = wrappedText.length;
+                break;
+            case 'numbered':
+                wrappedText = selected ? selected.split('\n').map((line, index) => `${index + 1}. ${line || 'Élément'}`).join('\n') : '1. Élément';
+                cursorOffsetStart = wrappedText.length;
+                cursorOffsetEnd = wrappedText.length;
+                break;
+            case 'quote':
+                wrappedText = selected ? selected.split('\n').map(line => `> ${line || 'Citation'}`).join('\n') : '> Citation';
+                cursorOffsetStart = wrappedText.length;
+                cursorOffsetEnd = wrappedText.length;
+                break;
+            default:
+                break;
+        }
+
+        const newValue = `${value.slice(0, selectionStart)}${wrappedText}${value.slice(selectionEnd)}`;
+        handleChange('noticeDescriptive', newValue);
+
+        const newStart = selectionStart + cursorOffsetStart;
+        const newEnd = selectionStart + cursorOffsetEnd;
+
+        requestAnimationFrame(() => {
+            textarea.focus();
+            const startPos = cursorOffsetEnd ? newEnd : newValue.length;
+            const endPos = cursorOffsetEnd ? newEnd : newValue.length;
+            textarea.setSelectionRange(newStart || startPos, endPos);
+        });
+    };
+
+    const formattingButtons = [
+        { id: 'bold', icon: <Bold size={14} />, label: 'Gras' },
+        { id: 'italic', icon: <Italic size={14} />, label: 'Italique' },
+        { id: 'underline', icon: <Underline size={14} />, label: 'Souligné' },
+        { id: 'bullet', icon: <List size={14} />, label: 'Liste à puces' },
+        { id: 'numbered', icon: <ListOrdered size={14} />, label: 'Liste numérotée' },
+        { id: 'quote', icon: <Quote size={14} />, label: 'Citation' },
+    ];
 
     const handleGenerateNotice = async () => {
         if (!data.descriptionProjet) {
@@ -149,17 +227,54 @@ function Step7NoticeDescriptive() {
                             )}
                         </Box>
                     </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        {saveStatus === 'saving' ? (
+                            <>
+                                <CircularProgress size={12} thickness={6} sx={{ color: '#002395' }} />
+                                <Typography sx={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Synchronisation...</Typography>
+                            </>
+                        ) : (
+                            <>
+                                <Check size={14} className="text-emerald-500" />
+                                <Typography sx={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Enregistré</Typography>
+                            </>
+                        )}
+                    </Box>
+                </Box>
+
+                {/* Formatting toolbar + actions */}
+                <Box sx={{
+                    px: 3,
+                    py: 2,
+                    borderBottom: '1px solid #f1f5f9',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    flexWrap: 'wrap',
+                    gap: 1.5,
+                    bgcolor: 'white'
+                }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, bgcolor: '#f8fafc', borderRadius: '999px', px: 1, py: 0.5, border: '1px solid #e2e8f0' }}>
+                        {formattingButtons.map((btn) => (
+                            <Tooltip key={btn.id} title={btn.label} arrow>
+                                <IconButton
+                                    size="small"
+                                    onClick={() => formatSelection(btn.id)}
+                                    sx={{ color: '#0f172a' }}
+                                >
+                                    {btn.icon}
+                                </IconButton>
+                            </Tooltip>
+                        ))}
+                    </Box>
 
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <Button
                             onClick={handleGenerateNotice}
                             disabled={isGenerating}
-                            size="small"
                             sx={{
                                 bgcolor: '#002395',
                                 color: 'white',
-                                px: 2,
-                                py: 1,
                                 borderRadius: '12px',
                                 fontWeight: 800,
                                 textTransform: 'none',
@@ -200,6 +315,7 @@ function Step7NoticeDescriptive() {
                 {/* Textarea */}
                 <textarea
                     value={data.noticeDescriptive || ''}
+                    ref={textareaRef}
                     onChange={(e) => handleChange('noticeDescriptive', e.target.value)}
                     placeholder="Commencez à rédiger ou utilisez l'IA..."
                     className="w-full min-h-[500px] p-8 text-lg text-slate-700 placeholder:text-slate-300 border-none outline-none resize-none leading-relaxed font-medium bg-transparent"

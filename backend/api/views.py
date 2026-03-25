@@ -8,13 +8,16 @@ from core.models import CerfaSession, Dossier, ActivityLog, AdminNotification, P
 from .serializers import (
     UserSerializer, RegisterSerializer, 
     CerfaSessionSerializer, CerfaSessionAdminSerializer,
-    DossierSerializer, ActivityLogSerializer, AdminNotificationSerializer
+    DossierSerializer, ActivityLogSerializer, AdminNotificationSerializer,
+    PLUAnalysisRecordSerializer
 )
+from .models import PLUAnalysisRecord
 from django.db.models import Count, Q
 from django.utils import timezone
 from datetime import datetime, timedelta
 from django.http import HttpResponse
 from .services.ai_service import AIService
+from .services.cerfa_service import CerfaService
 import firebase_admin
 from firebase_admin import auth, credentials
 from django.conf import settings
@@ -414,6 +417,47 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+class CadastreFromAddressView(APIView):
+    """
+    Obtient les références cadastrales (section, numéro) à partir d'une adresse complète.
+    POST /api/cadastre/from-address/
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        numero = request.data.get('numero', '')
+        voie = request.data.get('voie', '')
+        commune = request.data.get('commune', '')
+        code_postal = request.data.get('code_postal', None)
+
+        if not all([numero, voie, commune]):
+            return Response(
+                {"error": "Les champs 'numero', 'voie' et 'commune' sont requis"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            result = cadastre_service.get_parcelle_from_address(
+                numero=numero,
+                voie=voie,
+                commune=commune,
+                code_postal=code_postal
+            )
+
+            if result:
+                return Response(result)
+            return Response(
+                {"error": "Aucune parcelle trouvée pour cette adresse"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            logger.error(f"Error in CadastreFromAddressView: {e}")
+            return Response(
+                {"error": "Erreur lors de la recherche cadastrale"},
+                status=status.HTTP_502_BAD_GATEWAY
+            )
+
+
 class CadastreParcellesView(APIView):
     """
     Récupère les parcelles cadastrales d'une commune.
@@ -657,6 +701,48 @@ class AIAnalyzeProjectView(APIView):
             return Response(suggestions)
         return Response({"error": "L'IA n'a pas pu analyser le projet"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+class GenerateCerfaView(APIView):
+    """
+    Génère le PDF Cerfa complet à partir de la session de l'utilisateur.
+    POST /api/ai/generate-cerfa/
+    
+    Body (optionnel) :
+      - piecesJointes: { dp1: "base64...", dp2: "base64...", ... }
+        Images DP générées par l'IA ou uploadées, à fusionner dans le PDF final.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        try:
+            session, created = CerfaSession.objects.get_or_create(user=request.user)
+            if not session.data:
+                return Response({"error": "La session est vide. Veuillez remplir le formulaire d'abord."}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Récupérer les pièces jointes envoyées par le frontend
+            pieces_jointes = request.data.get("piecesJointes", None)
+            
+            # Si le frontend n'envoie pas les pièces, les chercher dans la session
+            if not pieces_jointes and session.data.get("piecesJointes"):
+                pieces_jointes = session.data.get("piecesJointes")
+            
+            pdf_path = CerfaService.generate_pdf(
+                session.data, 
+                request.user.id,
+                pieces_jointes=pieces_jointes
+            )
+            
+            # Retourner le PDF en téléchargement
+            with open(pdf_path, 'rb') as f:
+                response = HttpResponse(f.read(), content_type='application/pdf')
+                response['Content-Disposition'] = f'attachment; filename="cerfa_declaration_prealable.pdf"'
+                return response
+                
+        except Exception as e:
+            import traceback
+            print(f"Error in GenerateCerfaView: {e}")
+            traceback.print_exc()
+            return Response({"error": str(e), "detail": traceback.format_exc()}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 class AISuggestDocumentsView(APIView):
     """
     Suggère les documents DP requis selon le projet.
@@ -719,6 +805,130 @@ class AIGenerateNoticeView(APIView):
         data = request.data.get('data', {})
         notice = AIService.generate_notice_descriptive(data)
         return Response({"notice": notice})
+
+
+class AISuggestCerfaFieldsView(APIView):
+    """
+    Suggère les champs CERFA pertinents pour un projet de type 'Autre'.
+    POST /api/ai/suggest-cerfa-fields/
+    
+    Body: { "description": "Description du projet par l'utilisateur" }
+    Retourne: { "fields": [...], "checkboxes": [...], "blocs": [...] }
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        description = request.data.get('description', '')
+        if not description:
+            return Response({"error": "Description du projet requise"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # Utilise le CerfaService pour obtenir les champs pertinents via Mistral AI
+            ai_fields = CerfaService._get_ai_fields(description)
+            
+            # Séparer checkboxes et text fields
+            checkboxes = sorted(ai_fields & CerfaService.ALL_CHECKBOX_FIELDS)
+            text_fields = sorted(ai_fields & CerfaService.ALL_TEXT_FIELDS)
+
+            # Mapper les AcroForm IDs vers les blocs frontend
+            blocs = set()
+            if any(f.startswith('C5Z') for f in ai_fields):
+                blocs.add('construction')
+            if any(f.startswith('C6Z') for f in ai_fields):
+                blocs.add('aspect')
+            if any(f.startswith('S1') for f in ai_fields):
+                blocs.add('stationnement')
+            if any(f.startswith('X1') or f.startswith('X2') for f in ai_fields):
+                blocs.add('legislationsConnexes')
+            if any('piscine' in f.lower() for f in ai_fields):
+                blocs.add('piscine')
+            if any('cloture' in f.lower() for f in ai_fields):
+                blocs.add('cloture')
+            if any(f.startswith('W2') for f in ai_fields):
+                blocs.add('construction')  # surfaces = construction bloc
+
+            # Déterminer les champs frontend à activer
+            frontend_fields = []
+            field_mapping = {
+                'C5ZE1_piscine': 'surfaceBassin',
+                'C5ZE2_garage': 'surfacePlancherCreee',
+                'C5ZE3_veranda': 'surfacePlancherCreee',
+                'C5ZE4_abri': 'surfacePlancherCreee',
+                'C5ZK1_extension': 'surfacePlancherCreee',
+                'C5ZK2_surelevation': 'surfacePlancherCreee',
+                'C5ZA1_logements': 'nombreLogements',
+                'C5ZA2_individuels': 'nombreLogementsIndividuels',
+                'C5ZA3_collectifs': 'nombreLogementsCollectifs',
+                'C5ZJ1_niveaux': 'nombreNiveauxDessus',
+                'C5ZJ2_dessous': 'nombreNiveauxDessous',
+                'C6ZL3_bois': 'materiauFacade',
+                'C6ZL4_ciment': 'materiauFacade',
+                'C6ZL5_beton': 'materiauFacade',
+                'S1A_stationnementavant': 'placesAvant',
+                'S1M_stationnementapres': 'placesApres',
+                'W3ES2_creee': 'empriseSolCreee',
+                'W3ES1_avanttravaux': 'empriseSolExistante',
+            }
+            seen = set()
+            for acro_id in ai_fields:
+                frontend_name = field_mapping.get(acro_id)
+                if frontend_name and frontend_name not in seen:
+                    frontend_fields.append(frontend_name)
+                    seen.add(frontend_name)
+
+            return Response({
+                "acroform_fields": text_fields,
+                "acroform_checkboxes": checkboxes,
+                "blocs": sorted(blocs),
+                "frontend_fields": frontend_fields,
+                "total_fields": len(ai_fields),
+            })
+
+        except Exception as e:
+            logger.error(f"Erreur suggestion champs CERFA: {e}")
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class AIAnalyzePLUView(APIView):
+    """Retourne une analyse synthétique du PLU pour la commune/parcelle."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        commune = (request.data.get('commune') or '').strip()
+        if not commune:
+            return Response({"error": "La commune est obligatoire pour lancer l'analyse PLU."}, status=status.HTTP_400_BAD_REQUEST)
+
+        section = (request.data.get('section') or '').strip()
+        parcelle = (request.data.get('parcelle') or '').strip()
+        description = (request.data.get('description') or '').strip()
+
+        try:
+            analysis = AIService.analyze_plu(commune, section, parcelle, description)
+            save_record = str(request.data.get('save_record', '')).lower() in ('1', 'true', 'yes', 'on')
+            if save_record:
+                record = PLUAnalysisRecord.objects.create(
+                    user=request.user,
+                    commune=commune,
+                    section=section,
+                    parcelle=parcelle,
+                    description=description,
+                    response=analysis
+                )
+                record_data = PLUAnalysisRecordSerializer(record).data
+                return Response({"analysis": analysis, "record": record_data})
+            return Response(analysis)
+        except Exception as exc:
+            logger.exception("Erreur lors de l'analyse PLU")
+            return Response({"error": str(exc)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class PLUAnalysisRecordView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        records = PLUAnalysisRecord.objects.filter(user=request.user).order_by('-created_at')
+        data = PLUAnalysisRecordSerializer(records, many=True).data
+        return Response(data)
 
 
 from rest_framework.decorators import api_view

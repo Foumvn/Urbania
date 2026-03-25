@@ -336,7 +336,7 @@ function Step8PiecesJointes() {
             label: DOCUMENTS_INFO[docId].label,
             description: DOCUMENTS_INFO[docId].description,
             obligatoire: isObligatoire(docId),
-            canAutoGenerate: ['dp1', 'dp2', 'dp3', 'dp4'].includes(docId)
+            canAutoGenerate: ['dp2', 'dp3', 'dp4'].includes(docId)
         }));
         setDocumentsOrder(docs);
     }, [projectConfig]);

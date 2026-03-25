@@ -14,6 +14,7 @@ const translations = {
         'nav.admin': 'Administration',
         'nav.profile': 'Profil',
         'nav.settings': 'Paramètres',
+        'nav.plu': 'Analyse PLU',
         // Wizard Steps
         'wizard.step1.title': 'Quelle est votre qualité ?',
         'wizard.step1.subtitle': 'Sélectionnez si vous êtes un particulier ou une personne morale',
@@ -61,6 +62,7 @@ const translations = {
         'nav.admin': 'Administration',
         'nav.profile': 'Profile',
         'nav.settings': 'Settings',
+        'nav.plu': 'PLU Analysis',
         // Wizard Steps
         'wizard.step1.title': 'What is your status?',
         'wizard.step1.subtitle': 'Select if you are an individual or a legal entity',

@@ -25,7 +25,7 @@ import {
 import { useForm } from '../../context/FormContext';
 import { useI18n } from '../../context/I18nContext';
 import { validateStep } from '../../utils/validation';
-import { generateCerfaPDF } from '../../utils/pdfGenerator';
+// generateCerfaPDF is now provided by FormContext (backend-powered ODG→PDF)
 import { Button } from '../ui/button';
 import api from '../../services/api';
 import { useToast } from '../ui/use-toast';
@@ -62,7 +62,7 @@ const ALL_STEPS = [
 ];
 
 export default function Wizard() {
-    const { currentStep, data, setErrors, nextStep, prevStep, goToStep, getProgress, loadDossier, projectConfig } = useForm();
+    const { currentStep, data, setErrors, nextStep, prevStep, goToStep, getProgress, loadDossier, projectConfig, generateCerfaPDF } = useForm();
     const { t } = useI18n();
     const location = useLocation();
     const navigate = useNavigate();
@@ -116,7 +116,7 @@ export default function Wizard() {
         try {
             await api.post('/dossiers/', { data, status: 'completed' });
 
-            await generateCerfaPDF(data);
+            await generateCerfaPDF();
 
             toast({
                 variant: "success",

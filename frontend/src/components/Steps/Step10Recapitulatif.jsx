@@ -1,8 +1,10 @@
-import { Box, Typography, Grid, Paper, Divider, Button, Chip, List, ListItem, ListItemText, IconButton } from '@mui/material';
+import { Box, Typography, Grid, Paper, Divider, Button, Chip, List, ListItem, ListItemText, IconButton, CircularProgress } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import { useForm } from '../../context/FormContext';
 import { PROJECT_TYPES } from '../../config/projectConfigs';
+import { useState } from 'react';
 
 const travauxLabels = {
     piscine: 'Piscine',
@@ -16,7 +18,8 @@ const travauxLabels = {
 };
 
 function Step10Recapitulatif() {
-    const { data, goToStep, projectConfig } = useForm();
+    const { data, goToStep, projectConfig, generateCerfaPDF } = useForm();
+    const [isGenerating, setIsGenerating] = useState(false);
     const isParticulier = data.typeDeclarant === 'particulier';
     const selectedNatureLabels = (data.natureTravaux || []).map(t => travauxLabels[t] || t);
 
@@ -64,6 +67,36 @@ function Step10Recapitulatif() {
             <Typography variant="body1" color="text.secondary" sx={{ mb: 6, fontSize: '1.1rem' }}>
                 Veuillez vérifier attentivement l'exactitude des informations ci-dessous avant de procéder à la génération finale.
             </Typography>
+
+            <Box sx={{ mb: 4, display: 'flex', justifyContent: 'center' }}>
+                <Button
+                    variant="contained"
+                    fullWidth
+                    size="large"
+                    startIcon={isGenerating ? <CircularProgress size={20} color="inherit" /> : <PictureAsPdfIcon />}
+                    onClick={async () => {
+                        setIsGenerating(true);
+                        await generateCerfaPDF();
+                        setIsGenerating(false);
+                    }}
+                    disabled={isGenerating}
+                    sx={{
+                        py: 2.5,
+                        borderRadius: '20px',
+                        fontSize: '1.1rem',
+                        fontWeight: 900,
+                        letterSpacing: '0.05em',
+                        background: 'linear-gradient(135deg, #002395 0%, #0045ff 100%)',
+                        boxShadow: '0 8px 16px -4px rgba(0, 35, 149, 0.4)',
+                        '&:hover': {
+                            background: 'linear-gradient(135deg, #001a70 0%, #0037cc 100%)',
+                            boxShadow: '0 12px 20px -6px rgba(0, 35, 149, 0.5)',
+                        }
+                    }}
+                >
+                    {isGenerating ? 'GÉNÉRATION EN COURS...' : 'TÉLÉCHARGER LE CERFA REMPLI (PDF)'}
+                </Button>
+            </Box>
 
             <Grid container spacing={3}>
                 <Grid item xs={12}>

@@ -5,7 +5,6 @@ import { useAuth } from '../../context/AuthContext';
 import { useForm } from '../../context/FormContext';
 import { useI18n } from '../../context/I18nContext';
 import { useAuthLoading } from '../../context/AuthLoadingProvider';
-import logoUrbania from '../../assets/logo-urbania-rb.png';
 import {
     Plus,
     FileText,
@@ -18,7 +17,8 @@ import {
     LogOut,
     ChevronRight,
     Home,
-    Search
+    Search,
+    Landmark
 } from 'lucide-react';
 
 const API_BASE = import.meta.env.VITE_API_URL || '/api';
@@ -49,10 +49,17 @@ function UserDashboard() {
             });
             if (response.ok) {
                 const data = await response.json();
-                setDossiers(data);
+                // Handle both plain arrays and paginated `{ results: [] }` responses
+                const dossiersArray = Array.isArray(data)
+                    ? data
+                    : Array.isArray(data?.results)
+                        ? data.results
+                        : [];
+                setDossiers(dossiersArray);
             }
         } catch (error) {
             console.error('Failed to fetch dossiers:', error);
+            setDossiers([]); // Set to empty array on error
         } finally {
             setLoading(false);
         }
@@ -101,18 +108,18 @@ function UserDashboard() {
         currentPage * itemsPerPage
     );
 
-    const completedCount = dossiers.filter(d => d.status === 'completed').length;
-    const pendingCount = dossiers.filter(d => d.status !== 'completed').length;
+    const completedCount = (dossiers || []).filter(d => d.status === 'completed').length;
+    const pendingCount = (dossiers || []).filter(d => d.status !== 'completed').length;
 
     return (
         <div className="min-h-screen bg-[#f8fafc]">
             {/* Top Navigation */}
-            <header className="h-16 bg-white border-b border-slate-200 px-8 flex items-center justify-between sticky top-0 z-[60]">
-                <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/dashboard')}>
-                    <img src={logoUrbania} alt="Urbania Logo" className="h-14 w-auto object-contain" />
-                </div>
+            <header className="h-16 bg-white border-b border-slate-200 px-8 flex items-center justify-end sticky top-0 z-[60]">
 
                 <div className="flex items-center gap-2">
+                    <button onClick={() => navigate('/analyse')} className="p-2.5 text-slate-500 hover:text-[#002395] hover:bg-slate-50 rounded-xl transition-all">
+                        <Landmark className="size-5" />
+                    </button>
                     <button onClick={() => navigate('/profile')} className="p-2.5 text-slate-500 hover:text-[#002395] hover:bg-slate-50 rounded-xl transition-all">
                         <User className="size-5" />
                     </button>

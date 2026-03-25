@@ -2,139 +2,183 @@ import os
 import requests
 import json
 import base64
-import time
-import io
-from huggingface_hub import InferenceClient
+import asyncio
 from dotenv import load_dotenv
+from .cadastre_puppeteer_service import CadastrePuppeteerService
+from .prompt_templates import build_prompt_from_template, get_project_type, normalize_data
 
 load_dotenv()
 
 class DPGeneratorService:
+    # Configuration des modes d'exécution (Legacy support)
+    _execution_mode = os.getenv("DP_GENERATOR_MODE", "standard")
+    
+    @classmethod
+    def get_execution_mode(cls):
+        """Retourne le mode d'exécution actuel"""
+        return cls._execution_mode
+    
+    @classmethod
+    def set_execution_mode(cls, mode):
+        """Définit le mode d'exécution: 'standard', 'light'"""
+        if mode not in ['standard', 'light']:
+            raise ValueError("Mode d'exécution invalide. Choisissez: 'standard', 'light'")
+        cls._execution_mode = mode
+        print(f"🔄 Mode d'exécution changé: {mode}")
+    
     @staticmethod
-    def generate_plan(data, plan_type, provider="HUGGINGFACE"):
+    def generate_plan(data, plan_type, provider="GEMINI"):
         """
-        Generates a DP plan based on project data using Hugging Face (FLUX.1-schnell).
-        data: Dict containing project info (natureTravaux, descriptionProjet, materials, dimensions...)
-        plan_type: 'dp2', 'dp3', 'dp4'
+        Génère un plan DP basé sur les données du projet en utilisant GEMINI exclusivement (Nano Banana Style).
+        data: Dict contenant les infos du projet
+        plan_type: 'dp1', 'dp2', 'dp3', 'dp4', 'dp5', 'dp6'
+        provider: 'GEMINI' (Seul provider supporté désormais)
         """
         
-        # 1. Construct Prompt based on Data
-        nature_list = data.get('natureTravaux', [])
-        if isinstance(nature_list, list) and len(nature_list) > 0:
-            nature = nature_list[0]
-        elif isinstance(nature_list, str) and nature_list:
-            nature = nature_list
-        else:
-            nature = 'projet'
-        
-        description = data.get('descriptionProjet', '')
-        
-        # Extract materials/colors if available
-        materiaux = []
-        if data.get('materiauFacade'): materiaux.append(f"Façade: {data.get('materiauFacade')} ({data.get('couleurFacade', '')})")
-        if data.get('materiauToiture'): materiaux.append(f"Toiture: {data.get('materiauToiture')} ({data.get('couleurToiture', '')})")
-        mat_str = ", ".join(materiaux)
-        
-        # Dimensions
-        dims = []
-        if data.get('surfaceTheorique'): dims.append(f"Surface: {data.get('surfaceTheorique')}m²")
-        if data.get('hauteurConstruction'): dims.append(f"Hauteur: {data.get('hauteurConstruction')}m")
-        dim_str = ", ".join(dims)
-
-        base_prompt = f"Projet de {nature}. Description: {description}. Matériaux: {mat_str}. Dimensions: {dim_str}."
-
-        # Professional Style Prompts for Hugging Face (Flux)
-        style_dp2 = "Architectural site plan (DP2), professional top-down cadastral view, precise plot boundaries, roof outlines, landscape layout. Technical black linework on white background, no perspective, 2D orthographic projection. Includes orientation arrows, plot numbers, and site dimensioning lines. Clean CAD aesthetics, minimalist, no shading. New construction areas highlighted with subtle green hatching."
-        style_dp3 = "Professional 2D CAD vector drawing, technical architectural section (DP3), schematic line art. Strictly black thin lines on a solid bleach-white background. No 3D effects, no realistic textures. Use simple diagonal line hatching for wall sections. Perfect 2D orthographic projection. Includes thin dimension lines and level markers. Zero shading, zero gradients, zero gray tones."
-        style_dp4 = "Architectural elevation drawing (DP4 - Façades), technical line art front view. Front view of the project. Roof and wall textures indicated by technical patterns. Strictly black thin lines on a solid white background. Professional drafting style. No 3D, no perspective."
-
         if plan_type == 'dp1':
-            full_prompt = f"{base_prompt}, {style_dp2}"
-        elif plan_type == 'dp2':
-            full_prompt = f"{base_prompt}, {style_dp2}" # Also use site plan style for DP2 as requested
-        elif plan_type == 'dp3':
-            full_prompt = f"{base_prompt}, {style_dp3}"
-        elif plan_type == 'dp4':
-            full_prompt = f"{base_prompt}, {style_dp4}"
+            # DP1 utilise les APIs cadastrales officielles
+            print(f"Génération {plan_type} via API Cadastre...")
+            
+            commune = data.get('terrainVille', '').strip()
+            section = data.get('sectionCadastrale', '').strip()
+            parcelle = data.get('numeroParcelle', '').strip()
+            
+            if not commune or not section or not parcelle:
+                raise ValueError("Infos cadastrales manquantes pour le DP1")
+            
+            try:
+                image_base64 = asyncio.run(CadastrePuppeteerService.generate_cadastre_image(commune, section, parcelle))
+                return {
+                    "image": image_base64,
+                    "format": "image/png",
+                    "provider": "OFFICIAL_CADASTRE"
+                }
+            except Exception as e:
+                raise Exception(f"Erreur plan cadastral: {str(e)}")
+        
+        elif plan_type in ['dp2', 'dp3', 'dp4', 'dp5', 'dp6']:
+            # Normalisation des données utilisateur (gestion "longueure", "larger", etc.)
+            normalized_data = normalize_data(data)
+            full_prompt = build_prompt_from_template(plan_type, normalized_data)
         else:
-            raise ValueError("Type de plan non supporté")
+            raise ValueError(f"Type de plan non supporté: {plan_type}")
 
-        print(f"Generating {plan_type} via HUGGINGFACE with prompt: {full_prompt[:100]}...")
+        # On force GEMINI (Nano Banana) pour tous les autres plans techniques
+        print(f"Génération {plan_type} via GEMINI (RAS Style)...")
+        return DPGeneratorService._generate_gemini(full_prompt, plan_type)
 
-        # 2. Call Hugging Face
+    @staticmethod
+    def _generate_gemini(prompt, plan_type):
+        """Génération via OpenRouter Gemini - Alignement sur RAS Style"""
+        api_key = os.getenv("OPENROUTER_API_KEY")
+        if not api_key:
+            raise ValueError("OPENROUTER_API_KEY manquant")
+
+        # Modèle spécifique utilisé dans le mini-projet RAS
+        model = "google/gemini-3-pro-image-preview"
+        referer = os.getenv("OPENROUTER_SITE_URL", "http://localhost:3000")
+        app_name = os.getenv("OPENROUTER_APP_NAME", "Urbania App")
+
+        payload = {
+            "model": model,
+            "max_tokens": 2048, # Avoid 402 errors (insufficient credits for default high token request)
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": prompt
+                        }
+                    ]
+                }
+            ]
+        }
+
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+            "HTTP-Referer": referer,
+            "X-Title": app_name
+        }
+
         try:
-            return DPGeneratorService._generate_hf(full_prompt)
+            response = requests.post(
+                "https://openrouter.ai/api/v1/chat/completions",
+                headers=headers,
+                json=payload,
+                timeout=180
+            )
+
+            if response.status_code >= 400:
+                try:
+                    err_json = response.json()
+                    msg = err_json.get("error", {}).get("message", response.text)
+                except:
+                    msg = response.text
+                
+                # Message spécifique pour les crédits
+                if response.status_code == 402:
+                    msg = "Crédits OpenRouter insuffisants. Veuillez recharger votre compte."
+                
+                raise Exception(f"OpenRouter Error {response.status_code}: {msg}")
+
+            data = response.json()
+            choices = data.get("choices")
+            if not choices:
+                raise ValueError("Réponse Gemini invalide (choices manquant)")
+
+            result = choices[0].get("message", {})
+            
+            # Extraction de l'URL ou du base64 (Logique RAS)
+            image_url = None
+            images = result.get("images", [])
+            if images and len(images) > 0:
+                image_url = images[0].get("image_url", {}).get("url")
+            
+            if not image_url:
+                image_url = result.get("content")
+
+            if not image_url:
+                raise ValueError("Aucune image générée par Gemini")
+
+            # Résolution de la référence (Téléchargement ou Base64)
+            base64_image = DPGeneratorService._resolve_image_reference(image_url)
+
+            if not base64_image:
+                raise ValueError("Échec résolution image Gemini")
+
+            return {
+                "image": base64_image,
+                "format": "image/png",
+                "provider": "GEMINI_NANO_BANANA"
+            }
         except Exception as e:
-            print(f"Erreur critique de génération HF: {e}")
+            # On log l'erreur pour le debug serveur
+            print(f"ERROR: Plan generation failed: {str(e)}")
             raise e
 
     @staticmethod
-    def _generate_hf(prompt):
-        # Retrieve all available keys
-        keys = []
-        k1 = os.getenv("HUGGINGFACE_API_KEY")
-        k2 = os.getenv("HUGGINGFACE_API_KEY_2")
-        if k1: keys.append(k1)
-        if k2: keys.append(k2)
+    def _resolve_image_reference(reference):
+        if not reference:
+            return None
 
-        if not keys:
-            raise ValueError("Aucune clé API HuggingFace trouvée (ni HUGGINGFACE_API_KEY, ni HUGGINGFACE_API_KEY_2)")
-
-        model_id = "black-forest-labs/FLUX.1-schnell"
-        last_error = None
-
-        for api_key in keys:
-            masked_key = f"{api_key[:4]}...{api_key[-4:]}"
-            print(f"DEBUG: Tentative HF avec la clé {masked_key}")
-
+        # Base64 standard (data:image/...)
+        if reference.startswith("data:image"):
             try:
-                # 1. Try with inference library first
-                client = InferenceClient(token=api_key)
-                image = client.text_to_image(
-                    prompt, 
-                    model=model_id,
-                    width=512,
-                    height=512,
-                    num_inference_steps=4,
-                    guidance_scale=0.0
-                )
-                
-                buffered = io.BytesIO()
-                image.save(buffered, format="PNG")
-                img_str = base64.b64encode(buffered.getvalue()).decode()
-                
-                return {
-                    "image": img_str,
-                    "format": "image/png",
-                    "provider": "HUGGINGFACE"
-                }
-
-            except Exception as e:
-                print(f"DEBUG HF Lib Error avec {masked_key}: {e}")
-                # 2. Fallback to direct API request
-                try:
-                    API_URL = f"https://router.huggingface.co/hf-inference/models/{model_id}"
-                    headers = {"Authorization": f"Bearer {api_key}"}
-                    response = requests.post(API_URL, headers=headers, json={"inputs": prompt})
-                    
-                    if response.status_code == 200:
-                        img_str = base64.b64encode(response.content).decode()
-                        return {
-                            "image": img_str,
-                            "format": "image/png",
-                            "provider": "HUGGINGFACE"
-                        }
-                    elif response.status_code in [429, 503]:
-                        print(f"WARN: Quota/Busy ({response.status_code}) avec la clé {masked_key}. Essai suivante...")
-                        last_error = f"Quota/Busy {response.status_code}"
-                        continue # Try next key
-                    else:
-                        print(f"ERROR: HF API returned {response.status_code}: {response.text}")
-                        last_error = f"HTTP {response.status_code}"
-
-                except Exception as nested_e:
-                    print(f"DEBUG HF Direct API Error avec {masked_key}: {nested_e}")
-                    last_error = str(nested_e)
+                return reference.split(",", 1)[1]
+            except Exception:
+                return reference
         
-        # If we reach here, all keys failed
-        raise Exception(f"Tous les tokens Hugging Face ont échoué. Dernière erreur: {last_error}")
+        # Base64 brut
+        if not reference.startswith("http") and len(reference) > 100:
+            return reference
+
+        # URL
+        if reference.startswith("http"):
+            resp = requests.get(reference, timeout=120)
+            if resp.status_code >= 400:
+                raise Exception(f"Téléchargement image échoué ({resp.status_code})")
+            return base64.b64encode(resp.content).decode()
+
+        return None

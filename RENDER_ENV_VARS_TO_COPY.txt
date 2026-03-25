@@ -7,8 +7,11 @@
 | `FIREBASE_CREDENTIALS_PATH` | `/etc/secrets/firebase-credentials.json` (Si vous utilisez les Secret Files de Render) |
 | `GOOGLE_CLIENT_ID` | `100737257486873402762` |
 | `MISTRAL_API_KEY` | `VOTRE_ALE_API_KEY_MISTRAL` |
-| `HUGGINGFACE_API_KEY` | `hf_VOTRE_TOKEN_ICI` |
-| `IMAGE_PROVIDER` | `HUGGINGFACE` |
+| `STABILITY_API_KEY` | `sk-VOTRE_CLE_STABILITY_AI` |
+| `STABILITY_API_KEY_2` | `sk-VOTRE_CLE_STABILITY_AI_2` (Optionnel - clé de secours) |
+| `HUGGINGFACE_API_KEY` | `hf_VOTRE_TOKEN_ICI` (Optionnel - fallback) |
+| `HUGGINGFACE_API_KEY_2` | `hf_VOTRE_TOKEN_2` (Optionnel - fallback) |
+| `IMAGE_PROVIDER` | `STABILITY` |
 | `DATABASE_URL` | (Automatiquement géré si vous liez la DB PostgreSQL sur Render) |
 | `SECRET_KEY` | (Générez une clé aléatoire) |
 | `DEBUG` | `False` |

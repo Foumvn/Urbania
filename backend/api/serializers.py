@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from core.models import CerfaSession, Dossier, ActivityLog, AdminNotification
+from .models import PLUAnalysisRecord
 
 class UserSerializer(serializers.ModelSerializer):
     role = serializers.CharField(source='profile.role', read_only=True)
@@ -108,3 +109,10 @@ class AdminNotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = AdminNotification
         fields = '__all__'
+
+
+class PLUAnalysisRecordSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PLUAnalysisRecord
+        fields = ('id', 'commune', 'section', 'parcelle', 'description', 'response', 'created_at')
+        read_only_fields = ('id', 'created_at')

@@ -1,0 +1,122 @@
+{
+  "project_type": "Architectural Plan",
+  "document_title": {
+    "text": "DOSSIER DE DÉCLARATION PRÉALABLE - PLAN DE MASSE (DP2)",
+    "font_style": "Clear, technical sans-serif font"
+  },
+  "overall_scene": {
+    "format": "Technical, computer-generated architectural site plan (Plan de Masse)",
+    "perspective": "Top-down orthographic view",
+    "background": "Clean white document background, with a prominent border around the drawing area",
+    "rendering_style": "Clean vector lines with subtle, professional shading and textures"
+  },
+  "property_layout": {
+    "boundary": {
+      "type": "Layered and structured green hedge with integrated dry stone wall coping on the inner edge",
+      "form": "Encloses the entire visible plot with a prominent border"
+    },
+    "existing_house": {
+      "label": "Maison existante",
+      "texture": "Clean light grey wooden composite planks",
+      "dimensions": {
+        "depth": "7.00 m",
+        "label_placement": "Side of the house structure"
+      }
+    },
+    "site_access": {
+      "label": "Accès",
+      "location": "Adjacent to the house, forming the main entryway",
+      "texture": "Large modern concrete aggregate pavers"
+    },
+    "swimming_pool": {
+      "type": "In-ground rectangular swimming pool",
+      "water_texture": "Deep rich blue water pattern with mosaic tile details and integrated steps",
+      "border": {
+        "color": "Soft warm-toned coping edge, replacing previous orange",
+        "material": "Polished minimalist concrete coping",
+        "dimensions": {
+          "total_width": "3.50 m",
+          "finished_pool_level_label": "NFP = TN + 0.10m"
+        }
+      },
+      "sections": {
+        "section_aa": {
+          "label": "COUPE AA",
+          "line": "Detailed section line across pool width with 'PROF. 1.40 m' dimension label"
+        },
+        "section_bb": {
+          "label": "COUPE BB",
+          "line": "Crossing detailed section line with '7.00 m' dimension label"
+        }
+      }
+    },
+    "technical_structures": {
+      "local_technique": {
+        "label": "LOCAL TECHNIQUE",
+        "dimensions": {
+          "width": "1.40 m",
+          "length": "5.00 m",
+          "finished_floor_level_label": "NFP = TN + 0.10m"
+        }
+      }
+    },
+    "hardscaping": {
+      "type": "Detailed aggregate textured hardscaping around pool area"
+    },
+    "landscaping": {
+      "type": "Layered hedge with integrated stone wall coping",
+      "features": [
+        "Modern architectural aggregate area near technical building",
+        "Stylized modern minimalist lounge chair near pool",
+        "Subtle linear pathway lights near the pool cope and house access"
+      ]
+    }
+  },
+  "annotations": {
+    "labels": {
+      "maison_existante": "Maison existante",
+      "acces": "Accès",
+      "piscine_projetee": "Piscine projetée",
+      "local_technique": "LOCAL TECHNIQUE",
+      "coupe_aa": "COUPE AA",
+      "coupe_bb": "COUPE BB",
+      "nfp_label": "NFP = TN + 0.10m",
+      "photo_label": "Photo"
+    },
+    "dimensions": [
+      "3.50 m",
+      "1.40 m",
+      "7.00 m",
+      "1.70 m",
+      "12.50 m",
+      "5.00 m",
+      "7.10 m"
+    ],
+    "section_labels": [
+      "NFP = TN + 0.10m",
+      "PROF. 1.40 m",
+      "7.00 m"
+    ],
+    "north_compass": {
+      "type": "Clean, vectorized architectural North-point compass rose",
+      "location": "Bottom left margin"
+    },
+    "scale": {
+      "label": "Échelle : 1/100",
+      "location": "Bottom center of border",
+      "drawing_detail": "Ech : 1/100 (in drawing bottom left)"
+    }
+  },
+  "title_blocks": {
+    "header_title": {
+      "text": "DOSSIER DE DÉCLARATION PRÉALABLE - PLAN DE MASSE (DP2)",
+      "location": "Top center of border"
+    },
+    "bottom_block": {
+      "cell1": "DOSSIER DE DÉCLARATION PRÉALABLE - PLAN DE MASSE (DP2)",
+      "cell2": "Échelle : 1/100",
+      "cell3": "Client: Dubois - Adresse: 12 Rue du Lavoir",
+      "location": "Bottom right of border"
+    }
+  }
+}
