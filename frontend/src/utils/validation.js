@@ -295,7 +295,11 @@ export function validateStep(step, data) {
             }
             break;
 
-        case 6: // Notice Descriptive
+        case 6: // Analyse PLU
+            // No mandatory validation — the PLU analysis is optional / generated on demand
+            break;
+
+        case 7: // Notice Descriptive
             const notice = String(data.noticeDescriptive || '');
             if (!notice || notice.trim() === '') {
                 errors.noticeDescriptive = 'La notice descriptive est obligatoire pour votre dossier.';
@@ -304,7 +308,7 @@ export function validateStep(step, data) {
             }
             break;
 
-        case 7: // Surfaces
+        case 8: // Surfaces
             if (data.surfacePlancherCreee) {
                 const validation = validateSurface(data.surfacePlancherCreee);
                 if (!validation.valid) errors.surfacePlancherCreee = validation.message;
@@ -315,11 +319,11 @@ export function validateStep(step, data) {
             }
             break;
 
-        case 8: // Pièces jointes
+        case 9: // Pièces jointes
             // Optional - no mandatory validation
             break;
 
-        case 9: // Engagements
+        case 10: // Engagements
             if (!data.engagementExactitude) {
                 errors.engagementExactitude = 'Vous devez attester de l\'exactitude des informations fournies';
             }
@@ -331,11 +335,11 @@ export function validateStep(step, data) {
             }
             break;
 
-        case 10: // Plan cadastral
+        case 11: // Plan cadastral
             // No strict validation for now
             break;
 
-        case 11: // Récapitulatif
+        case 12: // Récapitulatif
             // Final check - usually no errors
             break;
 
